@@ -241,11 +241,12 @@ void grPura_80212290(Ground_GObj* arg0)
 {
     Ground* gp = GET_GROUND(arg0);
     HSD_JObj* jobj = arg0->hsd_obj;
-    HSD_ImageDesc* image = grPu_803E6E20;
-    HSD_MObjSetToonTextureImage(image);
+    PAD_STACK(8);
+    arg0->render_cb = (GObj_RenderFunc) fn_802130D0;
+    HSD_MObjSetToonTextureImage(&grPu_803E7620);
     lb_80011C18(jobj, 0x1000);
     grPura_80213250(jobj);
-    HSD_MObjSetToonTextureImage(0);
+    HSD_MObjSetToonTextureImage(NULL);
     grAnime_801C8138(arg0, gp->map_id, 0);
 }
 
