@@ -1081,14 +1081,14 @@ float grIceMt_801F96E0(Ground_GObj* gobj, float y)
 
 /// #grIceMt_801F98A8
 /// @note Checks bit 6 of icemt2.xC4 (as byte) - clears it and does cleanup.
-int grIceMt_801F98A8(Ground_GObj* param1)
+void grIceMt_801F98A8(Ground_GObj* param1)
 {
     Ground* gp = param1->user_data;
-    u8 flags = *(u8*) &gp->gv.icemt2.xC4;
     HSD_JObj** ptrs = &gp->gv.icemt2.xC8;
+    PAD_STACK(8);
 
-    if (flags & 0x40) {
-        *(u8*) &gp->gv.icemt2.xC4 = flags & ~0x40;
+    if (((UnkFlagStruct*) &gp->gv.icemt2.xC4)->b1) {
+        ((UnkFlagStruct*) &gp->gv.icemt2.xC4)->b1 = 0;
         if (ptrs[0]) {
             Ground_801C2D0C(0, ptrs[0]);
         }
@@ -1102,7 +1102,6 @@ int grIceMt_801F98A8(Ground_GObj* param1)
             Ground_801C2D0C(3, ptrs[3]);
         }
     }
-    return 0;
 }
 
 /// #grIceMt_801F993C
