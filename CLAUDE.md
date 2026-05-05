@@ -48,7 +48,14 @@ Always invoked with system `python`, from the repo root.
 
 ## Upstream sync hygiene
 
-`origin` is the user's fork (`davidfeira/meleeDecomp`). `upstream` is the real project (`doldecomp/melee`). The decomp project is hot — Jj/* PRs land daily. **Always check upstream before starting a function** or you'll redo work.
+Three remotes, three roles:
+- `upstream` (`doldecomp/melee`) — source of truth, fetch only
+- `origin` (`davidfeira/meleeDecomp`) — private working repo with all agent tooling, push `master` here
+- `fork` (`davidfeira/melee`) — clean public fork for upstream-bound PR branches only
+
+**Full topology + PR-filing recipe:** see `docs/agent/repo-topology.md`. **Don't** push `master` to `fork` (would leak private tooling) and never push to `upstream`.
+
+The decomp project is hot — Jj/* PRs land daily. **Always check upstream before starting a function** or you'll redo work.
 
 - `prep` runs `upstream-check` automatically and refuses already-matched functions.
 - A `SessionStart` hook in `.claude/settings.local.json` runs `git fetch upstream master` at every Claude Code session start.
