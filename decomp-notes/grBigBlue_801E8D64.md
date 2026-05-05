@@ -1,0 +1,13 @@
+---
+function: grBigBlue_801E8D64
+tu: src/melee/gr/grbigblue.c
+headline: stack-offset + frame-size
+tags: [stack-offset, frame-size, permuter-false-positive, rodata-typing]
+---
+## grBigBlue_801E8D64 (`src/melee/gr/grbigblue.c`) — stack-offset + frame-size
+
+- **Tags:** `stack-offset`, `frame-size`, `permuter-false-positive`, `rodata-typing`
+- **Best fuzzy:** 99.8978%
+- **Diagnosis:** Two coupled issues at 99.93%/32-mismatch baseline: (1) Frame size mismatch: target=-0x68 (104B), base=-0x70 (112B). 8-byte difference cascades into 28 stack-offset diffs (translate Vec3 at sp+0x20 in target vs sp+0x24 in base; scale and pos similarly +4B in base). The 4-byte gap appears between translate and scale/y_pos in base, suggesting an extra 4-byte local that gets optimized away when added as unused. PAD_STACK(0x10)/0x14/0x18 produce same result due to MWCC byte-pad behavior + 16B stack alignment. (2) sdata2 named-vs-anonymous: target emits 'lfs f0, grBb_804DB2F4@sda21' for 0.0f literal; base emits '@175@sda21' (TU-private). Same for grBb_804DB2F0 (1.0f) -> @174. Note 'grBb_804DB30C' (500.0f) and 'grBb_804DB310' (-FLT_MAX sentinel) are emitted as named in BOTH target and base - so removing the named extern declarations breaks more than it fixes. The named externs are only declared (not defined) in our TU; original C source likely used 0.0f/1.0f literals (MWCC merges the literal pool to private @N when no extern named ref exists in the TU). This is the protocol's permuter-false-positive class for sdata2 floats.
+- **Tried:** (a) Replaced grBb_804DB2F4 named ref at line 1426 with 0.0f literal - no change in float reloc names because MWCC still uses named for the other extern refs in the same TU. (b) PAD_STACK(0x14) and PAD_STACK(0x18) - both align up to 0x18 byte buffer (drops to 0x70 frame) but ALL stack offsets shift by 8 not 4 due to MWCC alignment, making things worse. (c) Added 'f32 _pad' local with assignment - frame grew by 8 not 4, same overshoot. (d) Reordered Vec3 declarations to translate/y_pos/scale/pos - went to 46 mismatches (worse).
+- **Likely fix:** Need a 4-byte local that survives optimization but doesn't trigger 8-byte stack alignment bump. Options to try: (1) volatile f32 _pad; (2) f32 _pad; gp_pad = &_pad; (3) Identify what original C had at sp+0x30 in base (between translate@0x24 and scale@0x34) - could be a named local like 'f32 inv' hoisted out of inner block (currently at line 1444 inside its own block). Try moving 'f32 inv' declaration to top scope. The 'inv' is computed once and used in 3 multiply lines - in original C it was likely a top-level decl, not block-scoped. (4) Permuter false-positive: tag and skip - DO NOT dispatch permuter for the @N-vs-named float diffs.

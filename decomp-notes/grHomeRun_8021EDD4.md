@@ -1,0 +1,13 @@
+---
+function: grHomeRun_8021EDD4
+tu: src/melee/gr/grhomerun.c
+headline: permuter-false-positive + rodata-typing
+tags: [permuter-false-positive, rodata-typing, cross-tu-globals]
+---
+## grHomeRun_8021EDD4 (`src/melee/gr/grhomerun.c`) — permuter-false-positive + rodata-typing
+
+- **Tags:** `permuter-false-positive`, `rodata-typing`, `cross-tu-globals`
+- **Best fuzzy:** 99.6786%
+- **Diagnosis:** Diff is 27 mismatches at strict 98.875% / fuzzy 99.68%. 12 mismatches are sdata2-float reloc-symbol false-positives (target uses named globals like grHr_804DBC88@sda21 / grHr_804DBC8C / grHr_804DBC90 / grHr_804DBC70 / grHr_804DBC30 / grHr_804DBC48 / grHr_804DBC50 / grHr_804DBC28; our base produces permuter-anonymous @322@sda21 / @323 / etc.). Those grHr_804DBC* symbols are declared scope:global in symbols.txt (sdata2:0x804DBC18..0x804DBC94, type:object data:float/double) but NOT defined in any .c file I could find. Target was compiled with these as named extern f32/f64 references rather than float literals. Remaining 15 mismatches are a stack-offset cascade from frame size 0x40 (ours) vs 0x38 (target) — 8 bytes of extra fctiwz/magic-number scratch that target reuses across the (int)(0.5+ratio/...) and the int->float conversion sequence. Permuter best score is 5 from 24 outputs (only found cosmetic 'if (1) {}' insertion); ran 121min stale before reap — not a permuter problem. Fuzzy commit-match would still refuse because strict objdiff counts the symbol mismatches.
+- **Tried:** 2 source-shape variants: (1) hoist int conversion into a separate 'int n' variable then assign to f32 num_ticks — went WORSE to 0x48 frame; (2) inline (s32) cast and remove dist temporary — went down to 77%. Original shape gives 98.875%/99.68%. Permuter ran ~24 outputs, all score 5, only finding 'if (1) {}' cosmetic.
+- **Likely fix:** Need to define named extern f32 grHr_804DBC28/30/48/50/70/88/8C/90 (and double for 0x50) somewhere in this TU or another TU and reference them by name in grHomeRun_8021EDD4 instead of using float literals 0.1f, 50.0f, 100.0f, 0.3280969f, 160.0f, 0.5f, 1.0f and the magic 4503601774854144.0 double. They are sdata2 GLOBAL symbols (not static/local-anonymous), so they were likely defined in another sibling .c TU (compare to other gr*.c files that may reference grHr_804DBC* by name). Once constants become named-extern references, the @N@sda21 anonymous floats disappear AND the compiler's sdata2 layout/scratch use changes, almost certainly fixing the frame-size-0x38 issue at the same time. Suggested next step: grep across all src/ for any existing grHr_804DBC[0-9A-F][0-9A-F] usage to find the defining/sibling pattern, replicate. Mama Claude job: header layer.

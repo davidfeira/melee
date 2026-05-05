@@ -1,0 +1,13 @@
+---
+function: gmCamera_801A292C
+tu: src/melee/gm/gmcamera.c
+headline: rodata-typing + permuter-false-positive
+tags: [rodata-typing, permuter-false-positive, regalloc]
+---
+## gmCamera_801A292C (`src/melee/gm/gmcamera.c`) — rodata-typing + permuter-false-positive
+
+- **Tags:** `rodata-typing`, `permuter-false-positive`, `regalloc`
+- **Best fuzzy:** (unknown)
+- **Diagnosis:** 96-instr function, not previously implemented. Best result: 87.7% (56 mismatches) after 3 source variants. Two coupled blockers: (1) gmCamera_803DA630 (12 floats at .data:0x0 in TU) gets compiled with anonymous '...data.0' relocation symbol instead of named 'gmCamera_803DA630' — appears to be the rodata-typing pattern where the FIRST data block in .data emits as a section symbol. Existing gmCamera_803DA6B4 (at .data:0x30) DOES emit named because it has function-pointer initializers; simple float-array initializers at offset 0 don't get named. Also gmCamera_803DA630 is referenced by still-asm gmCamera_801A31FC, so any data-symbol layout fix must be TU-coordinated. (2) Regalloc: target hoists 'i=0' into r31 via 'addi r31, r28, 0x0' and reuses r31 as cached NULL across 3 loops; base allocates separately ('li r31, 0x0' later, plus separate use of 0). Cascades into ~30 register-name shifts (target r28-r31, base r26/r28/r29/r31).
+- **Tried:** (1) Static f32[3][4] array def — produced .data.0 reloc + 72.3% (66 mm). (2) Non-static f32[3][4] + cached gcus pointer + texts[] alias — improved to 87.7% (56 mm) by stabilizing gmCamera_80479BC8 base register live range. (3) Added PAD_STACK(16) — fixed frame size 0x20 → 0x30, +0.05% gain. (4) typedef'd struct {f32 font_x, font_y, pos_x, pos_y;} array — same .data.0 reloc, no improvement. Confirmed via objdump: target obj has gmCamera_803DA630@ha named reloc; my obj has ...data.0@ha despite symbol being present in symbol table at offset 0.
+- **Likely fix:** Cannot fully solve in this function alone. Coordinated TU fix needed: (a) Decompile gmCamera_801A31FC (still asm) which also references gmCamera_803DA630 — having two referrers may force named reloc. (b) Try adding a forward extern decl for gmCamera_803DA630 in gmcamera.h (or a separate static.h) before its definition — may force mwcc to emit named. (c) Move gmCamera_803DA630 to be NOT the first .data block — e.g., add another initialized global before it. (d) Permuter cannot fix the .data.0 vs named symbol issue (false-positive class for rodata-typing) but might address the regalloc cascade once data symbol matches. The function source-shape itself is correct (matches m2c output and asm semantically); blocked on TU-wide data layout.

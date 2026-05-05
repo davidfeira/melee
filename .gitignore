@@ -76,6 +76,25 @@ clean.bat
 # Epilogue hack folder
 epilogue/
 
+# Local interactive-decomp tooling sandbox
+build-linux/
+.venv-embeddings/
+mizuchi/
+nonmatchings/
+pah.conf
+vendor/decomp-permuter/.venv-linux/
+vendor/decomp-permuter/.venv/
+vendor/decomp-permuter/**/__pycache__/
+
+# Game files / emulator binaries (not source)
+Dolphin-x64/
+*.iso
+sys/
+.claude/*
+!.claude/agents/
+.claude/agents/*
+!.claude/agents/*.md
+
 __pycache__
 **/*.rs.bk
 *.exe

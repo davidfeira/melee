@@ -1,0 +1,13 @@
+---
+function: ftKb_MsSpecialNEnd_Anim
+tu: src/melee/ft/chara/ftKirby/ftKb_SpecialNYs.c
+headline: regalloc + permuter-false-positive
+tags: [regalloc, permuter-false-positive, float-literal, paired-siblings]
+---
+## ftKb_MsSpecialNEnd_Anim (`src/melee/ft/chara/ftKirby/ftKb_SpecialNYs.c`) — regalloc + permuter-false-positive
+
+- **Tags:** `regalloc`, `permuter-false-positive`, `float-literal`, `paired-siblings`
+- **Best fuzzy:** 98.2258%
+- **Diagnosis:** 98.15% strict / 98.23% fuzzy with 22 mismatches. 21 are pure register-allocation cascade (r26<->r27 swap on gobj/fp; r27<->r31 swap on dat_attrs pointer; r29<->r30 swap on ms_da/walker+0x914 alias; r30<->r29 swap on loop counter i; r31<->r25 swap on damage-mul intermediate; r25<->r26 swap on lis 0x4330 magic-double base) - identical instruction shape, identical scheduling, identical stack offsets, just different register assignments. 1 mismatch is sdata2 named-anchor false-positive: target loads the int->f32 magic double 0x4330000080000000 via 'lfd f31, ftKb_Init_804D9578@sda21' (named global in same TU's sdata2 split 0x804D9554..0x804D95B0); base uses '@623@sda21' (compiler-generated literal pool entry for the same constant). The damage compute '(f32)((s32)ms_da->base_damage + (fp->mv.kb.specialhi.x0/30)*(s32)ms_da->additional_damage_per_iteration)' is the int->f32 conversion that emits the magic double constant.
+- **Tried:** No source variants attempted - identical blocker pattern to sibling ftKb_MsSpecialAirNEnd_Anim already noted in decomp-notes.md (which tried for-loop indexing variant, regressed to 25 mismatches, reverted). Compact-brief recommended log-stuck-immediately due to TU having 2 logged stuck siblings. Per Permuter Boundary CLAUDE.md rule, false diffs from equivalent literal-pool/named-anchor bytes should not be permuted - report.json fuzzy treats @623 vs ftKb_Init_804D9578 as different even though post-link bytes are identical.
+- **Likely fix:** Same fix as ftKb_MsSpecialAirNEnd_Anim sibling. Two-part: (a) introduce a named 'extern double ftKb_Init_804D9578' (or appropriate decl) in source so MWCC anchors the int->f32 magic double via the named sdata2 symbol instead of @623 anonymous pool literal - this collapses 1 mismatch and may cascade-collapse some regalloc downstream; (b) the remaining ~20 register-renaming mismatches are pure permuter territory once (a) is in place. NOT viable now: dispatching permuter alone won't fix the named-anchor issue, and no source variant in single-function scope can rename the literal pool entry. Same paired-siblings family - Phys siblings of itLinkboomerang have identical blocker pattern. Both ftKb anim siblings should unlock together once the named sdata2 anchor is exposed.

@@ -1,0 +1,13 @@
+---
+function: ftCo_800BE6AC
+tu: src/melee/ft/chara/ftCommon/ftCo_ThrownKirby.c
+headline: tu-data-osreport + mwcc-aliasing
+tags: [tu-data-osreport, mwcc-aliasing, reloc-symbol-false-positive]
+---
+## ftCo_800BE6AC (`src/melee/ft/chara/ftCommon/ftCo_ThrownKirby.c`) — tu-data-osreport + mwcc-aliasing
+
+- **Tags:** `tu-data-osreport`, `mwcc-aliasing`, `reloc-symbol-false-positive`
+- **Best fuzzy:** 97.6812%
+- **Diagnosis:** 7 mismatches at 97.32% fuzzy on 69-instr function. (1) lfs f0,ftCo_804D8BF4@sda21 vs @252@sda21 -- 1.0f anonymous sdata2 pool entry; 'float const ftCo_804D8BF4 = +1' declared at line 41 but mwcc still emits @252 instead. (2) Extra fmuls f1,f1,f3 + fadds f0,f0,f1 in target vs base fmadds f0,f3,f1,f0 -- mwcc fuses (1-xC) + ((..)/x10 * xC) into fmadds; target binary has them split. (3-6) li r3/r5 ftCo_804D3BE0/BE8@sda21 vs @249/@250 -- anonymous strings for __assert; 'extern char* ftCo_804D3BE0/BE8' declared at lines 42-43 but mwcc emits anonymous pool entries.
+- **Tried:** 8 source-shape variants: (a) baseline natural form (1-xC) + ((..)*xC), 7 mismatches FMA-fused; (b) swapped order ((..)*xC) + (1-xC), same fusion; (c) explicit ftCo_804D8BF4 reference (no change to pool); (d) f32 t temp computing the multiplication separately (BROKE FMA but added 4 bytes, shifted frame 0x28->0x30, 28 mismatches at 95.84%); (e) f32 t declared after Vec3 scale (same frame shift); (f) scale.x=mul; scale.x=scale.y=scale.z=scale.x+(1-xC) (BROKE FMA but extra stfs at 0x14 from intermediate write, 8 mismatches at 97.90%); (g) scale.z=full expr; scale.x=scale.y=scale.z (similar); (h) 1.0f vs 1 literal types -- identical. Conclusion: cannot break FMA fusion without adding a stack write (temp variable shifts frame) or extra store (intermediate write to scale.x). Target asm has frame=0x28 with locals at 0x14/18/1C and a non-fused fmuls/fadds pair, which is unreachable in single-function source.
+- **Likely fix:** tu-data-osreport family blocker. 5/7 mismatches are anonymous-vs-named sdata2/data pool divergence. Source declarations exist (lines 41-43) but mwcc still emits @252/@249/@250 anonymous pool entries -- the named symbols are 'extern' for strings or unreferenced literals not in the right pool position. The 2 FMA mismatches may be downstream of the literal-pool layout (mwcc's instruction scheduling depends on what's in the pool and its order). Need TU-wide pool reconstruction: declare all ftCo_804D8BD0..BF4 sdata2 floats and ftCo_804D3BE0..BF0 strings as real definitions in correct order so mwcc anchors via named symbols. Same blocker family as Exception_ReportStackTrace, mpGetSpeed, it_80274DAC, fn_801803FC, lbMthp_8001F624 -- beyond single-function scope.

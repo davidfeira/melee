@@ -1,0 +1,13 @@
+---
+function: fn_801FBEB8
+tu: src/melee/gr/grinishie1.c
+headline: tu-data-osreport + cross-tu-globals
+tags: [tu-data-osreport, cross-tu-globals, paired-siblings, reloc-symbol-false-positive]
+---
+## fn_801FBEB8 (`src/melee/gr/grinishie1.c`) — tu-data-osreport + cross-tu-globals
+
+- **Tags:** `tu-data-osreport`, `cross-tu-globals`, `paired-siblings`, `reloc-symbol-false-positive`
+- **Best fuzzy:** 86.0222%
+- **Diagnosis:** Fuzzy 86.0%, strict 82.3%, 15 mismatches on 45-instr function. All mismatches are TU-wide data-anchor divergence. Target asm anchors via grI1_803E48C8 with offsets: +0xF0=block_idx_table (19-entry s16[2] array), +0xE0='grinishie1.c' filename, +0x13C='%s:%d: oioi...' format string. Sdata2 anchor grI1_804DB5C8 holds the 0.7 const. Base TU emits block_idx_table as a separate BSS symbol, the OSReport strings as anonymous @330/@199 literal pool entries, and 0.7 as @331 sdata2 local. Function logic is structurally correct (loop+compare+OSReport+abs+threshold+gobj+two-call). Asm line number is 0x1F0, source has 0x1F9 in invalid_state macro - minor source fix matches the literal but the data-pool divergence dominates.
+- **Tried:** Two source-shape attempts: (1) changed loop to walk forward with block_idx_table[idx] indexing instead of [i] (matches target's 'addi r6, 0x4' direction) and changed invalid_state(0x1F9)->0x1F0. Reduced mismatches 15->14 but dashboard fuzzy regressed 86.0%->83.1% due to mwcc shifting the literal pool. (2) Same indexing as for-loop variant: identical 14-mismatch result. Reverted to baseline since the loop-direction fix doesn't bridge the data-pool divergence. Permuter contraindicated per Permuter Boundary - reloc-symbol/anchor false-positives, not register/scheduling territory.
+- **Likely fix:** TU-wide multi-symbol refactor of grinishie1.c: define grI1_803E48C8 as a real combined data struct containing block_idx_table at offset 0xF0, 'grinishie1.c' string at 0xE0, '%s:%d: oioi...' format string at 0x13C (and likely other strings used by other functions in the same TU - the invalid_state macro is also used at lines 345/350 with line numbers 0x217/0x21D, plus an OSReport at line 202). Declare grI1_804DB5C8 as a named static const f32 = 0.7f in sdata2 so mwcc stops emitting @331 local. Also the loop-direction fix (block_idx_table[idx] instead of [i], and 0x1F0 instead of 0x1F9) should land alongside the TU-wide fix - it's semantically more correct (current code is out-of-bounds at i=19) and matches target asm. Same blocker family as it_80274DAC, mpGetSpeed, Exception_ReportStackTrace, lbMthp_8001F624, un_80300AF4. Beyond single-function subagent scope. Siblings fn_801FBF6C and grInishie1_801FBC4C in cluster permuter - likely same blocker.

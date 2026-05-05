@@ -1,0 +1,13 @@
+---
+function: grMuteCity_801F2C10
+tu: src/melee/gr/grmutecity.c
+headline: tu-data-osreport + cross-tu-globals
+tags: [tu-data-osreport, cross-tu-globals, reloc-symbol-false-positive]
+---
+## grMuteCity_801F2C10 (`src/melee/gr/grmutecity.c`) — tu-data-osreport + cross-tu-globals
+
+- **Tags:** `tu-data-osreport`, `cross-tu-globals`, `reloc-symbol-false-positive`
+- **Best fuzzy:** 99.3651%
+- **Diagnosis:** 99.37% fuzzy / 99.29% strict, 7 ARG_MISMATCH, all reloc-symbol false-positives. The single root divergence is on lfs f0, grMc_804DB4F4@sda21 (target) vs lfs f0, @913@sda21 (base) for the 3.0f literal in 'pos->y > y - 3.0F'. grMc_804DB4F4 is .sdata2:0xFC = .float 3 in the asm dump (build-linux/GALE01/asm/melee/gr/grmutecity.s lines 4819-4822). The other 6 mismatches (f0/f1 register swap on the unkE4 / unkF0 lfs pair, and downstream fsubs/fcmpo argument order) are pure register-allocation cascade caused by mwcc loading the named global sdata2 anchor with different scheduling than the auto-generated @913 literal pool entry. The entire TU's sdata2 .float pool (grMc_804DB484/488/48C/490/4A0/4A4/4B8/4BC/4C0/4C4/4C8/4CC/4D0/4D4/4D8/4DC/4E0/4E4/4E8/4EC/4F0/4F4 ~22 anchors visible in asm 4700-4822) is unnamed in src/melee/gr/grmutecity.c. Function source is structurally correct (m2c output already matches existing structure).
+- **Tried:** Manual diff inspection only. No source-shape attempts. Permuter Boundary forbids permuter on literal-pool/anchor divergence (confirmed across all sibling tu-data-osreport entries: it_80274DAC, mpGetSpeed, fn_801803FC, un_80317A60). Sibling grMuteCity_801EFD0C matched recently (8ebd28c24) via the grZebes data-symbol pattern but that was a u16[10] array reorganization in .data, not sdata2 floats. Sibling grMuteCity_801EFC6C is matched and uses grMc_804D69D0@sda21 directly, confirming named sda21 anchors work in this TU once declared.
+- **Likely fix:** TU-wide sdata2 reconstruction: declare all grMc_804DB484..4F4 sdata2 statics as named static floats with the right values and ordering matching the asm pool (e.g. 'static const f32 grMc_804DB4F4 = 3.0f;' or whatever declaration shape mwcc emits as named sdata2). Once 3.0f is anchored via grMc_804DB4F4@sda21 in the source, all 7 mismatches collapse simultaneously (the register-allocation cascade is downstream of the literal load). Multi-symbol cross-function refactor since the same pool is referenced by ~22 other floats throughout grmutecity.c (3.0f x3 in spF4/F8/FC at line 1460-1462, 0.5f at line 1309, etc). Beyond single-function scope. Same blocker class as it_80274DAC, fn_801803FC, mpGetSpeed.

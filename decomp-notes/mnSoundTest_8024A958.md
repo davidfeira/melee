@@ -1,0 +1,13 @@
+---
+function: mnSoundTest_8024A958
+tu: src/melee/mn/mnsoundtest.c
+headline: tu-data-osreport + cross-tu-globals
+tags: [tu-data-osreport, cross-tu-globals, paired-siblings]
+---
+## mnSoundTest_8024A958 (`src/melee/mn/mnsoundtest.c`) — tu-data-osreport + cross-tu-globals
+
+- **Tags:** `tu-data-osreport`, `cross-tu-globals`, `paired-siblings`
+- **Best fuzzy:** 93.9857%
+- **Diagnosis:** Fuzzy 93.56%, 28 mismatches on 70-instr function. All mismatches are TU-wide multi-symbol data layout divergence. Symbols.txt declares mnSoundTest_803EF0A8 as size 0x6C and mnSoundTest_803EF114 as size 0x48C. Target asm anchors all data accesses via mnSoundTest_803EF0A8: lfs f1,0x48(r31)/lfs f2,0x4c(r31) load vec_6.x/vec_6.y at base+0x48; lbz r0,0x6c(r4) where r4=base+unk1 loads text_ids[unk1] (text_ids is at base+0x6c); lhz r4,0xbc(r4) where r4=base+text_ids[unk1]*8 loads data_2[text_ids[unk1]].text_id (data_2 at base+0xbc); lfs f1,0x58(r31)/lfs f0,0x54(r31) load mnSoundTest_803EF0A8[0xB].x and [0xA].y. Current source has individual symbols vec_0..vec_7 (each 12B), floats_2[2] (8B), text_ids[80] (80B), data_2[soundtest_data*80] (640B) — so the compiler emits separate lis/addi base loads for each. Stack frame in target is 0x30 (saves r29/r30/r31) vs current 0x20 — extra register r29 needed because the target keeps mnSoundTest_803EF0A8 in r31 across the full body, soundtest_user_data* in r30, and the second HSD_Text* in r29. Floats_2 must be 3 floats (12B padding) to fill mnSoundTest_803EF0A8 to size 0x6C.
+- **Tried:** Diff inspection only; no source-shape attempts because the diagnosis is TU-wide data layout divergence, not within-function semantics. Per Permuter Boundary, permuter cannot bridge anchor/literal-pool divergence. m2c output already shows the target access pattern as '(mnSoundTest_803EF0A8 + temp_r30->unk1)->unk6C' which confirms the compiler must use one base register with offsets into adjacent symbols — only achievable with a TU-wide consolidation.
+- **Likely fix:** Consolidate vec_0..vec_7 + floats_2 + text_ids + data_2 into a single declaration rooted at mnSoundTest_803EF0A8 (probably as a struct or as Vec3[9] + then declare text_ids/data_2 inside the same .data block in the right order so mwcc anchors the second symbol mnSoundTest_803EF114 starting at base+0x6C). Affects mnSoundTest_8024AA70 (uses vec_7), fn_8024AED0_inline (uses vec_6), and likely all functions in the TU referencing these. Multi-function cross-cutting refactor — beyond single-function scope. Same blocker family as it_80274DAC, mpGetSpeed, lbMthp_8001F624, soundtest siblings. Also need floats_2 = 3 floats (third may be padding).
