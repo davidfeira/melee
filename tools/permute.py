@@ -648,6 +648,23 @@ def cmd_prep(args: argparse.Namespace) -> None:
     c_file = find_c_file(func)
     print(f"function: {func}")
     print(f"source:   {rel(c_file).as_posix()}")
+
+    # Pre-flight: is this function already matched upstream? If so, refuse —
+    # we'd be redoing work. Pass --skip-upstream-check to bypass.
+    if not getattr(args, "skip_upstream_check", False):
+        # Auto-fetch upstream if our data is >24h stale, so the check is reliable.
+        if permute_upstream._is_fetch_stale():
+            print("[upstream-check] upstream data is stale (>24h); fetching…")
+            permute_upstream.fetch_upstream(quiet=True)
+        result = check_upstream(func, c_file=c_file)
+        print(_format_upstream_result(func, result))
+        if result["state"] == "matched":
+            sys.exit(
+                f"\n[prep] REFUSING: {func} is already matched in upstream/master.\n"
+                f"        Pull upstream and skip this function, or pass --skip-upstream-check\n"
+                f"        if you're intentionally re-working it (e.g., for a sibling refactor)."
+            )
+
     asm_path, asm_text = disasm_and_extract(c_file, func)
     n_instructions = sum(1 for line in asm_text.splitlines() if "*/" in line)
     print(f"asm:      {rel(asm_path).as_posix()} ({n_instructions} instructions)")
@@ -1684,6 +1701,8 @@ from permute_notes import (
     cmd_log_stuck,
     cmd_notes,
 )
+import permute_upstream
+from permute_upstream import check_upstream, format_result as _format_upstream_result
 
 _NOTES_PATH = permute_notes._NOTES_PATH
 _NOTES_DIR = permute_notes._NOTES_DIR
@@ -4028,6 +4047,7 @@ def main() -> None:
         log_event=_log_event,
         build_linux=BUILD_LINUX,
     )
+    permute_upstream._set_deps(find_c_file=find_c_file)
 
     p = argparse.ArgumentParser(
         description=__doc__,
@@ -4062,6 +4082,12 @@ def main() -> None:
         default=0,
         metavar="N",
         help="show N most-similar matched functions via embeddings (requires `index-embeddings` first)",
+    )
+    pp.add_argument(
+        "--skip-upstream-check",
+        action="store_true",
+        dest="skip_upstream_check",
+        help="bypass the upstream-match pre-flight check (use only if intentionally re-working an upstream match)",
     )
     pp.set_defaults(handler=cmd_prep, context=True)
 
@@ -4152,6 +4178,7 @@ def main() -> None:
 
     # `notes` and `log-stuck` subcommands are registered by permute_notes.py
     permute_notes.add_subcommands(sub)
+    permute_upstream.add_subcommands(sub)
 
     pbk = sub.add_parser(
         "backlog",

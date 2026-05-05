@@ -25,7 +25,8 @@ For full tooling inventory see `docs/agent/tooling.md`.
 
 Always invoked with system `python`, from the repo root.
 
-- `prep <func>` — extract asm + show referenced symbol signatures. `-q` skips asm dump, `--m2c` adds an m2c starter, `--examples N` for in-TU side-by-side examples, `--similar N` for embedding-based cross-TU matches. Standard briefing: `prep <func> -q --m2c --similar 3 --examples 2`.
+- `prep <func>` — extract asm + show referenced symbol signatures. `-q` skips asm dump, `--m2c` adds an m2c starter, `--examples N` for in-TU side-by-side examples, `--similar N` for embedding-based cross-TU matches. Standard briefing: `prep <func> -q --m2c --similar 3 --examples 2`. **Auto-runs `upstream-check` first** — refuses if upstream/master already has the function matched (use `--skip-upstream-check` only for intentional re-work).
+- `upstream-check <func>` — pre-flight: is `func` already matched or stubbed in `doldecomp/melee` upstream/master? Exit codes: 0=safe, 1=unknown, 2=already matched. Hooked into `prep`; auto-fetches upstream if local data is >24h stale.
 - `diff <func>` — match% + per-instruction diff. `--auto-permute` launches background permuter when the near-miss is below `--permute-threshold` mismatched instructions (default 15). Add `--cluster` to dispatch to the local p@h cluster.
 - `picker [--mode untouched|in_progress|all] [--max-size N] [--limit N]` — list candidates from `report.json`, sorted by size.
 - `commit-match <func>` — re-verifies 100% in BOTH objdiff AND `report.json`; refuses otherwise. The only authorized commit path for matches.
@@ -44,6 +45,15 @@ Always invoked with system `python`, from the repo root.
 - Prefer mismatch count over percentage. A small function at 80-95% can be permuter-ready if only a few register/order choices remain. A large function at 99% may still need manual structural work.
 - Don't hand-shuffle locals to chase `r4` vs `r7`, avoid `lhau`, or move `li r0, 0`. Those are good permuter cases.
 - Don't use permuter for false diffs from equivalent BSS/global base symbols. Verify whether the source really needs changing first.
+
+## Upstream sync hygiene
+
+`origin` is the user's fork (`davidfeira/meleeDecomp`). `upstream` is the real project (`doldecomp/melee`). The decomp project is hot — Jj/* PRs land daily. **Always check upstream before starting a function** or you'll redo work.
+
+- `prep` runs `upstream-check` automatically and refuses already-matched functions.
+- A `SessionStart` hook in `.claude/settings.local.json` runs `git fetch upstream master` at every Claude Code session start.
+- `permute.py upstream-check` auto-fetches if local data is >24h stale.
+- For retrospective audit of past matches vs upstream: `python tools/upstream_overlap.py`.
 
 ## Concurrency
 
