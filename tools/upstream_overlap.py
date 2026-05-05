@@ -35,12 +35,20 @@ def main() -> None:
     # All our local-only commits whose subject starts with "Match "
     log = run(["git", "log", "--format=%H\t%s", f"{base}..master"])
     match_commits: list[tuple[str, str]] = []
+    follow_ups: dict[str, list[str]] = {}  # function -> [SHAs] of header/static-h follow-ups
     for line in log.splitlines():
         if not line:
             continue
         sha, _, subject = line.partition("\t")
         if subject.startswith("Match "):
             match_commits.append((sha, subject))
+            continue
+        # Heuristic: any commit message mentioning a known function name
+        # that touches a .h/.static.h file is likely a header follow-up.
+        files = run(["git", "show", "--name-only", "--format=", sha]).splitlines()
+        if any(f.endswith(".h") or f.endswith(".static.h") for f in files):
+            for token in re.findall(r"\b([a-zA-Z_][a-zA-Z0-9_]*_[0-9a-fA-F]{8,})\b", subject):
+                follow_ups.setdefault(token, []).append(sha)
 
     # For each commit, extract function name + the .c file touched
     # The function name is the first token after "Match ".
@@ -127,7 +135,10 @@ def main() -> None:
     print(f"   (upstream still has INCLUDE_ASM or doesn't have the file at all — clear contribution candidates)")
     print()
     for sha, func, c_file, reason in upstream_unique[:50]:
-        print(f"  {sha[:10]}  {func:50s}  {c_file}  [{reason}]")
+        line = f"  {sha[:10]}  {func:50s}  {c_file}  [{reason}]"
+        if func in follow_ups:
+            line += f"  +header-followups: {','.join(s[:8] for s in follow_ups[func])}"
+        print(line)
     if len(upstream_unique) > 50:
         print(f"  ... and {len(upstream_unique) - 50} more")
     print()
