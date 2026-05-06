@@ -1916,6 +1916,29 @@ void ftCo_CapturePulledHi_Anim(Fighter_GObj* gobj) {}
 
 void ftCo_CapturePulledHi_IASA(Fighter_GObj* gobj) {}
 
+void ftCo_CapturePulledHi_Phys(Fighter_GObj* gobj)
+{
+    Fighter* fp = GET_FIGHTER(gobj);
+    Vec3 tmp;
+    Vec3 sp2C;
+    Vec3 sp20;
+
+    PAD_STACK(0x4);
+
+    lb_8000B1CC(GET_FIGHTER(fp->victim_gobj)->mv.co.capturedamage.x18, NULL,
+                &sp20);
+    lb_8000B1CC(fp->parts[ftParts_GetBoneIndex(fp, FtPart_XRotN)].joint, NULL,
+                &sp2C);
+
+    tmp.x = sp20.x - sp2C.x;
+    tmp.y = sp20.y - sp2C.y;
+    tmp.z = sp20.z - sp2C.z;
+
+    fp->cur_pos.x += tmp.x;
+    fp->cur_pos.y += tmp.y;
+    fp->cur_pos.z += tmp.z;
+}
+
 void fn_800DAC78(Fighter_GObj* gobj, Vec3* arg1)
 {
     Fighter* fp = gobj->user_data;
