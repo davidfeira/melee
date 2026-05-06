@@ -5,8 +5,10 @@
 
 #include "if/types.h"
 
+#include <dolphin/mtx.h>
+
 /* 2FB6E8 */ s32 ifMagnify_802FB6E8(s32);
-/* 2FB73C */ UNK_RET ifMagnify_802FB73C(UNK_PARAMS);
+/* 2FB73C */ void ifMagnify_802FB73C(void* player, Vec2* in, Vec2* out);
 /* 2FB8C0 */ UNK_RET ifMagnify_802FB8C0(UNK_PARAMS);
 /* 2FBBDC */ UNK_RET ifMagnify_802FBBDC(UNK_PARAMS);
 /* 2FC3BC */ void ifMagnify_802FC3BC(void);
