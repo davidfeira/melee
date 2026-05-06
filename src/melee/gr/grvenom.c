@@ -773,7 +773,61 @@ bool grVenom_80205750(Ground_GObj* arg)
     return false;
 }
 
-/// #grVenom_80205758
+/// grVenom_80205758
+
+extern f32 grVe_804DB7E8;
+extern f64 grVe_804DB7F0;
+extern f64 grVe_804DB7F8;
+extern f64 grVe_804DB800;
+
+void grVenom_80205758(Ground_GObj* gobj)
+{
+    Ground* gp = gobj->user_data;
+    s32* base = (s32*) &grVe_803E5348;
+    HSD_JObj* jobj = gobj->hsd_obj;
+    s32* entry = base + gp->gv.venom.xC8;
+    f32 v;
+    f32 scale;
+
+    if ((u32) entry[8] != 0U) {
+        v = gp->gv.venom.xE8;
+        if (v < grVe_804DB740) {
+            v = -v;
+        }
+        if (v < grVe_804DB7E8) {
+            gp->gv.venom.xE8 = grVe_804DB740;
+            while (gp->gv.venom.xDC < (f32) grVe_804DB7F8) {
+                gp->gv.venom.xDC = gp->gv.venom.xDC + grVe_804DB7F0;
+            }
+            while (gp->gv.venom.xDC > (f32) grVe_804DB800) {
+                gp->gv.venom.xDC = gp->gv.venom.xDC - grVe_804DB7F0;
+            }
+            v = gp->gv.venom.xDC;
+            if (v < grVe_804DB740) {
+                v = -v;
+            }
+            if (v < grVe_804DB744) {
+                HSD_JObjClearFlagsAll(jobj, 0x10);
+            } else {
+                HSD_JObjSetFlagsAll(jobj, 0x10);
+            }
+        } else {
+            HSD_JObjSetFlagsAll(jobj, 0x10);
+        }
+
+        HSD_JObjSetTranslate(jobj, (Vec3*) &gp->gv.venom.xE0);
+
+        scale = Ground_801C0498();
+        HSD_JObjSetScaleX(jobj, scale * *(f32*) ((u8*) grVe_804D6A30 + 0x34));
+        HSD_JObjSetScaleY(jobj, scale * *(f32*) ((u8*) grVe_804D6A30 + 0x34));
+        HSD_JObjSetScaleZ(jobj, scale * *(f32*) ((u8*) grVe_804D6A30 + 0x34));
+
+        Ground_801C2FE0(gobj);
+    } else {
+        mpLib_80057BC0(base[entry[14] + 0xCE]);
+        Ground_801C4A08(gobj);
+    }
+}
 
 void grVenom_80205AD0(Ground_GObj* arg) {}
 
