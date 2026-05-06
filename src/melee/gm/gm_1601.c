@@ -2285,7 +2285,30 @@ void fn_80165E7C(MatchEnd* arg0)
 
 /// #fn_80165FA4
 
-/// #fn_801661E0
+s32 fn_801661E0(MatchEnd* arg0)
+{
+    s32 i;
+    s32 j;
+
+    for (i = 0; i < 5; i++) {
+        if ((u8) arg0->team_standings[i].active != 0) {
+            arg0->team_standings[i].is_small_loser =
+                arg0->team_standings[i].is_big_loser;
+            for (j = 0; j < 5; j++) {
+                if ((u8) arg0->team_standings[j].active != 0 && i != j &&
+                    (u8) arg0->team_standings[i].is_big_loser ==
+                        (u8) arg0->team_standings[j].is_big_loser &&
+                    (u32) arg0->team_standings[i].subscore <
+                        (u32) arg0->team_standings[j].subscore)
+                {
+                    arg0->team_standings[i].is_small_loser++;
+                }
+            }
+        }
+    }
+
+    return (s32) arg0;
+}
 
 /// #gm_80166378
 
