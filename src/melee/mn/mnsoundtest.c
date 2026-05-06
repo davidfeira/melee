@@ -444,6 +444,35 @@ void fn_8024AED0(HSD_GObj* arg0)
     }
 }
 
+extern HSD_Archive* mn_804D6BB8;
+extern void* mnSoundTest_804A08C8[4];
+
+void mnSoundTest_8024BEE0(int arg0)
+{
+    HSD_GObjProc* proc;
+
+    mn_804D6BC8.cooldown = 5;
+    mn_804A04F0.prev_menu = mn_804A04F0.cur_menu;
+    mn_804A04F0.cur_menu = 0x1B;
+    mn_804A04F0.hovered_selection = 0;
+    mnSoundTest_804D6C48 = gm_801601C4(gmMainLib_8015ED74());
+    mnSoundTest_804D6C4C = gm_80160244(gmMainLib_8015ED74());
+    mnSoundTest_804D6C44 = 1;
+    lbArchive_LoadSections(mn_804D6BB8,
+                           &mnSoundTest_804A08C8[0],
+                           "MenMainConTs_Top_joint",
+                           &mnSoundTest_804A08C8[1],
+                           "MenMainConTs_Top_animjoint",
+                           &mnSoundTest_804A08C8[2],
+                           "MenMainConTs_Top_matanim_joint",
+                           &mnSoundTest_804A08C8[3],
+                           "MenMainConTs_Top_shapeanim_joint",
+                           NULL);
+    ((void (*)(int)) mnSoundTest_8024BCA0)(arg0);
+    proc = HSD_GObj_SetupProc(GObj_Create(0, 1, 0x80), fn_8024B2B0, 0);
+    proc->flags_3 = HSD_GObj_804D783C;
+}
+
 void fn_8024BAF0(HSD_GObj* arg0)
 {
     HSD_JObj* sp1C;
