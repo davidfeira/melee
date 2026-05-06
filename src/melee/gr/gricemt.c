@@ -1149,7 +1149,61 @@ void grIceMt_801F9ACC(Ground_GObj* gobj, float y, HSD_GObjEvent ev, Ground_GObj*
 
 /// #grIceMt_801FA0BC
 
-/// #grIceMt_801FA364
+typedef struct grIceMt_FA364_State {
+    /* 0x0 */ s16 phase;
+    /* 0x2 */ s16 delay;
+    /* 0x4 */ s16 lerp_count;
+    /* 0x6 */ s16 burst_count;
+    /* 0x8 */ s16 idx;
+    /* 0xA */ s16 pad;
+    /* 0xC */ f32 cur;
+} grIceMt_FA364_State;
+
+bool grIceMt_801FA364(void* state_, f32* out, HSD_GObjEvent cb_,
+                      Ground_GObj* gobj)
+{
+    grIceMt_FA364_State* state = state_;
+    s32 (*cb)(HSD_GObj*, s32*) = (s32 (*)(HSD_GObj*, s32*)) cb_;
+    bool ret = true;
+    f32 result;
+    s32 next_delay;
+    s16 tmp;
+
+    switch (state->phase) {
+    case 0:
+        tmp = state->delay;
+        state->delay = tmp - 1;
+        if (tmp < 0) {
+            state->idx = cb((HSD_GObj*) gobj, &next_delay);
+            state->delay = (s16) next_delay;
+            state->phase = 1;
+            state->lerp_count = ((s16*) grIm_804D69F4)[0x34 / 2];
+        }
+        break;
+    case 1:
+        state->lerp_count = state->lerp_count - 1;
+        tmp = state->lerp_count;
+        if (tmp != 0) {
+            state->cur +=
+                (((f32*) ((u8*) grIm_804D69F4 + 4))[state->idx] -
+                 state->cur) /
+                (f32) tmp;
+            ret = false;
+        } else {
+            state->phase = 0;
+            state->cur = ((f32*) ((u8*) grIm_804D69F4 + 4))[state->idx];
+        }
+        break;
+    }
+
+    result = state->cur;
+    if (state->burst_count != 0) {
+        result = grIm_804D69F4->x3C * Ground_801C0498();
+        state->burst_count--;
+    }
+    *out = result;
+    return ret;
+}
 
 int fn_801FA4CC(int num)
 { // https://decomp.me/scratch/pSJNA
