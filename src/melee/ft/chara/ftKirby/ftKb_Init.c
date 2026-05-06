@@ -3438,7 +3438,61 @@ void ftKb_SpecialN_800EF35C(Fighter_GObj* gobj, int arg1, u8* arg2)
 
 /// #ftKb_SpecialN_800EF438
 
-/// #ftKb_SpecialN_800EF69C
+void ftKb_SpecialN_800EF69C(Fighter_GObj* gobj, int arg1, KirbyHatStruct* hat)
+{
+    Fighter* fp = GET_FIGHTER(gobj);
+    if ((u32) fp->fv.gw.x2244_chefVar2 != 0U) {
+        u32 i = 0;
+        s32 off = 0;
+        while (i < ftPartsTable[fp->kind]->parts_num) {
+            FighterBone* bone = (FighterBone*) ((u8*) fp->parts + off);
+            HSD_DObj* dobj = (HSD_DObj*) bone->joint;
+            if (dobj != NULL && (bone->flags_b6 || bone->flags2_b7)) {
+                u8* b9p = &((u8*) bone)[9];
+                u8 b9 = *b9p;
+                if ((b9 >> 1) & 1) {
+                    if ((b9 >> 2) & 1) {
+                        dobj = *(HSD_DObj**) ((u8*) fp->x203C.data +
+                                              ((((u8*) bone)[0xD] * 2) &
+                                               0x1FC));
+                    } else {
+                        dobj = *(HSD_DObj**) ((u8*) fp->dobj_list.data +
+                                              ((((u8*) bone)[0xD] * 2) &
+                                               0x1FC));
+                    }
+                    HSD_DObjRemoveAll(dobj != NULL ? dobj->next : NULL);
+                    lb_8000CE30(dobj, NULL);
+                } else {
+                    HSD_DObjRemoveAll(HSD_JObjGetDObj((HSD_JObj*) dobj));
+                    lb_8000CE40((HSD_JObj*) dobj, NULL);
+                }
+                ((FighterBone*) ((u8*) fp->parts + off))->flags2_b7 = false;
+                ((FighterBone*) ((u8*) fp->parts + off))->flags_b6 =
+                    ((FighterBone*) ((u8*) fp->parts + off))->flags2_b7;
+            }
+            off += 0x10;
+            i += 1;
+        }
+        HSD_ObjFree(&fighter_x2040_alloc_data,
+                    (void*) fp->fv.gw.x2244_chefVar2);
+        HSD_ObjFree(&fighter_x2040_alloc_data, fp->fv.gw.x224C_greenhouseGObj);
+        fp->fv.gw.x2244_chefVar2 = 0;
+    }
+    {
+        ftDynamics* dyn = hat->hat_dynamics[1];
+        u32 mask = (u32) dyn;
+        if (dyn != NULL) {
+            Fighter* fp2 = GET_FIGHTER(gobj);
+            int i = Fighter_804D6540[fp2->kind]->x4 - 1;
+            for (; i >= 0; i--) {
+                if ((1 << i) & mask) {
+                    ftParts_800755E8(
+                        fp2, (u8*) &Fighter_804D6540[fp2->kind]->x0[i]);
+                }
+            }
+        }
+    }
+}
 
 void ftKb_UnkIntBoolFunc0(Fighter* fp, int arg1, bool arg2)
 {
