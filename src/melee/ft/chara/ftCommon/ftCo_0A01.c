@@ -2327,7 +2327,61 @@ Item* ftCo_800A5F4C(Fighter* fp, ItemKind arg1)
 
 /// #ftCo_800A61D8
 
-/// #ftCo_800A648C
+static int ftCo_800A648C(Fighter* fp)
+{
+    Item* cur_ip;
+    Item* closest_ip;
+    Item_GObj* cur;
+    struct Fighter_x1A88_t* data;
+
+    f32 closest;
+    f32 distance;
+    bool match;
+
+    if (fp == NULL) {
+        return 0;
+    }
+    data = &fp->x1A88;
+    closest_ip = NULL;
+    for (cur = HSD_GObj_Entities->items; cur != NULL; cur = cur->next) {
+        cur_ip = GET_ITEM(cur);
+        if (cur_ip->kind >= 0x2B && cur_ip->kind < 0x2F) {
+            match = true;
+        } else if (cur_ip->kind == 0xD3 ||
+                   (u32) (cur_ip->kind - 0xD4) <= 1U ||
+                   cur_ip->kind == 0xD9)
+        {
+            match = true;
+        } else {
+            match = false;
+        }
+        if (!match) {
+            continue;
+        }
+        {
+            f32 ipy = cur_ip->pos.y;
+            f32 ipx = cur_ip->pos.x;
+            if (ipx < fp->x1A88.half_width + Stage_GetBlastZoneLeftOffset() ||
+                ipx > Stage_GetBlastZoneRightOffset() - data->half_width ||
+                ipy < data->half_height + Stage_GetBlastZoneBottomOffset() ||
+                ipy > Stage_GetBlastZoneTopOffset() - data->half_height)
+            {
+                continue;
+            }
+        }
+        if (closest_ip == NULL) {
+            closest_ip = cur_ip;
+            closest = itemDist(fp, cur_ip);
+            continue;
+        }
+        distance = itemDist(fp, cur_ip);
+        if (closest > distance) {
+            closest = distance;
+            closest_ip = cur_ip;
+        }
+    }
+    return (int) closest_ip;
+}
 
 /// #ftCo_800A6700
 
