@@ -4,6 +4,7 @@
 
 #include "baselib/sislib.h"
 #include "cm/camera.h"
+#include "gm/gmregclear.h"
 #include "gr/ground.h"
 #include "gr/grzakogenerator.h"
 #include "gr/inlines.h"
@@ -11,6 +12,7 @@
 #include "it/it_26B1.h"
 #include "lb/lb_00B0.h"
 #include "lb/lblanguage.h"
+#include "mp/mplib.h"
 
 f32 grHr_804D6AD8;
 int grHr_804D6ADC;
@@ -394,7 +396,32 @@ void grHomeRun_8021E4FC(Ground_GObj* arg) {}
 
 /// #grHomeRun_8021E500
 
-/// #fn_8021E994
+void fn_8021E994(Ground* gp_unused, s32 arg1, CollData* coll, s32 arg3,
+                 mpLib_GroundEnum env, f32 arg5)
+{
+    s32 kind = coll->x34_flags.b1234;
+    HSD_GObj* gobj = Ground_801C2BA4(0xA);
+    if (gobj != NULL) {
+        Ground* gp = GET_GROUND(gobj);
+        if (gp != NULL) {
+            if (kind == 1) {
+                if (coll->x0_gobj == (HSD_GObj*) gm_80180AF4() &&
+                    env == mpLib_GroundEnum_Unk1) {
+                    ((struct {
+                        u8 b0 : 1;
+                        u8 b1 : 1;
+                        u8 b2 : 1;
+                        u8 b3 : 1;
+                        u8 b4 : 1;
+                        u8 b5 : 1;
+                        u8 b6 : 1;
+                        u8 b7 : 1;
+                    }*) ((u8*) gp + 0xE8))->b0 = 1;
+                }
+            }
+        }
+    }
+}
 
 void grHomeRun_8021EA30(f32* pos)
 {
