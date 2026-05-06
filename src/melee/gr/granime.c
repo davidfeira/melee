@@ -513,7 +513,67 @@ void grAnime_801C7228(HSD_JObj* obj, int flags, void* func, u32 type,
     }
 }
 
-/// #grAnime_801C752C
+void grAnime_801C752C(HSD_JObj* jobj, int arg1, u32 flags, void* func,
+                      u32 type, ...)
+{
+    va_list ap;
+    f32 param;
+    HSD_RObj* robj;
+    HSD_JObj* child;
+
+    if (jobj == NULL) {
+        return;
+    }
+    va_start(ap, type);
+    switch (type) {
+    case 0:
+    case 4:
+    case 8:
+        break;
+    case 1:
+    case 5:
+    case 9:
+        param = (f32) va_arg(ap, f64);
+        break;
+    case 2:
+    case 6:
+    case 10:
+        *(s32*) &param = va_arg(ap, s32);
+        break;
+    case 3:
+    case 7:
+    case 11:
+        *(s32*) &param = va_arg(ap, s32);
+        break;
+    default:
+        OSReport("unexpected argument format.\n");
+        __assert("granime.c", 0x36F, "0");
+        break;
+    }
+    if (jobj == NULL) {
+        __assert("granime.c", 0x33A, "obj");
+    }
+    if ((flags & 0x20) && jobj->aobj != NULL) {
+        grAnime_801C6F50(jobj->aobj, jobj, 6, func, type, &param);
+    }
+    if (!(jobj->flags & 0x4020)) {
+        grAnime_801C70E0(jobj->u.dobj, flags, func, type, &param);
+    }
+    robj = jobj->robj;
+    while (robj != NULL) {
+        if ((flags & 0x200) && robj->aobj != NULL) {
+            grAnime_801C6F50(robj->aobj, robj, 0xA, func, type, &param);
+        }
+        robj = robj->next;
+    }
+    if (arg1 != 0 && !(jobj->flags & 0x1000)) {
+        child = jobj->child;
+        while (child != NULL) {
+            grAnime_801C7228(child, flags, func, type, &param, arg1);
+            child = child->next;
+        }
+    }
+}
 
 void grAnime_801C775C(HSD_GObj* gobj, int arg1, u32 arg2, f32 arg8, f32 arg9)
 {

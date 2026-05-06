@@ -560,7 +560,421 @@ void grBigBlueRoute_8020C85C(Ground_GObj* gobj)
     gp->gv.bigblueroute.x108++;
 }
 
-/// #grBigBlueRoute_8020CD20
+extern f32 grBb_Route_804DB948;
+extern f32 grBb_Route_804DB94C;
+extern f32 grBb_Route_804DB950;
+extern f32 grBb_Route_804DB954;
+extern f32 grBb_Route_804DB958;
+extern f32 grBb_Route_804DB95C;
+extern f32 grBb_Route_804DB960;
+extern f32 grBb_Route_804DB970;
+extern f32 grBb_Route_804DB974;
+extern f32 grBb_Route_804DB978;
+extern f32 grBb_Route_804DB97C;
+extern f32 grBb_Route_804DB980;
+extern f32 grBb_Route_804DB984;
+extern f32 grBb_Route_804DB988;
+extern f32 grBb_Route_804DB98C;
+
+static const Vec3 grBb_Route_803B83E0 = { 0.0f, 1.0f, 0.0f };
+
+void grBigBlueRoute_8020CD20(Ground_GObj* gobj)
+{
+    Ground* gp = gobj->user_data;
+    HSD_JObj* root = gobj->hsd_obj;
+    HSD_GObj* fighter;
+    HSD_JObj* jobj;
+    Vec3 fighter_pos;
+    Vec3 translate;
+    f32 rot_x;
+    f32 rot_y;
+    f32 rot_z;
+    s32 i;
+    s32 offset;
+
+    fighter = Ground_801C57A4();
+    if (fighter != NULL) {
+        ftLib_80086644(fighter, &fighter_pos);
+        if (root != NULL) {
+            jobj = HSD_JObjGetChild(root);
+            if (jobj != NULL) {
+                i = 0;
+                offset = 0;
+                do {
+        RouteEntry* re = (RouteEntry*) ((u8*) gp->gv.bigblueroute.xC8 + offset);
+
+        if (re->flags.b0) {
+            re->x4 += re->x8;
+            {
+                f32* p = &((RouteEntry*) ((u8*) gp->gv.bigblueroute.xC8 +
+                                          offset))
+                              ->x4;
+                if (*p > 1.0f) {
+                    *p = 1.0f;
+                }
+            }
+            re = (RouteEntry*) ((u8*) gp->gv.bigblueroute.xC8 + offset);
+            re->x14 += re->x18;
+            {
+                f32* p = &((RouteEntry*) ((u8*) gp->gv.bigblueroute.xC8 +
+                                          offset))
+                              ->x14;
+                if (*p > 1.0f) {
+                    *p = 1.0f;
+                }
+            }
+
+            re = (RouteEntry*) ((u8*) gp->gv.bigblueroute.xC8 + offset);
+            switch (re->flags.b2_5) {
+            case 0: {
+                Vec3 spline_a;
+                Vec3 spline_b;
+                Vec3 shadow_v;
+                f32 t;
+                f32 weight;
+
+                if (re->xC < re->x10) {
+                    re->xC += 0.01f;
+                    re = (RouteEntry*) ((u8*) gp->gv.bigblueroute.xC8 +
+                                        offset);
+                    if (re->xC > re->x10) {
+                        re->xC = re->x10;
+                    }
+                } else if (re->xC > re->x10) {
+                    re->xC -= 0.01f;
+                    re = (RouteEntry*) ((u8*) gp->gv.bigblueroute.xC8 +
+                                        offset);
+                    if (re->xC < re->x10) {
+                        re->xC = re->x10;
+                    }
+                }
+
+                re = (RouteEntry*) ((u8*) gp->gv.bigblueroute.xC8 + offset);
+                t = re->x4;
+                weight = re->xC;
+                splGetSplinePoint(&spline_a, gp->gv.bigblueroute.xD0, t);
+                splGetSplinePoint(&spline_b, gp->gv.bigblueroute.xD4, t);
+                lbShadow_8000E9F0(&shadow_v, gp->gv.bigblueroute.xD0, t);
+                lbVector_Diff(&spline_b, &spline_a, &translate);
+                translate.x *= weight;
+                translate.y *= weight;
+                translate.z *= weight;
+                lbVector_Add(&translate, &spline_a);
+
+                rot_x = -atan2f(shadow_v.y, shadow_v.x);
+                rot_y = 1.5707964f;
+                rot_z = 0.0f;
+
+                re = (RouteEntry*) ((u8*) gp->gv.bigblueroute.xC8 + offset);
+                if (re->x4 > 0.966f) {
+                    re->flags.b2_5 = 2;
+                    ((RouteEntry*) ((u8*) gp->gv.bigblueroute.xC8 + offset))
+                        ->x14 = 0.0f;
+                    ((RouteEntry*) ((u8*) gp->gv.bigblueroute.xC8 + offset))
+                        ->x1C = 0.0f;
+                    ((RouteEntry*) ((u8*) gp->gv.bigblueroute.xC8 + offset))
+                        ->x20 = 5.2359877f * HSD_Randf() - 2.6179938f;
+                    re = (RouteEntry*) ((u8*) gp->gv.bigblueroute.xC8 +
+                                        offset);
+                    re->x24 = re->x4;
+                }
+                break;
+            }
+            case 1: {
+                Vec3 axis;
+                Vec3 normal;
+                Vec3 binormal;
+                Vec3 spline_pt;
+                f32 t;
+                f32 angle;
+                f32 ground_scale;
+
+                if (re->x1C < re->x20) {
+                    re->x1C += 0.017453292f;
+                    re = (RouteEntry*) ((u8*) gp->gv.bigblueroute.xC8 +
+                                        offset);
+                    if (re->x1C > re->x20) {
+                        re->x1C = re->x20;
+                    }
+                } else if (re->x1C > re->x20) {
+                    re->x1C -= 0.017453292f;
+                    re = (RouteEntry*) ((u8*) gp->gv.bigblueroute.xC8 +
+                                        offset);
+                    if (re->x1C < re->x20) {
+                        re->x1C = re->x20;
+                    }
+                }
+
+                re = (RouteEntry*) ((u8*) gp->gv.bigblueroute.xC8 + offset);
+                t = re->x14;
+                angle = re->x1C;
+                axis = grBb_Route_803B83E0;
+                splGetSplinePoint(&spline_pt, gp->gv.bigblueroute.xCC, t);
+                lbShadow_8000E9F0(&normal, gp->gv.bigblueroute.xCC, t);
+                grBigBlueRoute_8020DD64(&normal);
+                PSVECCrossProduct(&axis, &normal, &binormal);
+                lbVector_RotateAboutUnitAxis(&binormal, &normal, angle);
+                grBigBlueRoute_8020DD64(&binormal);
+                PSVECCrossProduct(&normal, &binormal, &axis);
+                grBigBlueRoute_8020DD64(&axis);
+                {
+                    Vec3 rot_out;
+                    Ground_801C5AEC(&rot_out, &normal, &binormal, &axis);
+                    rot_x = rot_out.x;
+                    rot_y = rot_out.y;
+                    rot_z = rot_out.z;
+                }
+                ground_scale = 45.0f * Ground_801C0498();
+                axis.x *= ground_scale;
+                axis.y *= ground_scale;
+                axis.z *= ground_scale;
+                lbVector_Add(&spline_pt, &axis);
+                translate = spline_pt;
+
+                re = (RouteEntry*) ((u8*) gp->gv.bigblueroute.xC8 + offset);
+                if (re->x14 > 0.967f) {
+                    re->flags.b2_5 = 3;
+                    ((RouteEntry*) ((u8*) gp->gv.bigblueroute.xC8 + offset))
+                        ->x4 = 0.0f;
+                    ((RouteEntry*) ((u8*) gp->gv.bigblueroute.xC8 + offset))
+                        ->xC = 0.5f;
+                    ((RouteEntry*) ((u8*) gp->gv.bigblueroute.xC8 + offset))
+                        ->x10 = HSD_Randf();
+                    re = (RouteEntry*) ((u8*) gp->gv.bigblueroute.xC8 +
+                                        offset);
+                    re->x24 = re->x14;
+                    ((RouteEntryFlags*) ((u8*) gp->gv.bigblueroute.xC8 +
+                                         offset))
+                        ->b6 = 0;
+                    if (((RouteEntryFlags*) ((u8*) gp->gv.bigblueroute.xC8 +
+                                              offset))
+                            ->b1) {
+                        ((UnkFlagStruct*) ((u8*) gp + 0xC4))->b1 = 0;
+                    }
+                }
+                break;
+            }
+            case 2: {
+                Vec3 spline_a;
+                Vec3 spline_b;
+                Vec3 shadow_v;
+                Vec3 axis;
+                Vec3 normal;
+                Vec3 binormal;
+                Vec3 pos_a;
+                Vec3 pos_b;
+                f32 t1;
+                f32 weight;
+                f32 t2;
+                f32 angle;
+                f32 ratio;
+                f32 ground_scale;
+                f32 saved_x24;
+
+                saved_x24 = re->x24;
+                t1 = re->x4;
+                weight = re->xC;
+                ratio = (t1 - saved_x24) / (1.0f - saved_x24);
+                weight = (1.0f - ratio) * (weight - 0.5f) + 0.5f;
+
+                splGetSplinePoint(&spline_a, gp->gv.bigblueroute.xD0, t1);
+                splGetSplinePoint(&spline_b, gp->gv.bigblueroute.xD4, t1);
+                lbShadow_8000E9F0(&shadow_v, gp->gv.bigblueroute.xD0, t1);
+                lbVector_Diff(&spline_b, &spline_a, &pos_a);
+                pos_a.x *= weight;
+                pos_a.y *= weight;
+                pos_a.z *= weight;
+                lbVector_Add(&pos_a, &spline_a);
+
+                {
+                    f32 sub_x = -atan2f(shadow_v.y, shadow_v.x);
+                    Vec3 sub_rot;
+                    sub_rot.x = sub_x;
+                    sub_rot.y = 1.5707964f;
+                    sub_rot.z = 0.0f;
+
+                    re = (RouteEntry*) ((u8*) gp->gv.bigblueroute.xC8 +
+                                        offset);
+                    t2 = re->x14;
+                    angle = re->x1C;
+                    axis = grBb_Route_803B83E0;
+                    splGetSplinePoint(&pos_b, gp->gv.bigblueroute.xCC, t2);
+                    lbShadow_8000E9F0(&normal, gp->gv.bigblueroute.xCC, t2);
+                    grBigBlueRoute_8020DD64(&normal);
+                    PSVECCrossProduct(&axis, &normal, &binormal);
+                    lbVector_RotateAboutUnitAxis(&binormal, &normal, angle);
+                    grBigBlueRoute_8020DD64(&binormal);
+                    PSVECCrossProduct(&normal, &binormal, &axis);
+                    grBigBlueRoute_8020DD64(&axis);
+                    Ground_801C5AEC(NULL, &normal, &binormal, &axis);
+                    ground_scale = 45.0f * Ground_801C0498();
+                    axis.x *= ground_scale;
+                    axis.y *= ground_scale;
+                    axis.z *= ground_scale;
+                    lbVector_Add(&pos_b, &axis);
+                    lbVector_Diff(&pos_b, &pos_a, &translate);
+                    translate.x *= ratio;
+                    translate.y *= ratio;
+                    translate.z *= ratio;
+                    lbVector_Add(&translate, &pos_a);
+
+                    rot_x = sub_rot.x;
+                    rot_y = sub_rot.y;
+                    rot_z = sub_rot.z;
+                }
+
+                re = (RouteEntry*) ((u8*) gp->gv.bigblueroute.xC8 + offset);
+                if (re->x4 == 1.0f) {
+                    re->flags.b2_5 = 1;
+                }
+                break;
+            }
+            case 3: {
+                Vec3 axis;
+                Vec3 normal;
+                Vec3 binormal;
+                Vec3 spline_main;
+                Vec3 spline_a;
+                Vec3 spline_b;
+                Vec3 shadow_v;
+                Vec3 sub_pos;
+                Vec3 rot_out;
+                f32 t1;
+                f32 angle;
+                f32 ratio;
+                f32 t2;
+                f32 weight;
+                f32 saved_x24;
+                f32 ground_scale;
+
+                saved_x24 = re->x24;
+                t1 = re->x14;
+                ratio = (t1 - saved_x24) / (1.0f - saved_x24);
+                axis = grBb_Route_803B83E0;
+                angle = (1.0f - ratio) * re->x1C;
+
+                splGetSplinePoint(&spline_main, gp->gv.bigblueroute.xCC, t1);
+                lbShadow_8000E9F0(&normal, gp->gv.bigblueroute.xCC, t1);
+                grBigBlueRoute_8020DD64(&normal);
+                PSVECCrossProduct(&axis, &normal, &binormal);
+                lbVector_RotateAboutUnitAxis(&binormal, &normal, angle);
+                grBigBlueRoute_8020DD64(&binormal);
+                PSVECCrossProduct(&normal, &binormal, &axis);
+                grBigBlueRoute_8020DD64(&axis);
+                Ground_801C5AEC(&rot_out, &normal, &binormal, &axis);
+
+                ground_scale = 45.0f * Ground_801C0498();
+                axis.x *= ground_scale;
+                axis.y *= ground_scale;
+                axis.z *= ground_scale;
+                lbVector_Add(&spline_main, &axis);
+
+                re = (RouteEntry*) ((u8*) gp->gv.bigblueroute.xC8 + offset);
+                t2 = re->x4;
+                weight = re->xC;
+                splGetSplinePoint(&spline_a, gp->gv.bigblueroute.xD0, t2);
+                splGetSplinePoint(&spline_b, gp->gv.bigblueroute.xD4, t2);
+                lbShadow_8000E9F0(&shadow_v, gp->gv.bigblueroute.xD0, t2);
+                lbVector_Diff(&spline_b, &spline_a, &sub_pos);
+                sub_pos.x *= weight;
+                sub_pos.y *= weight;
+                sub_pos.z *= weight;
+                lbVector_Add(&sub_pos, &spline_a);
+                atan2f(shadow_v.y, shadow_v.x);
+
+                lbVector_Diff(&sub_pos, &spline_main, &translate);
+                translate.x *= ratio;
+                translate.y *= ratio;
+                translate.z *= ratio;
+                lbVector_Add(&translate, &spline_main);
+
+                rot_x = rot_out.x;
+                rot_y = rot_out.y;
+                rot_z = rot_out.z;
+
+                re = (RouteEntry*) ((u8*) gp->gv.bigblueroute.xC8 + offset);
+                if (re->x14 == 1.0f) {
+                    re->flags.b2_5 = 0;
+                }
+                break;
+            }
+            }
+
+            if (!((RouteEntryFlags*) ((u8*) gp->gv.bigblueroute.xC8 + offset))
+                    ->b1) {
+                HSD_JObjSetTranslate(jobj, &translate);
+                HSD_JObjSetRotationX(jobj, rot_x);
+                HSD_JObjSetRotationY(jobj, rot_y);
+                HSD_JObjSetRotationZ(jobj, rot_z);
+            }
+        }
+
+        /* Range checks */
+        if (translate.x - 260.0f < fighter_pos.x &&
+            fighter_pos.x < translate.x + 260.0f &&
+            translate.z - 260.0f < fighter_pos.z &&
+            fighter_pos.z < translate.z + 260.0f &&
+            !((RouteEntryFlags*) ((u8*) gp->gv.bigblueroute.xC8 + offset))
+                 ->b1)
+        {
+            if (!((UnkFlagStruct*) ((u8*) gp + 0xC4))->b1) {
+                ((UnkFlagStruct*) ((u8*) gp + 0xC4))->b1 = 1;
+                Ground_801C53EC(0x77A16);
+            }
+        }
+
+        if (translate.x - 100.0f < fighter_pos.x &&
+            fighter_pos.x < translate.x + 100.0f &&
+            translate.z - 100.0f < fighter_pos.z &&
+            fighter_pos.z < translate.z + 100.0f) {
+            if (((RouteEntryFlags*) ((u8*) gp->gv.bigblueroute.xC8 + offset))
+                    ->b1) {
+                if (!((UnkFlagStruct*) ((u8*) gp + 0xC4))->b0) {
+                    un_802FD604((s32) grBb_Route_804D6A68->x4C);
+                    Ground_801C53EC(0x77A11);
+                    ((UnkFlagStruct*) ((u8*) gp + 0xC4))->b0 = 1;
+                }
+            } else {
+                Camera_80030E44(1, NULL);
+                if (!((RouteEntryFlags*) ((u8*) gp->gv.bigblueroute.xC8 +
+                                          offset))
+                         ->b6) {
+                    ((RouteEntryFlags*) ((u8*) gp->gv.bigblueroute.xC8 +
+                                          offset))
+                        ->b6 = 1;
+                    if (HSD_Randi(100) < 40) {
+                        switch (HSD_Randi(3)) {
+                        case 0:
+                            Ground_801C53EC(0x77A15);
+                            break;
+                        case 1:
+                            Ground_801C53EC(0x77A14);
+                            break;
+                        case 2:
+                            Ground_801C53EC(0x77A13);
+                            break;
+                        }
+                    }
+                }
+            }
+        } else if (((RouteEntryFlags*) ((u8*) gp->gv.bigblueroute.xC8 +
+                                         offset))
+                       ->b1) {
+            if (((UnkFlagStruct*) ((u8*) gp + 0xC4))->b0) {
+                ((UnkFlagStruct*) ((u8*) gp + 0xC4))->b0 = 0;
+            }
+        }
+
+        offset += 0x2C;
+        i++;
+        jobj = (jobj != NULL) ? (HSD_JObj*) grBigBlueRoute_8020DA9C(
+                                    (struct grBigBlueRoute_8020DA9C_t*) jobj)
+                              : NULL;
+                } while (i < 31);
+            }
+        }
+    }
+}
 
 int grBigBlueRoute_8020DA9C(struct grBigBlueRoute_8020DA9C_t* desc)
 {
