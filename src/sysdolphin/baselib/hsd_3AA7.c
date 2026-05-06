@@ -156,7 +156,91 @@ void hsd_803AC3E0(struct hsd_803AC3E0_arg0_t* file_desc, int file_idx,
     file_desc->x70[file_idx] = file_flags;
 }
 
-/// #fn_803AC3F8
+void fn_803AC3F8(void* arg0, u8* data, s32 idx)
+{
+    struct hsd_803AC3E0_arg0_t* file_desc = (struct hsd_803AC3E0_arg0_t*) arg0;
+    s32 start;
+    s32 i;
+    s32 remaining;
+    s32 unroll;
+
+    if (idx + 1 >= 9 || file_desc->x4C[idx + 1] == 0) {
+        start = idx - 2;
+    } else {
+        start = idx - 1;
+    }
+    if (start < 0) {
+        start = 0;
+    }
+
+    for (i = 0; i < 3 && i < 9; i++) {
+        s32 j = start + i;
+        u32 flags = file_desc->x28[j];
+        data[0] = (u8) j;
+        data[1] = (u8) (((file_desc->x4C[j] >> 16) & 0x3F) | ((flags << 6) & 0xC0));
+        data[2] = (u8) (file_desc->x4C[j] >> 8);
+        data[3] = (u8) file_desc->x4C[j];
+        data += 4;
+    }
+
+    remaining = 3 - i;
+    if (i >= 3) {
+        return;
+    }
+
+    unroll = remaining >> 3;
+    if (unroll != 0) {
+        do {
+            data[0] = 0;
+            data[1] = 0;
+            data[2] = 0;
+            data[3] = 0;
+            data[4] = 0;
+            data[5] = 0;
+            data[6] = 0;
+            data[7] = 0;
+            data[8] = 0;
+            data[9] = 0;
+            data[10] = 0;
+            data[11] = 0;
+            data[12] = 0;
+            data[13] = 0;
+            data[14] = 0;
+            data[15] = 0;
+            data[16] = 0;
+            data[17] = 0;
+            data[18] = 0;
+            data[19] = 0;
+            data[20] = 0;
+            data[21] = 0;
+            data[22] = 0;
+            data[23] = 0;
+            data[24] = 0;
+            data[25] = 0;
+            data[26] = 0;
+            data[27] = 0;
+            data[28] = 0;
+            data[29] = 0;
+            data[30] = 0;
+            data[31] = 0;
+            data += 0x20;
+            unroll--;
+        } while (unroll != 0);
+        remaining &= 7;
+        if (remaining == 0) {
+            return;
+        }
+    }
+
+    do {
+        data[0] = 0;
+        data[1] = 0;
+        data[2] = 0;
+        data[3] = 0;
+        data += 4;
+        remaining--;
+    } while (remaining != 0);
+}
 
 /// @todo Currently 76.6% match - mwcc emits combined `rlwimi. r6,r0,8,10,23`
 /// (14-bit insert with CR0) and `srawi/clrlwi` for top-2-bit extract; permuter
