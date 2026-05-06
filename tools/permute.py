@@ -3134,6 +3134,37 @@ def cmd_outputs(args: argparse.Namespace) -> None:
     print(f"#   - If commit-match refuses, the permuter score-0 was a false positive (its metric ≠ report.json fuzzy)")
 
 
+def _tus_differing_from_upstream() -> set[str]:
+    """Return the set of TU short-names (e.g. 'melee/gr/grpura') whose .c file
+    differs from upstream/master.
+
+    A TU whose source matches upstream byte-for-byte but still doesn't fully
+    byte-match in our build either (a) is matched upstream but our build env
+    diverges, or (b) is impacted by neighbor-TU layout. Either way, the
+    target function offers no source-shape lever for a subagent to pull —
+    those are wasted attempts. This filter restricts picker output to TUs
+    where there is actually source-side work left to do.
+    """
+    remote = permute_upstream._upstream_remote()
+    if remote is None:
+        return set()
+    r = subprocess.run(
+        ["git", "diff", "--name-only", f"{remote}/master", "--",
+         "src/melee/", "src/sysdolphin/"],
+        capture_output=True, cwd=ROOT, check=False,
+    )
+    if r.returncode != 0:
+        return set()
+    out = r.stdout.decode("utf-8", errors="replace")
+    tus: set[str] = set()
+    for line in out.splitlines():
+        line = line.strip()
+        if not line.startswith("src/") or not line.endswith(".c"):
+            continue
+        tus.add(line[len("src/"):-len(".c")])
+    return tus
+
+
 def cmd_picker(args: argparse.Namespace) -> None:
     """List undecompiled or in-progress functions sorted by difficulty estimate.
 
@@ -3152,9 +3183,15 @@ def cmd_picker(args: argparse.Namespace) -> None:
         sys.exit("no report.json found — run ninja at least once")
     data = json.loads(report_path.read_text())
 
+    differing_tus: Optional[set[str]] = None
+    if getattr(args, "source_differs_upstream", False):
+        differing_tus = _tus_differing_from_upstream()
+
     rows: list[tuple[float, dict]] = []
+    skipped_no_diff = 0
     for unit in data.get("units", []):
         unit_name = unit.get("name", "")
+        unit_short = unit_name.replace("main/", "")
         for fn in unit.get("functions", []) or []:
             pct = fn.get("fuzzy_match_percent", 0.0)
             size_bytes = int(fn.get("size", 0))
@@ -3167,6 +3204,9 @@ def cmd_picker(args: argparse.Namespace) -> None:
                 continue
             if args.max_size is not None and size_bytes > args.max_size:
                 continue
+            if differing_tus is not None and unit_short not in differing_tus:
+                skipped_no_diff += 1
+                continue
 
             rows.append((size_bytes, {
                 "name": fn.get("name"),
@@ -3177,7 +3217,11 @@ def cmd_picker(args: argparse.Namespace) -> None:
 
     rows.sort(key=lambda r: r[0])
 
-    print(f"# {len(rows)} {args.mode} functions (showing first {args.limit})")
+    suffix = ""
+    if differing_tus is not None:
+        suffix = (f"  (filtered by source-differs-upstream: "
+                  f"{len(differing_tus)} TUs differ; {skipped_no_diff} fns skipped)")
+    print(f"# {len(rows)} {args.mode} functions (showing first {args.limit}){suffix}")
     print(f"{'instructions':>12}  {'match%':>7}  function name")
     for _, r in rows[: args.limit]:
         ins = r["size"] // 4
@@ -4317,6 +4361,12 @@ def main() -> None:
         choices=["untouched", "in_progress", "all"],
         default="untouched",
         help="untouched=0%% match, in_progress=between 0%% and 100%%, all=both",
+    )
+    ppk.add_argument(
+        "--source-differs-upstream", action="store_true",
+        help=("only include functions whose TU source differs from upstream/master. "
+              "Filters out TUs where source is identical (so any non-100%% is build-env "
+              "or neighbor-TU layout, not source-shape work for a subagent)."),
     )
     ppk.set_defaults(handler=cmd_picker)
 
