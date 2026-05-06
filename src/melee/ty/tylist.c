@@ -190,7 +190,122 @@ char* un_80312834(char* buf, u32 num)
     return buf;
 }
 
-/// #un_80312904
+extern f32 un_804DDE28;
+extern f32 un_804DDE2C;
+extern f32 un_804DDE30;
+extern f32 un_804DDE34;
+extern f32 un_804DDE38;
+extern f32 un_804DDE3C;
+extern f32 un_804DDE40;
+extern GXColor lb_804D3760;
+extern GXColor lb_804D3764;
+
+typedef struct TyListRow {
+    /* 0x00 */ u8 pad_0[0xC];
+    /* 0x0C */ HSD_JObj* jobj;
+    /* 0x10 */ u8 pad_10[0x18 - 0x10];
+    /* 0x18 */ HSD_Text* text0;
+    /* 0x1C */ HSD_Text* text1;
+    /* 0x20 */ HSD_Text* text2;
+    /* 0x24 */ s8 x24;
+    /* 0x25 */ u8 pad_25;
+    /* 0x26 */ s16 idx;
+    /* 0x28 */ s32 x28;
+    /* 0x2C */ u8 pad_2C[0x30 - 0x2C];
+    /* 0x30 */ f32 x30;
+} TyListRow;
+
+void un_80312904(void* arg0, s8 arg1)
+{
+    TyListState* state = (TyListState*) un_804A2AC0;
+    TyListRow* row = (TyListRow*) arg0;
+    HSD_JObj* jobj;
+    HSD_JObj* jobj2;
+    HSD_JObj* jobj3;
+    f32 f30;
+    f32 f29;
+    f32 f31;
+    s32 skip;
+    u8* digits;
+    PAD_STACK(0x78);
+
+    if (row->idx == -1) {
+        return;
+    }
+
+    if (un_GetTrophyTotal() < 0xB) {
+        s8 v = row->x24;
+        if (v == -1 || v == (s8) state->entryCount - 2) {
+            skip = 0;
+        } else {
+            skip = 1;
+        }
+    } else {
+        skip = 1;
+    }
+
+    if (skip == 0) {
+        return;
+    }
+
+    jobj = row->jobj;
+    if (jobj == NULL) {
+        __assert("jobj.h", 0x3E1, "jobj");
+    }
+    f30 = jobj->translate.x - un_804DDE28;
+    jobj2 = state->gobj->hsd_obj;
+    if (jobj2 == NULL) {
+        __assert("jobj.h", 0x3EE, "jobj");
+    }
+    f29 = (-row->x30 - jobj2->translate.y) - un_804DDE2C;
+    jobj3 = state->gobj->hsd_obj;
+    if (jobj3 == NULL) {
+        __assert("jobj.h", 0x3FB, "jobj");
+    }
+    f31 = jobj3->translate.z;
+
+    if (arg1 != 0x63) {
+        if ((s8) row->x24 == arg1) {
+            row->text0->text_color = lb_804D3764;
+            row->text1->text_color = lb_804D3764;
+            row->text2->text_color = lb_804D3764;
+        } else {
+            row->text0->text_color = lb_804D3760;
+            row->text1->text_color = lb_804D3760;
+            row->text2->text_color = lb_804D3760;
+        }
+    }
+
+    row->text0->pos_x = f30;
+    row->text0->pos_y = f29;
+    row->text0->pos_z = f31;
+    row->text0->font_size.x = un_804DDE30;
+    row->text0->font_size.y = un_804DDE34;
+    row->text0->default_kerning = 1;
+    {
+        extern s32 un_803082F8(s16);
+        HSD_SisLib_803A6368(row->text0, un_803082F8(row->idx));
+    }
+
+    row->text1->pos_x = un_804DDE38 + f30;
+    row->text1->pos_y = f29;
+    row->text1->pos_z = f31;
+    row->text1->font_size.x = un_804DDE30;
+    row->text1->font_size.y = un_804DDE34;
+    HSD_SisLib_803A6368(row->text1, 0x13B);
+
+    digits = ((u8**) ((char*) HSD_SisLib_804D1124[0] + 0x4B8))[row->x28];
+    un_80312834((char*) digits, un_803048C0(un_80308354(row->idx)));
+
+    row->text2->default_alignment = 2;
+    row->text2->default_kerning = 1;
+    row->text2->pos_x = un_804DDE3C + f30;
+    row->text2->pos_y = f29;
+    row->text2->pos_z = f31;
+    row->text2->font_size.x = un_804DDE40;
+    row->text2->font_size.y = un_804DDE34;
+    HSD_SisLib_803A6368(row->text2, row->x28 + 0x12E);
+}
 
 /// #un_80312BAC
 
@@ -465,8 +580,6 @@ HSD_JObj* un_80313508(void* parent, void* symbol, float x, float y, float z)
 
 void fn_80313BD8(HSD_GObj* gobj);
 extern s32 un_804D6EEC;
-extern f32 un_804DDE34;
-extern f32 un_804DDE40;
 extern f32 un_804DDE44;
 extern f32 un_804DDE68;
 extern f32 un_804DDE88;
