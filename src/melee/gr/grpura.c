@@ -262,14 +262,14 @@ void grPura_8021231C(Ground_GObj* arg0)
 {
     Ground* gp = GET_GROUND(arg0);
     HSD_JObj* jobj = arg0->hsd_obj;
-    Vec3* vec = { 0 };
-    Quaternion* quat = { 0 };
-    HSD_JObjGetTranslation2(gp->gv.pura2.xC8, vec);
-    HSD_JObjSetTranslate(jobj, vec);
-    HSD_JObjGetRotation(gp->gv.pura2.xC8, quat);
-    HSD_JObjSetRotation(jobj, quat);
-    HSD_JObjGetScale(gp->gv.pura2.xC8, vec);
-    HSD_JObjSetScale(jobj, vec);
+    Vec3 vec;
+    Quaternion quat;
+    HSD_JObjGetTranslation2(gp->gv.pura2.xC8, &vec);
+    HSD_JObjSetTranslate(jobj, &vec);
+    HSD_JObjGetRotation(gp->gv.pura2.xC8, &quat);
+    HSD_JObjSetRotation(jobj, &quat);
+    HSD_JObjGetScale(gp->gv.pura2.xC8, &vec);
+    HSD_JObjSetScale(jobj, &vec);
 
     // HSD_JObjGetFlags(jobj);
     if ((HSD_JObjGetFlags(gp->gv.pura2.xC8) & 0x10) &&
