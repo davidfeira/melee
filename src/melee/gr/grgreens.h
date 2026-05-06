@@ -55,7 +55,7 @@
 /* 21483C */ void grGreens_8021483C(Ground_GObj*);
 /* 214B58 */ void grGreens_80214B58(Ground_GObj*);
 /* 214FA8 */ void grGreens_80214FA8(Ground_GObj*);
-/* 2150C4 */ UNK_RET grGreens_802150C4(UNK_PARAMS);
+/* 2150C4 */ void grGreens_802150C4(Ground_GObj*, int, int);
 /* 215358 */ void grGreens_80215358(Ground_GObj*, int, int, int, int);
 /* 2159B4 */ void fn_802159B4(Item_GObj*, Ground*);
 /* 2159B8 */ void grGreens_802159B8(Ground*, int, int, int);

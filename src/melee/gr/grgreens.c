@@ -695,7 +695,57 @@ void grGreens_80215D54(Ground_GObj* gobj, int j)
 
 /// #grGreens_802166C4
 
-/// #grGreens_80216C20
+void grGreens_80216C20(Ground_GObj* gobj)
+{
+    Ground* gp = GET_GROUND(gobj);
+    int i;
+    int j;
+    int ioff;
+    int joff;
+    int ij;
+    int prev_i_off;
+    int next_i_off;
+    u8 b;
+    u8* base;
+    int x18;
+    Ground* gp2;
+
+    for (i = 0, ioff = 0; i < 5; i++, ioff += 0xC0) {
+        prev_i_off = (i - 1) * 0xC0;
+        next_i_off = (i + 1) * 0xC0;
+        for (j = 0, joff = 0; j < 6; j++, joff += 0x20) {
+            ij = ioff + joff;
+            b = ((u8*) gp->gv.greens.x8_blocks)[ij + 1];
+            if ((b >> 2) & 1) {
+                gp2 = GET_GROUND(gobj);
+                base = (u8*) gp2->gv.greens.x8_blocks + joff;
+                x18 = *(int*) (base + ioff + 0x18);
+                if (i > 0 && ((base[prev_i_off] >> 4) & 0xF) == 3) {
+                    mpLib_800581DC(x18, *(int*) (base + ioff - 0xA8));
+                }
+                if (j > 0 &&
+                    ((((u8*) gp2->gv.greens.x8_blocks)[ioff + ((j - 1) << 5)] >> 4) & 0xF) == 3)
+                {
+                    mpLib_800581DC(x18,
+                                   *(int*) ((u8*) gp2->gv.greens.x8_blocks + ij - 8));
+                }
+                if (i < 4 && ((base[next_i_off] >> 4) & 0xF) == 3) {
+                    mpLib_800581DC(x18, *(int*) (base + ioff + 0xD8));
+                }
+                if (j < 5 &&
+                    ((((u8*) gp2->gv.greens.x8_blocks)[ioff + ((j + 1) << 5)] >> 4) & 0xF) == 3)
+                {
+                    mpLib_800581DC(x18,
+                                   *(int*) ((u8*) gp2->gv.greens.x8_blocks + ij + 0x38));
+                }
+                ((u8*) gp->gv.greens.x8_blocks)[ij + 1] &= ~4;
+            } else if ((b >> 1) & 1) {
+                grGreens_802150C4(gobj, j, i);
+                ((u8*) gp->gv.greens.x8_blocks)[ij + 1] &= ~2;
+            }
+        }
+    }
+}
 
 void fn_80216DE4(Ground* gp, s32 arg1, CollData* arg2, s32 arg3,
                  enum mpLib_GroundEnum arg4, f32 farg0)
