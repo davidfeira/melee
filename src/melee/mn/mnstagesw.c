@@ -159,7 +159,71 @@ check_self:
     }
 }
 
-/// #mnStageSw_80235DC8
+/// Handle d-pad input on the stage switch screen.
+static void mnStageSw_80235DC8(u8* user_data, s32 buttons)
+{
+    u8 hov = (u8) mn_804A04F0.hovered_selection;
+    u8* arr;
+    s32 ret;
+    s32 lo;
+    s32 hi;
+
+    if (buttons & 1) {
+        arr = mnStageSw_803ED4C4;
+        lo = 0xE;
+        hi = 0x1C;
+        do {
+            switch ((s32) hov) {
+            case 0xF:
+                mn_804A04F0.hovered_selection = (u16) hi;
+                break;
+            case 0:
+                mn_804A04F0.hovered_selection = (u16) lo;
+                break;
+            default:
+                mn_804A04F0.hovered_selection = (u16) (hov - 1);
+                break;
+            }
+            hov = (u8) mn_804A04F0.hovered_selection;
+        } while (gm_80164430(gm_801641CC(arr[hov])) == 0);
+        mn_804A04F0.confirmed_selection = user_data[hov + 2];
+    } else if (buttons & 2) {
+        arr = mnStageSw_803ED4C4;
+        lo = 0;
+        hi = 0xF;
+        do {
+            switch ((s32) hov) {
+            case 0xE:
+                mn_804A04F0.hovered_selection = (u16) lo;
+                break;
+            case 0x1C:
+                mn_804A04F0.hovered_selection = (u16) hi;
+                break;
+            default:
+                mn_804A04F0.hovered_selection = (u16) (hov + 1);
+                break;
+            }
+            hov = (u8) mn_804A04F0.hovered_selection;
+        } while (gm_80164430(gm_801641CC(arr[hov])) == 0);
+        mn_804A04F0.confirmed_selection = user_data[hov + 2];
+    } else if (buttons & 4) {
+        if (hov >= 0xF && hov < 0x1D) {
+            ret = mnStageSw_80235C58(hov - 0xF);
+            if (ret != -1) {
+                mn_804A04F0.hovered_selection = (u8) ret;
+                mn_804A04F0.confirmed_selection = user_data[(u8) ret + 2];
+            }
+        }
+    } else if (buttons & 8) {
+        if (hov < 0xF) {
+            ret = mnStageSw_80235C58(hov + 0xF);
+            if (ret != -1) {
+                mn_804A04F0.hovered_selection = (u8) ret;
+                mn_804A04F0.confirmed_selection = user_data[(u8) ret + 2];
+            }
+        }
+    }
+}
 
 /// #fn_80235F80
 
