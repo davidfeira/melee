@@ -1,16 +1,24 @@
 #include "sobjlib.h"
 
 #include "cobj.h"
+#include "debug.h"
 #include "gobj.h"
 #include "gobjgxlink.h"
 #include "gobjobject.h"
 #include "objalloc.h"
 #include "state.h"
 #include "tev.h"
+#include "tobj.h"
 
 #include "dolphin/gx.h"
 
 #include <dolphin/os.h>
+
+typedef struct HSD_SObjDesc {
+    /* 0x00 */ HSD_ImageDesc* image;
+    /* 0x04 */ HSD_TlutDesc* tlut;
+    /* 0x08 */ HSD_ImageDesc* back_image;
+} HSD_SObjDesc;
 
 /* 004DB670 */ extern const s32 HSD_SObjLib_804DEA90;
 /* 004DB66C */ extern const s32 HSD_SObjLib_804DEA8C;
@@ -153,7 +161,84 @@ void HSD_SObjLib_803A4740(HSD_SObj* sobj)
     }
 }
 
-/// #HSD_SObjLib_803A477C
+HSD_SObj* HSD_SObjLib_803A477C(HSD_GObj* gobj, int desc_arg, int wrap_s,
+                               int wrap_t, int priority, int flag)
+{
+    HSD_SObj* sobj;
+    HSD_ImageDesc* image;
+    HSD_TlutDesc* tlut;
+    HSD_ImageDesc* back_image;
+    f32 inv_w;
+
+    if ((u8) flag != 0) {
+        image = ((HSD_SObjDesc*) desc_arg)->image;
+        tlut = ((HSD_SObjDesc*) desc_arg)->tlut;
+        back_image = ((HSD_SObjDesc*) desc_arg)->back_image;
+    } else {
+        image = ((HSD_SObjDesc*) desc_arg)->image;
+        back_image = NULL;
+        tlut = ((HSD_SObjDesc*) desc_arg)->tlut;
+    }
+
+    sobj = HSD_ObjAlloc(&HSD_SObjLib_804D10E0);
+    HSD_ASSERTMSG(0x11F, sobj, "sobj");
+
+    if (tlut != NULL) {
+        GXInitTlutObj(&sobj->x70_tlutobj, tlut->lut, tlut->fmt,
+                      tlut->n_entries);
+        GXInitTexObjCI(&sobj->x50_texobj, image->image_ptr, image->width,
+                       image->height, (GXCITexFmt) image->format,
+                       (GXTexWrapMode) wrap_s, (GXTexWrapMode) wrap_t,
+                       (u8) image->mipmap, tlut->tlut_name);
+    } else {
+        GXInitTexObj(&sobj->x50_texobj, image->image_ptr, image->width,
+                     image->height, image->format, (GXTexWrapMode) wrap_s,
+                     (GXTexWrapMode) wrap_t, (u8) image->mipmap);
+    }
+
+    if ((u8) flag != 0) {
+        GXInitTexObj(&sobj->x7C_texobj, back_image->image_ptr,
+                     back_image->width, back_image->height, back_image->format,
+                     (GXTexWrapMode) wrap_s, (GXTexWrapMode) wrap_t,
+                     (u8) back_image->mipmap);
+    }
+
+    sobj->x0 = NULL;
+    sobj->prev = NULL;
+    sobj->next = NULL;
+    sobj->x14 = 0.0f;
+    sobj->x10 = 0.0f;
+    sobj->x18 = 0.0f;
+    sobj->x20 = 1.0f;
+    sobj->x1C = 1.0f;
+    sobj->x3F = 0xFF;
+    sobj->x3E = 0xFF;
+    sobj->x3D = 0xFF;
+    sobj->x3C = 0xFF;
+    sobj->x3B = 0xFF;
+    sobj->x3A = 0xFF;
+    sobj->x39 = 0xFF;
+    sobj->x38 = 0xFF;
+    sobj->x40 = 0;
+    sobj->x48 = 0;
+    sobj->x4C_callback = NULL;
+    sobj->gobj = gobj;
+
+    if ((u8) flag != 0) {
+        sobj->x40 |= 4;
+    }
+
+    sobj->x34 = image->width;
+    sobj->x36 = image->height;
+    inv_w = 1.0f / (f32) GXGetTexObjWidth(&sobj->x50_texobj);
+    sobj->x24 = 0.0f;
+    sobj->x28 = 0.0f;
+    sobj->x2C = (f32) sobj->x34 * inv_w;
+    sobj->x30 = (f32) sobj->x36
+        * (1.0f / (f32) GXGetTexObjHeight(&sobj->x50_texobj));
+    HSD_SObjLib_803A44D4(gobj, sobj, (u8) priority);
+    return sobj;
+}
 
 void HSD_SObjLib_803A49E0(HSD_GObj* gobj, int unused)
 {
