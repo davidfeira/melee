@@ -1580,7 +1580,56 @@ void un_8030715C(f32 cstick_x, f32 cstick_y)
     }
 }
 
-/// #un_80307470
+void un_80307470(s32 arg0)
+{
+    char* data;
+    void** td;
+    HSD_JObj* jobj;
+    char** ptr;
+    char** ptr2;
+    void* joint;
+    void* animjoint;
+    void* matanim;
+    void* shapanim;
+
+    data = un_803FDD18;
+    td = un_804D6ED8;
+
+    if (td[0x50 / 4] == NULL) {
+        OSReport(data + 0x6A0);
+        __assert("toy.c", 0x9B1, "0");
+    }
+
+    if (td[0] != NULL) {
+        HSD_GObjPLink_80390228(td[0]);
+        td[0] = NULL;
+    }
+
+    ptr = (char**) (data + arg0 * 4);
+    joint = HSD_ArchiveGetPublicAddress(td[0x50 / 4], ptr[0x188 / 4]);
+    ptr = (char**) ((char*) ptr + 0x188);
+
+    if (joint != NULL) {
+        td[0] = GObj_Create(9, 9, 0);
+        jobj = HSD_JObjLoadJoint(joint);
+
+        ptr2 = (char**) (data + arg0 * 0xC);
+        animjoint = HSD_ArchiveGetPublicAddress(td[0x50 / 4], ptr2[0x224 / 4]);
+        matanim = HSD_ArchiveGetPublicAddress(td[0x50 / 4], ptr2[0x228 / 4]);
+        shapanim = HSD_ArchiveGetPublicAddress(td[0x50 / 4], ptr2[0x22C / 4]);
+
+        HSD_JObjAddAnimAll(jobj, animjoint, matanim, shapanim);
+        HSD_JObjReqAnimAll(jobj, 0.0F);
+        HSD_GObjObject_80390A70(td[0], HSD_GObj_804D7849, jobj);
+        GObj_SetupGXLink(td[0], HSD_GObj_JObjCallback, 0x3C, 0);
+        lb_8001204C(jobj, (HSD_JObj**) &td[0x10 / 4],
+                    (u16*) (data + 0x6E0), 9);
+        un_803083D8((HSD_JObj*) td[0x30 / 4], 0x3E7);
+    } else {
+        OSReport(data + 0x6F4, *ptr);
+        __assert("toy.c", 0x9E6, "0");
+    }
+}
 
 /* 96.3% match */
 
