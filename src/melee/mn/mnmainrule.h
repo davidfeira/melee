@@ -25,7 +25,7 @@ struct mn_8022FB88_t;
 /* 22FB88 */ void mn_8022FB88(u8, struct mn_8022FB88_t*);
 /* 22FD18 */ void mn_8022FD18(u8);
 /* 22FEC8 */ void mn_8022FEC8(HSD_GObj*, HSD_JObj*, u8, u8);
-/* 230198 */ UNK_RET mn_80230198(UNK_PARAMS);
+/* 230198 */ void mn_80230198(s32, HSD_JObj*, u8);
 /* 230274 */ UNK_RET mn_80230274(UNK_PARAMS);
 /* 2307F8 */ void mn_802307F8(struct mn_802307F8_t*, s32, s32);
 /* 2308F0 */ void mn_802308F0(HSD_GObj*, int, int);

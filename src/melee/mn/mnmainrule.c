@@ -461,7 +461,54 @@ void mn_8022FEC8(HSD_GObj* gobj, HSD_JObj* jobj, u8 mode, u8 value)
     }
 }
 
-/// #mn_80230198
+extern AnimLoopSettings mn_803EC734[5];
+extern AnimLoopSettings mn_803EC770[9];
+
+void mn_80230198(s32 arg0, HSD_JObj* jobj, u8 mode)
+{
+    f32 cur;
+    AnimLoopSettings* a;
+    AnimLoopSettings* b;
+    AnimLoopSettings* found;
+    s32 i;
+
+    if ((s32) mode == 3) {
+        return;
+    }
+    if ((s32) mode < 3) {
+        if ((s32) mode == 1) {
+            return;
+        }
+        if ((s32) mode < 1 && (s32) mode < 0) {
+            return;
+        }
+    } else {
+        if ((s32) mode >= 7) {
+            return;
+        }
+        if ((s32) mode >= 5) {
+            return;
+        }
+    }
+
+    cur = mn_8022F298(jobj);
+    b = mn_803EC734;
+    a = mn_803EC770;
+    found = a;
+    for (i = 5; i != 0; i--) {
+        found = a;
+        if (a->start_frame <= cur && cur <= a->end_frame) {
+            break;
+        }
+        found = b;
+        if (b->start_frame <= cur && cur <= b->end_frame) {
+            break;
+        }
+        a++;
+        b++;
+    }
+    mn_8022ED6C(jobj, found);
+}
 
 /// #mn_80230274
 
