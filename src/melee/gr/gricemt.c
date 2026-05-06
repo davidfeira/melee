@@ -599,10 +599,13 @@ void grIceMt_801F7F1C(Ground_GObj* gobj)
     }
 }
 
+extern const u32 grIm_804DB58C;
+
 /// #grIceMt_801F7F70
 void grIceMt_801F7F70(Ground_GObj* arg0)
 {
     Ground* gp = GET_GROUND(arg0);
+    s16 joint_indices[4];
     HSD_JObj* jobj;
     HSD_JObj* jobj2;
     Ground_801C2ED0(arg0->hsd_obj, gp->map_id);
@@ -622,6 +625,19 @@ void grIceMt_801F7F70(Ground_GObj* arg0)
     gp->gv.icemt2.xEC = Ground_801C3FA4(arg0, 18);
     gp->gv.icemt2.xF0 = Ground_801C3FA4(arg0, 19);
     gp->gv.icemt2.xF4 = Ground_801C3FA4(arg0, 20);
+    ((UnkFlagStruct*) ((u8*) gp + 0xC4))->b0 = 0;
+    *(u32*) &joint_indices[0] = grIm_804DB58C;
+    grIceMt_801F8CDC(arg0, joint_indices, 2, &gp->gv.icemt.xF8[0]);
+    grIceMt_801F91EC(arg0, (s16*) &gp->gv.icemt.xF8[2],
+                     ((int (*) (HSD_GObj*, HSD_JObj*)) grIceMt_801FA500)(arg0,
+                                                                        jobj),
+                     -1, 0x25, 0x109, 0x27e,
+                     (mpLib_Callback) (void*) fn_801F9338);
+    grIceMt_801F91EC(arg0, &gp->gv.icemt.x10E,
+                     ((int (*) (HSD_GObj*, HSD_JObj*)) grIceMt_801FA500)(arg0,
+                                                                        jobj2),
+                     -1, 0x26, 0x109, 0x27e,
+                     (mpLib_Callback) (void*) fn_801F9448);
     // gp->gv.icemt.xD8 = 1;
 }
 
@@ -655,6 +671,8 @@ void grIceMt_801F81B4(Ground_GObj* gobj)
 
 extern const u32 grIm_804DB590;
 extern const u32 grIm_804DB594;
+extern const u32 grIm_804DB5A0;
+extern const u32 grIm_804DB5A4;
 
 /// #grIceMt_801F8208
 void grIceMt_801F8208(Ground_GObj* arg0)
@@ -710,12 +728,20 @@ void grIceMt_801F8398(Ground_GObj* gobj)
     }
 }
 
+extern const u32 grIm_804DB598;
+extern const u32 grIm_804DB59C;
+
 /// #grIceMt_801F83EC
 void grIceMt_801F83EC(Ground_GObj* arg0)
 {
+    int (*grIceMt_801FA500_2)(HSD_GObj*, HSD_JObj*) =
+        (int (*)(HSD_GObj*, HSD_JObj*)) grIceMt_801FA500;
     Ground* gp = GET_GROUND(arg0);
+    s16 joint_indices[4];
     HSD_JObj* jobj;
     HSD_JObj* jobj2;
+    int r1;
+    int r2;
     Ground_801C0498();
     Ground_801C2ED0(arg0->hsd_obj, gp->map_id);
     grAnime_801C8138(arg0, gp->map_id, 0);
@@ -734,6 +760,14 @@ void grIceMt_801F83EC(Ground_GObj* arg0)
     gp->gv.icemt2.xEC = Ground_801C3FA4(arg0, 20);
     gp->gv.icemt2.xF0 = Ground_801C3FA4(arg0, 21);
     gp->gv.icemt2.xF4 = Ground_801C3FA4(arg0, 22);
+    ((UnkFlagStruct*) ((u8*) gp + 0xC4))->b0 = 0;
+    *(u32*) &joint_indices[0] = grIm_804DB598;
+    *(u32*) &joint_indices[2] = grIm_804DB59C;
+    grIceMt_801F8CDC(arg0, joint_indices, 4, &gp->gv.icemt.xF8[0]);
+    r1 = grIceMt_801FA500_2(arg0, jobj2);
+    r2 = grIceMt_801FA500_2(arg0, jobj);
+    grIceMt_801F91EC(arg0, (s16*) &gp->gv.icemt.xF8[4], r2, r1, 0x75, 0x109,
+                     0x27e, (mpLib_Callback) fn_801F9558);
     // gp->gv.icemt.xD8 = 1;
 }
 
@@ -827,14 +861,12 @@ void grIceMt_801F87FC(Ground_GObj* gobj)
 void grIceMt_801F8850(Ground_GObj* arg0)
 {
     Ground* gp = GET_GROUND(arg0);
+    s16 joint_indices[4];
     HSD_JObj* jobj;
     HSD_JObj* jobj2;
-    // Ground_801C0498();
     Ground_801C2ED0(arg0->hsd_obj, gp->map_id);
     grAnime_801C8138(arg0, gp->map_id, 0);
     grAnime_801C77FC(arg0, 0, 7);
-    // jobj = Ground_801C3FA4(arg0,7);
-    // jobj2 = Ground_801C3FA4(arg0,5);
     gp->gv.icemt2.xC8 = Ground_801C3FA4(arg0, 5);
     gp->gv.icemt2.xCC = Ground_801C3FA4(arg0, 6);
     gp->gv.icemt2.xD0 = Ground_801C3FA4(arg0, 7);
@@ -847,6 +879,10 @@ void grIceMt_801F8850(Ground_GObj* arg0)
     gp->gv.icemt2.xEC = Ground_801C3FA4(arg0, 18);
     gp->gv.icemt2.xF0 = Ground_801C3FA4(arg0, 19);
     gp->gv.icemt2.xF4 = Ground_801C3FA4(arg0, 20);
+    ((UnkFlagStruct*) ((u8*) gp + 0xC4))->b0 = 0;
+    *(u32*) &joint_indices[0] = grIm_804DB5A0;
+    *(u32*) &joint_indices[2] = grIm_804DB5A4;
+    grIceMt_801F8CDC(arg0, joint_indices, 4, &gp->gv.icemt.xF8[0]);
     // gp->gv.icemt.xD8 = 1;
 }
 
