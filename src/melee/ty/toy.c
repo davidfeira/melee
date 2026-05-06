@@ -15,6 +15,7 @@
 #include "baselib/random.h"
 #include "baselib/sobjlib.h"
 #include "baselib/state.h"
+#include "db/db.h"
 #include "gm/gm_1601.h" // for gm_801677E8
 #include "gm/gm_16AE.h"
 #include "gm/gm_16F1.h" // for gm_80172C44
@@ -3102,7 +3103,110 @@ void un_80311960(void)
     toy->trophyCount = 0;
 }
 
-/// #un_80311AB0_OnEnter
+extern u8 un_804D6EA0;
+
+static inline u32 OnEnter_pollPads(void)
+{
+    int i;
+    u32 button;
+    PAD_STACK(4);
+
+    for (i = 0; i < 4; i++) {
+        if ((button = HSD_PadCopyStatus[(u8) i].button)) {
+            gm_801677E8(i);
+            break;
+        }
+    }
+    return button;
+}
+
+void un_80311AB0_OnEnter(UNK_T arg0)
+{
+    char* fname = un_803FDD18;
+    Toy* toy = (Toy*) &un_804A26B8;
+    u32 button;
+    s16 var_r3;
+
+    un_804D6EA2 = 0;
+    un_804D6E50 = 0;
+    un_804D6EA1 = 0;
+
+    if ((s32) g_debugLevel >= 3) {
+        button = OnEnter_pollPads();
+        un_804D6E50 = (button & 0x40) ? 1 : 0;
+
+        button = OnEnter_pollPads();
+        un_804D6EA2 = (button & 0x10) ? 1 : 0;
+
+        button = OnEnter_pollPads();
+        if (button & 0x1000) {
+            un_804D6EA0 = 0;
+        }
+        if ((s8) un_804D6EA0 != 0) {
+            un_804D6EA0++;
+        }
+
+        button = OnEnter_pollPads();
+        if (button & 0x20) {
+            un_804D6EA0 = 1;
+        }
+    }
+
+    un_804D6E68 = HSD_MemAlloc(0x64);
+    un_804D6ED8 = HSD_MemAlloc(0x5C);
+    un_804D6ED4 = HSD_MemAlloc(0xE4);
+    un_804D6EDC = HSD_MemAlloc(0x24A);
+    un_804D6E64 = HSD_MemAlloc(0x6DE);
+    un_804D6EE0 = HSD_MemAlloc(0x158);
+    un_804D6E6C = HSD_MemAlloc(8);
+    memzero(un_804D6E68, 0x64);
+    memzero(un_804D6ED8, 0x5C);
+    memzero(un_804D6ED4, 0xE4);
+    memzero(un_804D6EDC, 0x24A);
+    memzero(un_804D6E64, 0x6DE);
+    memzero(un_804D6EE0, 0x158);
+    memzero(un_804D6E6C, 8);
+
+    un_8031263C();
+
+    if (*(s16*) ((u8*) toy + 0x3E8) >= 0) {
+        if (gm_8016B498() != 0 || (u8) gm_801A4310() == 0xC) {
+            var_r3 = *(s16*) ((u8*) toy + 0x3EC);
+        } else {
+            var_r3 = *gmMainLib_8015CC90();
+        }
+        if (*(s16*) ((u8*) toy + 0x3E8) <= var_r3) {
+            goto skip_clear;
+        }
+    }
+    *(s16*) ((u8*) toy + 0x3E8) = 0;
+skip_clear:
+
+    *((u8*) toy + 0x195) = 0;
+    *((u8*) toy + 0x196) = 0;
+
+    if (lbLang_IsSavedLanguageJP() != 0) {
+        HSD_SisLib_803A62A0(0, fname + 0xAF0, fname + 0xAFC);
+        HSD_SisLib_803A62A0(3, fname + 0xB08, fname + 0xB18);
+    } else {
+        HSD_SisLib_803A62A0(0, fname + 0xB28, fname + 0xB34);
+        HSD_SisLib_803A62A0(3, fname + 0xB44, fname + 0xB54);
+    }
+
+    if ((s8) un_804D6EA2 != 0) {
+        un_80311788();
+    }
+
+    if ((s32) un_804D6EA0 == 1) {
+        un_803114E8();
+        return;
+    }
+
+    if (gmMainLib_8015ED5C() != -1) {
+        lbAudioAx_80023F28(gmMainLib_8015ED5C());
+    }
+    un_80310324();
+}
 
 #include <platform.h>
 
