@@ -1887,6 +1887,8 @@ void fn_800DAC78(Fighter_GObj* gobj, Vec3* arg1)
     arg1->z = sp2C.z - sp20.z;
 }
 
+#pragma push
+#pragma dont_inline on
 static bool fn_800DAD18(Fighter_GObj* gobj)
 {
     Fighter* temp_r31;
@@ -1919,6 +1921,7 @@ static bool fn_800DAD18(Fighter_GObj* gobj)
     temp_r31->cur_pos.z += tmp.z;
     return var_r3;
 }
+#pragma pop
 
 void ftCo_CapturePulledHi_Coll(Fighter_GObj* gobj)
 {
