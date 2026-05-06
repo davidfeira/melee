@@ -6,6 +6,7 @@
 #include "if/ifprize.h"
 #include "lb/lb_00F9.h"
 #include "lb/lblanguage.h"
+#include "mn/inlines.h"
 #include "mn/mnmain.h"
 
 #include <sysdolphin/baselib/debug.h>
@@ -83,10 +84,102 @@ void mnInfo_80251F04(HSD_GObj* gobj, u32 idx, u32 arg2)
 }
 #pragma pop
 
-/// #fn_80251FE4
-
 extern void* mnInfo_804A0958[4];
 extern HSD_GObj* mnInfo_804D6C78;
+extern u8 mnInfo_804A0968[0x48];
+
+void fn_80251FE4(HSD_GObj* unused)
+{
+    MnInfoData* data;
+    HSD_GObj* gobj;
+    s32 i;
+    s32 count;
+    u8* p;
+    u8 v;
+    long long x;
+
+    data = mnInfo_804D6C78->user_data;
+    if (mn_804D6BC8.cooldown != 0) {
+        Menu_DecrementAnimTimer();
+        return;
+    }
+    x = mn_804A04F0.buttons = mn_80229624(4);
+    if (x & MenuInput_Back) {
+        sfxBack();
+        mn_804A04F0.entering_menu = 0;
+        mn_80229894(5, 4, 3);
+        return;
+    }
+    if (x & MenuInput_Up) {
+        if (data->scroll_idx != 0) {
+            MnInfoData* dw;
+            MnInfoData* dr;
+            data->scroll_idx -= 1;
+            sfxMove();
+            dw = mnInfo_804D6C78->user_data;
+            dr = dw;
+            for (i = 0; i < 4; i++) {
+                if (dw->left_column[0] != NULL) {
+                    HSD_SisLib_803A5CC4(dr->left_column[0]);
+                    dw->left_column[0] = NULL;
+                }
+                if (dw->right_column[0] != NULL) {
+                    HSD_SisLib_803A5CC4(dr->right_column[0]);
+                    dw->right_column[0] = NULL;
+                }
+                dw = (MnInfoData*) ((u8*) dw + 4);
+                dr = (MnInfoData*) ((u8*) dr + 4);
+            }
+            gobj = mnInfo_804D6C78;
+            p = &mnInfo_804A0968[data->scroll_idx];
+            for (i = 0; i < 4; i++) {
+                if (mnInfo_80251A08(*p) != 0) {
+                    v = *p;
+                    mnInfo_80251D58(gobj, i, v, *gmMainLib_8015D804(v));
+                    mnInfo_80251F04(gobj, i, v);
+                }
+                p++;
+            }
+        }
+    } else if (x & MenuInput_Down) {
+        count = 0;
+        for (i = 0; i < 0x42; i++) {
+            if (mnInfo_80251A08(i) != 0) {
+                count++;
+            }
+        }
+        if ((s32) (data->scroll_idx + 4) < count) {
+            MnInfoData* dw;
+            MnInfoData* dr;
+            sfxMove();
+            data->scroll_idx += 1;
+            dw = mnInfo_804D6C78->user_data;
+            dr = dw;
+            for (i = 0; i < 4; i++) {
+                if (dw->left_column[0] != NULL) {
+                    HSD_SisLib_803A5CC4(dr->left_column[0]);
+                    dw->left_column[0] = NULL;
+                }
+                if (dw->right_column[0] != NULL) {
+                    HSD_SisLib_803A5CC4(dr->right_column[0]);
+                    dw->right_column[0] = NULL;
+                }
+                dw = (MnInfoData*) ((u8*) dw + 4);
+                dr = (MnInfoData*) ((u8*) dr + 4);
+            }
+            gobj = mnInfo_804D6C78;
+            p = &mnInfo_804A0968[data->scroll_idx];
+            for (i = 0; i < 4; i++) {
+                if (mnInfo_80251A08(*p) != 0) {
+                    v = *p;
+                    mnInfo_80251D58(gobj, i, v, *gmMainLib_8015D804(v));
+                    mnInfo_80251F04(gobj, i, v);
+                }
+                p++;
+            }
+        }
+    }
+}
 
 static AnimLoopSettings mnInfo_803EFC08[0x12] = {
     { 0.0f, 199.0f, 0.0f },
@@ -198,8 +291,6 @@ void fn_802523D8(HSD_GObj* gobj)
         mn_8022ED6C(jobj, mnInfo_803EFC08);
     }
 }
-
-extern u8 mnInfo_804A0968[0x48];
 
 void fn_80252548(HSD_GObj* gobj)
 {

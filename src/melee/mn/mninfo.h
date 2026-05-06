@@ -49,7 +49,7 @@ typedef struct HSD_GObj MenuInfo_GObj;
 /* 251AFC */ UNK_RET mnInfo_80251AFC(UNK_PARAMS);
 /* 251D58 */ void mnInfo_80251D58(HSD_GObj*, s32, u8, u32);
 /* 251F04 */ void mnInfo_80251F04(MenuInfo_GObj*, u32, u32);
-/* 251FE4 */ UNK_RET fn_80251FE4(UNK_PARAMS);
+/* 251FE4 */ void fn_80251FE4(HSD_GObj*);
 /* 2522B8 */ void mnInfo_802522B8(HSD_GObj*);
 /* 2523B8 */ void fn_802523B8(HSD_GObj*);
 /* 2523D8 */ void fn_802523D8(HSD_GObj*);
