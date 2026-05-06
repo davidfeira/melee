@@ -361,4 +361,37 @@ void fn_8024FD40(HSD_GObj* gobj)
 
 /// #mnDataDel_8024FE4C
 
-/// #mnDataDel_80250170
+extern void* mnDataDel_804A0918[12];
+
+void mnDataDel_80250170(void)
+{
+    HSD_GObj* gobj;
+    HSD_GObjProc* proc;
+
+    mn_804D6BC8.cooldown = 5;
+    mn_804A04F0.prev_menu = mn_804A04F0.cur_menu;
+    mn_804A04F0.cur_menu = 0x18;
+    mn_804A04F0.hovered_selection = 0;
+    mnDataDel_804D6C6C = NULL;
+
+    lbArchive_LoadSections(
+        mn_804D6BB8,
+        &mnDataDel_804A0918[0], (u8*) &mnDataDel_803EF870 + 0xA0,
+        &mnDataDel_804A0918[1], (u8*) &mnDataDel_803EF870 + 0xB8,
+        &mnDataDel_804A0918[2], (u8*) &mnDataDel_803EF870 + 0xD4,
+        &mnDataDel_804A0918[3], (u8*) &mnDataDel_803EF870 + 0xF4,
+        &mnDataDel_804A0918[4], (u8*) &mnDataDel_803EF870 + 0x118,
+        &mnDataDel_804A0918[5], (u8*) &mnDataDel_803EF870 + 0x134,
+        &mnDataDel_804A0918[6], (u8*) &mnDataDel_803EF870 + 0x154,
+        &mnDataDel_804A0918[7], (u8*) &mnDataDel_803EF870 + 0x178,
+        &mnDataDel_804A0918[8], (u8*) &mnDataDel_803EF870 + 0x19C,
+        &mnDataDel_804A0918[9], (u8*) &mnDataDel_803EF870 + 0x1B4,
+        &mnDataDel_804A0918[10], (u8*) &mnDataDel_803EF870 + 0x1D0,
+        &mnDataDel_804A0918[11], (u8*) &mnDataDel_803EF870 + 0x1F0,
+        NULL);
+
+    mnDataDel_8024FE4C(0);
+    gobj = GObj_Create(0, 1, 0x80);
+    proc = HSD_GObj_SetupProc(gobj, fn_8024F840, 0);
+    proc->flags_3 = HSD_GObj_804D783C;
+}
