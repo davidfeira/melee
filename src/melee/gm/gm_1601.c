@@ -811,7 +811,47 @@ void gm_80160C90(HSD_Text* text, u8 fighter_id, bool arg2)
                         var_f31, 1.0f);
 }
 
-/// #fn_80160DE8
+void fn_80160DE8(HSD_JObj* arg0, u8 ckind, s32 entry_idx, u8 arg3, f32 farg0,
+                 f32 farg1)
+{
+    HSD_Text* text = (HSD_Text*) arg0;
+    HSD_Text* tmp_text = text;
+    u8 tmp_ckind = ckind;
+    f32 var_f31;
+    f32 var_f0;
+    const char* str;
+    s32 var_r5;
+
+    if (lbLang_IsSavedLanguageUS()) {
+        text->default_kerning = 1;
+    }
+    str = arg3 ? fn_801609E0(tmp_ckind) : gm_80160980(tmp_ckind);
+    if (lbLang_IsSavedLanguageUS()) {
+        var_r5 = 0;
+        if (arg3 && lbl_803D50E4[tmp_ckind] != NULL) {
+            var_r5 = 1;
+        }
+        if (var_r5) {
+            var_f0 = lbl_803B7784[tmp_ckind];
+        } else {
+            var_f0 = lbl_803B767C[tmp_ckind];
+        }
+        var_f31 = var_f0;
+    } else {
+        var_r5 = 0;
+        if (arg3 && lbl_803D5060[tmp_ckind] != NULL) {
+            var_r5 = 1;
+        }
+        if (var_r5) {
+            var_f0 = lbl_803B7700[tmp_ckind];
+        } else {
+            var_f0 = lbl_803B75F8[tmp_ckind];
+        }
+        var_f31 = var_f0;
+    }
+    HSD_SisLib_803A70A0(text, entry_idx, (char*) str);
+    HSD_SisLib_803A7548(text, entry_idx, var_f31 * farg0, farg1);
+}
 
 f32 fn_80160F58(u8 ckind)
 {
