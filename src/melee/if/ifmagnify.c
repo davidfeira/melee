@@ -1,11 +1,16 @@
 #include "ifmagnify.h"
 
+#include "cm/camera.h"
+#include "ft/ftdrawcommon.h"
+#include "ft/ftlib.h"
 #include "gr/ground.h"
+#include "gr/stage.h"
 #include "if/ifall.h"
 #include "lb/lb_00B0.h"
 #include "lb/lb_00F9.h"
 #include "lb/lbarchive.h"
 #include "pl/inlines.h"
+#include "pl/player.h"
 
 #include <baselib/cobj.h>
 #include <baselib/dobj.h>
@@ -17,9 +22,11 @@
 #include <baselib/jobj.h>
 #include <baselib/memory.h>
 #include <baselib/mobj.h>
+#include <baselib/displayfunc.h>
 #include <baselib/tobj.h>
 #include <melee/gm/gm_1601.h>
 #include <melee/gm/gm_16AE.h>
+#include <melee/gm/types.h>
 
 /* 3F97E8 */ extern HSD_CameraDescPerspective ifMagnify_803F97E8;
 /* 4DDB08 */ extern f32 ifMagnify_804DDB08;
@@ -118,7 +125,261 @@ void ifMagnify_802FB73C(void* player, Vec2* in, Vec2* out)
 
 /// #ifMagnify_802FB8C0
 
-/// #ifMagnify_802FBBDC
+extern f32 ifMagnify_804DDB0C;
+extern f32 ifMagnify_804DDB10;
+extern f32 ifMagnify_804DDB14;
+extern f32 ifMagnify_804DDB18;
+extern f32 ifMagnify_804DDB58;
+extern f32 ifMagnify_804DDB5C;
+
+extern GXColor* (*ifMagnify_803F9828[9])(void);
+extern u32 ifMagnify_803F984C[16];
+
+void ifMagnify_802FBBDC(HSD_GObj* gobj)
+{
+    s32 i;
+    s32 j;
+    f32 sp_left;
+    f32 sp_right;
+    f32 sp_top;
+    f32 sp_bottom;
+    f32 sp_ortho_top;
+    f32 sp_ortho_bottom;
+    f32 sp_ortho_left;
+    f32 sp_ortho_right;
+    Vec3 sp_pos;
+    HSD_CObj* cobj;
+    HSD_GObj* fighter;
+    GXColor colors[4];
+    f32 yt;
+    f32 xt;
+    f32 fb;
+    f32 fa;
+    f32 scale;
+    Vec2 sp_pp;
+#define px sp_pp.x
+#define py sp_pp.y
+    f32 cx_lookup;
+    f32 cy_lookup;
+    f32 fx0;
+    f32 fx1;
+    f32 fx2;
+    f32 fx3;
+    ifMagnify* mg;
+    s32 in_view;
+
+    ifMagnify_804A1DE0.player[0].state.is_offscreen = 0;
+    ifMagnify_804A1DE0.player[1].state.is_offscreen = 0;
+    ifMagnify_804A1DE0.player[2].state.is_offscreen = 0;
+    ifMagnify_804A1DE0.player[3].state.is_offscreen = 0;
+    ifMagnify_804A1DE0.player[4].state.is_offscreen = 0;
+    ifMagnify_804A1DE0.player[5].state.is_offscreen = 0;
+
+    {
+        s32 do_render;
+        if (gm_8016AE38()->hud_enabled == 0 || ifAll_IsHUDHidden() != 0 ||
+            Camera_80030130() != 0) {
+            do_render = 0;
+        } else {
+            do_render = 1;
+        }
+        if (do_render == 0) {
+            return;
+        }
+    }
+
+    cobj = gobj->hsd_obj;
+    HSD_CObjGetOrtho(cobj, &sp_ortho_top, &sp_ortho_bottom, &sp_ortho_left,
+                     &sp_ortho_right);
+    if (HSD_CObjSetCurrent(cobj) != 0) {
+        HSD_GObj_80390ED0(gobj, 7);
+        HSD_CObjEndCurrent();
+    }
+
+    for (i = 0, mg = &ifMagnify_804A1DE0; i < 6;
+         i++, mg = (ifMagnify*) ((u8*) mg + 0x10)) {
+        fighter = Player_GetEntity(i);
+        if (mg->player[0].state.ignore_offscreen) {
+            continue;
+        }
+        if (fighter == NULL) {
+            continue;
+        }
+        if (ftLib_80086B64(fighter) == 0) {
+            continue;
+        }
+        if (ftLib_80086ED0(fighter) == 0) {
+            continue;
+        }
+        scale = ftLib_80086B80(fighter) * ifMagnify_804DDB58;
+        HSD_CObjSetOrtho(cobj, sp_ortho_top * scale, sp_ortho_bottom * scale,
+                         sp_ortho_left * scale, sp_ortho_right * scale);
+        ftLib_80086B90(fighter, &sp_pos);
+        HSD_CObjSetInterest(cobj, &sp_pos);
+        sp_pos.z = ifMagnify_804DDB5C;
+        HSD_CObjSetEyePosition(cobj, &sp_pos);
+        if (HSD_CObjSetCurrent(cobj) == 0) {
+            continue;
+        }
+        Player_80036978(i, (s32) &sp_pp);
+        in_view = 1;
+        if (!(px < Stage_GetCamBoundsLeftOffset()) &&
+            !(px > Stage_GetCamBoundsRightOffset())) {
+            in_view = 0;
+        }
+        if (in_view != 0) {
+            fa = ifMagnify_804DDB08;
+        } else {
+            f32 bucket;
+            if (px < Stage_GetCamBoundsLeftOffset()) {
+                bucket = ifMagnify_804DDB08;
+            } else if (px > Stage_GetCamBoundsRightOffset()) {
+                bucket = ifMagnify_804DDB0C;
+            } else if (px <
+                       ifMagnify_804DDB10 *
+                           (Stage_GetCamBoundsLeftOffset() +
+                            Stage_GetCamBoundsRightOffset())) {
+                bucket = ifMagnify_804DDB14;
+            } else {
+                bucket = ifMagnify_804DDB18;
+            }
+            if ((s32) bucket - 1 == 0) {
+                f32 l1 = Stage_GetCamBoundsLeftOffset();
+                f32 r1 = Stage_GetCamBoundsRightOffset();
+                f32 mid = ifMagnify_804DDB10 *
+                              (Stage_GetCamBoundsLeftOffset() + r1) -
+                          l1;
+                fa = ifMagnify_804DDB14 -
+                     (px - Stage_GetCamBoundsLeftOffset()) / mid;
+            } else {
+                f32 r1 = Stage_GetCamBoundsRightOffset();
+                f32 r2 = Stage_GetCamBoundsRightOffset();
+                f32 mid = -(ifMagnify_804DDB10 *
+                                (Stage_GetCamBoundsLeftOffset() + r2) -
+                            r1);
+                f32 r3 = Stage_GetCamBoundsRightOffset();
+                fa = ifMagnify_804DDB14 -
+                     -(ifMagnify_804DDB10 *
+                           (Stage_GetCamBoundsLeftOffset() + r3) -
+                       px) /
+                         mid;
+            }
+        }
+        xt = ifMagnify_804DDB14 - fa;
+
+        in_view = 1;
+        if (!(py > Stage_GetCamBoundsTopOffset()) &&
+            !(py < Stage_GetCamBoundsBottomOffset())) {
+            in_view = 0;
+        }
+        if (in_view != 0) {
+            fb = ifMagnify_804DDB08;
+        } else {
+            f32 bucket;
+            if (py > Stage_GetCamBoundsTopOffset()) {
+                bucket = ifMagnify_804DDB08;
+            } else if (py < Stage_GetCamBoundsBottomOffset()) {
+                bucket = ifMagnify_804DDB0C;
+            } else if (py >
+                       ifMagnify_804DDB10 *
+                           (Stage_GetCamBoundsTopOffset() +
+                            Stage_GetCamBoundsBottomOffset())) {
+                bucket = ifMagnify_804DDB14;
+            } else {
+                bucket = ifMagnify_804DDB18;
+            }
+            if ((s32) bucket - 1 == 0) {
+                f32 t1 = Stage_GetCamBoundsTopOffset();
+                f32 b1 = Stage_GetCamBoundsBottomOffset();
+                f32 mid = -(ifMagnify_804DDB10 *
+                                (Stage_GetCamBoundsTopOffset() + b1) -
+                            t1);
+                fb = ifMagnify_804DDB14 -
+                     (Stage_GetCamBoundsTopOffset() - py) / mid;
+            } else {
+                f32 b1 = Stage_GetCamBoundsBottomOffset();
+                f32 b2 = Stage_GetCamBoundsBottomOffset();
+                f32 mid = ifMagnify_804DDB10 *
+                              (Stage_GetCamBoundsTopOffset() + b2) -
+                          b1;
+                f32 b3 = Stage_GetCamBoundsBottomOffset();
+                fb = ifMagnify_804DDB14 -
+                     (ifMagnify_804DDB10 *
+                          (Stage_GetCamBoundsTopOffset() + b3) -
+                      py) /
+                         mid;
+            }
+        }
+        yt = ifMagnify_804DDB14 - fb;
+
+        for (j = 0; j < 4; j++) {
+            if (py > Stage_GetCamBoundsTopOffset()) {
+                cy_lookup = ifMagnify_804DDB08;
+            } else if (py < Stage_GetCamBoundsBottomOffset()) {
+                cy_lookup = ifMagnify_804DDB0C;
+            } else if (py >
+                       ifMagnify_804DDB10 *
+                           (Stage_GetCamBoundsTopOffset() +
+                            Stage_GetCamBoundsBottomOffset())) {
+                cy_lookup = ifMagnify_804DDB14;
+            } else {
+                cy_lookup = ifMagnify_804DDB18;
+            }
+            if (px < Stage_GetCamBoundsLeftOffset()) {
+                cx_lookup = ifMagnify_804DDB08;
+            } else if (px > Stage_GetCamBoundsRightOffset()) {
+                cx_lookup = ifMagnify_804DDB0C;
+            } else if (px <
+                       ifMagnify_804DDB10 *
+                           (Stage_GetCamBoundsLeftOffset() +
+                            Stage_GetCamBoundsRightOffset())) {
+                cx_lookup = ifMagnify_804DDB14;
+            } else {
+                cx_lookup = ifMagnify_804DDB18;
+            }
+            {
+                u8 byte = ((u8*) &ifMagnify_803F984C[(s32) cy_lookup * 4 +
+                                                     (s32) cx_lookup])[j];
+                colors[j] = *ifMagnify_803F9828[byte]();
+            }
+        }
+
+        fx0 = xt * (ifMagnify_804DDB14 - yt);
+        fx1 = (ifMagnify_804DDB14 - xt) * (ifMagnify_804DDB14 - yt);
+        fx2 = (ifMagnify_804DDB14 - xt) * yt;
+        fx3 = xt * yt;
+
+        HSD_SetEraseColor(
+            (u8) (s32) ((f32) colors[3].r * fx3 +
+                        ((f32) colors[2].r * fx2 +
+                         ((f32) colors[0].r * fx1 +
+                          (f32) colors[1].r * fx0))),
+            (u8) (s32) ((f32) colors[3].g * fx3 +
+                        ((f32) colors[2].g * fx2 +
+                         ((f32) colors[0].g * fx1 +
+                          (f32) colors[1].g * fx0))),
+            (u8) (s32) ((f32) colors[3].b * fx3 +
+                        ((f32) colors[2].b * fx2 +
+                         ((f32) colors[0].b * fx1 +
+                          (f32) colors[1].b * fx0))),
+            (u8) (s32) ((f32) colors[3].a * fx3 +
+                        ((f32) colors[2].a * fx2 +
+                         ((f32) colors[0].a * fx1 +
+                          (f32) colors[1].a * fx0))));
+        HSD_CObjEraseScreen(cobj, 1, 0, 1);
+        HSD_GObj_804D7814 = fighter;
+        ftDrawCommon_80080C28(fighter, 0);
+        ftDrawCommon_80080C28(fighter, 1);
+        ftDrawCommon_80080C28(fighter, 2);
+        HSD_GObj_804D7814 = NULL;
+        lb_800122C8(mg->player[0].idesc, 0, 0, 1);
+        HSD_CObjEndCurrent();
+        mg->player[0].state.is_offscreen = 1;
+    }
+
+    HSD_CObjSetOrtho(cobj, sp_ortho_top, sp_ortho_bottom, sp_ortho_left,
+                     sp_ortho_right);
+}
 
 void ifMagnify_802FC3BC(void) {}
 

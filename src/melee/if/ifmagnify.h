@@ -10,7 +10,7 @@
 /* 2FB6E8 */ s32 ifMagnify_802FB6E8(s32);
 /* 2FB73C */ void ifMagnify_802FB73C(void* player, Vec2* in, Vec2* out);
 /* 2FB8C0 */ UNK_RET ifMagnify_802FB8C0(UNK_PARAMS);
-/* 2FBBDC */ UNK_RET ifMagnify_802FBBDC(UNK_PARAMS);
+/* 2FBBDC */ void ifMagnify_802FBBDC(HSD_GObj* gobj);
 /* 2FC3BC */ void ifMagnify_802FC3BC(void);
 /* 2FC3C0 */ void ifMagnify_802FC3C0(s32 slot);
 /* 2FC618 */ void ifMagnify_802FC618(void);
