@@ -138,6 +138,7 @@ bool grPura_80211E00(void)
     return false;
 }
 
+#pragma dont_inline on
 HSD_GObj* grPura_80211E08(int gobj_id)
 {
     HSD_GObj* gobj;
@@ -154,6 +155,7 @@ HSD_GObj* grPura_80211E08(int gobj_id)
 
     return gobj;
 }
+#pragma dont_inline reset
 
 /// #grPura_80211EF0
 void grPura_80211EF0(Ground_GObj* arg0)
@@ -286,64 +288,70 @@ void grPura_8021231C(Ground_GObj* arg0)
 void grPura_802125EC(Ground_GObj* arg0) {}
 
 /// #grPura_802125F0
+typedef struct grPura_AB0Entry {
+    s32 idx;
+    f32 mult;
+    s32 check;
+} grPura_AB0Entry;
+
 void grPura_802125F0(HSD_GObj* arg0)
 {
-    struct _GXColor thingy = grPu_803E6AA0[5];
-    float dVar1 = grPu_804DBA70;
-    float dVar2 = grPu_804DBA74;
-    int uVar3 = 0;
-    int uVar5;
-    int uVar6 = 0;
+    int i;
     HSD_GObj* gobj;
     Ground* gp;
-    HSD_JObj* jobj;
-    do {
-        gobj = grPura_80211E08(1);
+    HSD_JObj* dst;
+    HSD_JObj* src;
+    HSD_JObj* child;
+    f32 sx;
+    grPura_AB0Entry* entry =
+        (grPura_AB0Entry*) ((char*) &grPu_803E6800[0] + 0x2B0);
 
+    for (i = 0; i < 27; i++, entry++) {
+        if (entry->check == -1) {
+            continue;
+        }
+        gobj = grPura_80211E08(1);
         if (gobj == NULL) {
             __assert("grpura.c", 0x291, "gobj");
         }
         gp = GET_GROUND(gobj);
         if (gp == NULL) {
-            __assert("grpura.c", 0x291, "gp");
+            __assert("grpura.c", 0x292, "gp");
         }
-        // uVar3 = Ground_801C33C0(4,gp->gv.pura2.xC4);
-        gp->gv.pura2.xC8 = Ground_801C3FA4(arg0, gp->gv.pura.xC4);
-        // uVar3 = Ground_801C3FA4(arg0,uVar3);
 
-        HSD_JObjSetTranslateX(arg0->hsd_obj,
-                              HSD_JObjGetTranslationX(gp->gv.pura2.xC8));
-        HSD_JObjSetTranslateY(arg0->hsd_obj,
-                              HSD_JObjGetTranslationY(gp->gv.pura2.xC8));
-        HSD_JObjSetTranslateZ(arg0->hsd_obj,
-                              HSD_JObjGetTranslationZ(gp->gv.pura2.xC8));
+        *(s16*) &gp->gv.pura.xC4 = (s16) entry->idx;
+        gp->gv.pura2.xC8 = Ground_801C3FA4(
+            arg0, Ground_801C33C0(4, *(s16*) &gp->gv.pura.xC4));
+
+        dst = gobj->hsd_obj;
+        HSD_JObjSetTranslateX(dst, HSD_JObjGetTranslationX(gp->gv.pura2.xC8));
+        HSD_JObjSetTranslateY(dst, HSD_JObjGetTranslationY(gp->gv.pura2.xC8));
+        HSD_JObjSetTranslateZ(dst, HSD_JObjGetTranslationZ(gp->gv.pura2.xC8));
 
         if (HSD_JObjGetFlags(gp->gv.pura2.xC8) & 0x10) {
-            HSD_JObjSetFlagsAll(arg0->hsd_obj, 0x10);
+            HSD_JObjSetFlagsAll(dst, 0x10);
         }
-        jobj = gobj->hsd_obj;
-        // if (jobj->child) {
 
-        //}
-        // everything after this point is very much not done
-        HSD_JObjSetTranslateX(arg0->hsd_obj,
-                              HSD_JObjGetTranslationX(jobj->child));
-        HSD_JObjSetTranslateY(arg0->hsd_obj,
-                              HSD_JObjGetTranslationY(jobj->child));
-        HSD_JObjSetTranslateZ(arg0->hsd_obj,
-                              HSD_JObjGetTranslationZ(jobj->child));
+        child = (gobj->hsd_obj != NULL) ? ((HSD_JObj*) gobj->hsd_obj)->child
+                                        : NULL;
+        HSD_JObjSetTranslateX(child, grPu_804DBA70);
+        HSD_JObjSetTranslateY(child, grPu_804DBA70);
+        HSD_JObjSetTranslateZ(child, grPu_804DBA70);
 
-        HSD_JObjSetTranslateX(
-            arg0->hsd_obj,
-            HSD_JObjGetTranslationX(Ground_801C3FA4(arg0, uVar3)));
-        HSD_JObjSetTranslateY(
-            arg0->hsd_obj,
-            HSD_JObjGetTranslationY(Ground_801C3FA4(arg0, uVar3)));
-        HSD_JObjSetTranslateZ(
-            arg0->hsd_obj,
-            HSD_JObjGetTranslationZ(Ground_801C3FA4(arg0, uVar3)));
-        uVar6++;
-    } while (uVar6 < 27);
+        src = gp->gv.pura2.xC8;
+        sx = HSD_JObjGetScaleX(src);
+        if (sx < grPu_804DBA74) {
+            sx *= entry->mult;
+        }
+        HSD_JObjSetScaleX(src, sx);
+        HSD_JObjSetScaleY(src, sx);
+        HSD_JObjSetScaleZ(src, sx);
+
+        dst = gobj->hsd_obj;
+        HSD_JObjSetScaleX(dst, sx);
+        HSD_JObjSetScaleY(dst, sx);
+        HSD_JObjSetScaleZ(dst, sx);
+    }
 }
 
 /// #grPura_80212CD4
@@ -465,59 +473,86 @@ void grPura_80213224(HSD_DObj* dobj)
 }
 
 /// #grPura_80213250
+#pragma dont_inline on
 void grPura_80213250(HSD_JObj* arg0)
 {
-    HSD_JObj* jobj = arg0->child;
-    HSD_DObj* dobj; // = arg0->child;
-    if (jobj) {
-        if (jobj->child) {
+    HSD_JObj* jobj;
+    HSD_DObj* dobj;
+    HSD_DObj* sub;
+    HSD_DObj* iter;
+
+    jobj = arg0->child;
+    if (jobj != NULL) {
+        if (jobj->child != NULL) {
             grPura_80213250(jobj->child);
         }
-        if (jobj->next) {
+        if (jobj->next != NULL) {
             grPura_80213250(jobj->next);
         }
-        dobj = jobj->u.dobj;
-        if (jobj->u.ptcl) {
-            grPura_80213128(dobj);
-        }
-        // for(int i = 0;ptcl->next[];i++)
-        if (dobj != 0) {
-            HSD_MObjCompileTev(dobj->mobj);
+        if (union_type_dobj(jobj)) {
+            dobj = jobj->u.dobj;
+            if (dobj != NULL) {
+                if (dobj->next != NULL) {
+                    grPura_80213128(dobj->next);
+                }
+                for (iter = dobj; iter != NULL; iter = iter->next) {
+                    grPura_80213224(iter);
+                }
+                if (dobj->mobj != NULL) {
+                    HSD_MObjCompileTev(dobj->mobj);
+                }
+            }
         }
     }
+
     jobj = arg0->next;
-    if (jobj) {
-        if (jobj->child) {
+    if (jobj != NULL) {
+        if (jobj->child != NULL) {
             grPura_80213250(jobj->child);
         }
-        if (jobj->next) {
+        if (jobj->next != NULL) {
             grPura_80213250(jobj->next);
         }
-        dobj = jobj->u.dobj;
-        if (jobj->u.ptcl) {
-            grPura_80213128(dobj);
-        }
-        if (dobj != 0) {
-            HSD_MObjCompileTev(dobj->mobj);
-        }
-    }
-    dobj = arg0->u.dobj;
-    if (dobj) {
-        if (jobj->u.ptcl) {
-            grPura_80213128(dobj);
-        }
-        if (jobj->next) {
-            grPura_80213250(jobj->next);
-        }
-        dobj = jobj->u.dobj;
-        if (dobj != 0) {
-            HSD_MObjCompileTev(dobj->mobj);
-        }
-        if (dobj != 0) {
-            HSD_MObjCompileTev(dobj->mobj);
+        if (union_type_dobj(jobj)) {
+            dobj = jobj->u.dobj;
+            if (dobj != NULL) {
+                if (dobj->next != NULL) {
+                    grPura_80213128(dobj->next);
+                }
+                for (iter = dobj; iter != NULL; iter = iter->next) {
+                    grPura_80213224(iter);
+                }
+                if (dobj->mobj != NULL) {
+                    HSD_MObjCompileTev(dobj->mobj);
+                }
+            }
         }
     }
-    // HSD_MObjCompileTev();
-    // HSD_MObjCompileTev();
-    // HSD_MObjCompileTev();
+
+    if (union_type_dobj(arg0)) {
+        dobj = arg0->u.dobj;
+        if (dobj != NULL) {
+            sub = dobj->next;
+            if (sub != NULL) {
+                if (sub->next != NULL) {
+                    grPura_80213128(sub->next);
+                }
+                for (iter = sub; iter != NULL; iter = iter->next) {
+                    grPura_80213224(iter);
+                }
+                if (sub->mobj != NULL) {
+                    HSD_MObjCompileTev(sub->mobj);
+                }
+            }
+            for (iter = dobj; iter != NULL; iter = iter->next) {
+                if (iter != NULL) {
+                    HSD_MObjCompileTev(iter->mobj);
+                }
+            }
+            if (dobj->mobj != NULL) {
+                HSD_MObjCompileTev(dobj->mobj);
+            }
+        }
+    }
 }
+#pragma dont_inline reset
