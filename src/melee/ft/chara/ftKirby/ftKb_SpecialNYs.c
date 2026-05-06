@@ -32,6 +32,7 @@
 #include "it/items/itkirbyyoshispecialn.h"
 #include "it/items/itpeachtoad.h"
 #include "it/items/itpeachtoadspore.h"
+#include "it/items/ityoshiegglay.h"
 #include "lb/lb_00B0.h"
 
 #include <common_structs.h>
@@ -39,6 +40,8 @@
 #include <baselib/gobj.h>
 #include <baselib/random.h>
 #include <MSL/math.h>
+
+extern f32 ftKb_Init_804D9558;
 
 /// Forward declarations for static functions
 static void fn_801095DC(HSD_GObj*);
@@ -529,7 +532,59 @@ void ftKb_YsSpecialAirCapture1_Anim(Fighter_GObj* gobj)
     }
 }
 
-/// #ftKb_YsSpecialNCapture2_0_Anim
+void ftKb_YsSpecialNCapture2_0_Anim(Fighter_GObj* gobj)
+{
+    Fighter* fp = GET_FIGHTER(gobj);
+    it_27CF_DatAttrs item_attrs;
+    FORCE_PAD_STACK(0x4C);
+    PAD_STACK(8);
+    HSD_JObjAnimAll(fp->fv.kb.hat.jobj);
+    if (fp->cmd_vars[1] != 0) {
+        if (fp->target_item_gobj != NULL) {
+            it_802F2E7C(fp->target_item_gobj, false);
+            fp->x1A64 = NULL;
+            fp->target_item_gobj = NULL;
+            fp->cmd_vars[1] = 0;
+        }
+    }
+    if (fp->cmd_vars[0] != 0) {
+        ftCommon_8007E2F4(fp, 0);
+        {
+            Fighter* fp2 = GET_FIGHTER(gobj);
+            lb_8000B1CC(fp2->parts[ftParts_GetBoneIndex(fp2, FtPart_TransN2)]
+                            .joint,
+                        NULL, &item_attrs.pos);
+        }
+        {
+            Fighter* fp2 = GET_FIGHTER(gobj);
+            ftKb_DatAttrs* da = fp2->dat_attrs;
+            item_attrs.vel.x =
+                -fp2->facing_dir * da->specialn_ys_initial_horizontal_momentum;
+            item_attrs.vel.y = da->specialn_ys_initial_vertical_momentum;
+            item_attrs.vel.z = ftKb_Init_804D9558;
+        }
+        item_attrs.float2 = GET_FIGHTER(gobj)->facing_dir;
+        {
+            ftKb_DatAttrs* da = GET_FIGHTER(gobj)->dat_attrs;
+            item_attrs.lifetime = da->specialn_ys_base_duration;
+        }
+        {
+            ftKb_DatAttrs* da = GET_FIGHTER(gobj)->dat_attrs;
+            item_attrs.x24 = da->specialn_ys_damage_multiplier;
+        }
+        {
+            ftKb_DatAttrs* ea = gFtDataList[FTKIND_KIRBY]->ext_attr;
+            item_attrs.float3 =
+                ea->specialn_ys_unk3 / ea->specialn_ys_damage_multiplier;
+        }
+        item_attrs.kind = 0x9D;
+        it_802F2F34(gobj, &item_attrs);
+        fp->cmd_vars[0] = 0;
+    }
+    if (!ftAnim_IsFramesRemaining(gobj)) {
+        ft_8008A2BC(gobj);
+    }
+}
 
 void ftKb_YsSpecialNCapture2_1_Anim(Fighter_GObj* gobj)
 {

@@ -2265,6 +2265,60 @@ void ftKb_SpecialAirNCaptured_Anim(Fighter_GObj* gobj)
     }
 }
 
+static inline void ftKb_SpecialNSpit0_Anim_inline(Fighter_GObj* gobj,
+                                                  Item_GObj* item_gobj)
+{
+    u8 _pad[60];
+    Fighter* fp = GET_FIGHTER(gobj);
+    ftKb_DatAttrs* da;
+    it_2F28_DatAttrs attrs;
+    u8 _pad2[8];
+
+    (void) _pad;
+    (void) _pad2;
+    ftCommon_8007E2F4(fp, 0);
+    lb_8000B1CC(fp->parts[ftParts_GetBoneIndex(fp, FtPart_TransN2)].joint,
+                NULL, &attrs.pos);
+    da = GET_FIGHTER(gobj)->dat_attrs;
+    attrs.vel.x = fp->facing_dir *
+                  da->specialn_ground_spit_initial_horizontal_velocity;
+    attrs.vel.z = 0.0f;
+    attrs.vel.y = 0.0f;
+    attrs.float2 = da->specialn_spit_deceleration_rate;
+    attrs.float1 = ((ftKb_DatAttrs*) GET_FIGHTER(gobj)->dat_attrs)
+                       ->specialn_star_base_duration;
+    it_802F28C8(item_gobj, 0, it_802F295C(gobj, &attrs));
+    fp->x1A64 = NULL;
+    fp->target_item_gobj = NULL;
+    fp->cmd_vars[0] = 0;
+}
+
+void ftKb_SpecialNSpit0_Anim(Fighter_GObj* gobj)
+{
+    Fighter* fp = GET_FIGHTER(gobj);
+    Item_GObj* item_gobj;
+
+    if (fp->cmd_vars[0] != 0 && (item_gobj = fp->target_item_gobj) != NULL) {
+        ftKb_SpecialNSpit0_Anim_inline(gobj, item_gobj);
+    }
+    if (!ftAnim_IsFramesRemaining(gobj)) {
+        ft_8008A2BC(gobj);
+    }
+}
+
+void ftKb_SpecialNSpit1_Anim(Fighter_GObj* gobj)
+{
+    Fighter* fp = GET_FIGHTER(gobj);
+    Item_GObj* item_gobj;
+
+    if (fp->cmd_vars[0] != 0 && (item_gobj = fp->target_item_gobj) != NULL) {
+        ftKb_SpecialNSpit0_Anim_inline(gobj, item_gobj);
+    }
+    if (!ftAnim_IsFramesRemaining(gobj)) {
+        ftCo_Fall_Enter(gobj);
+    }
+}
+
 static inline void ftKb_SpecialNSpit_Anim_inline(Fighter_GObj* gobj,
                                                  Fighter_GObj* victim)
 {
