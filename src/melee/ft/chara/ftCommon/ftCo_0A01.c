@@ -4076,7 +4076,347 @@ void ftCo_800ADC28(Fighter* fp)
     }
 }
 
-/// #ftCo_800ADE48
+static int ftCo_800ADE48(Fighter* fp)
+{
+    struct Fighter_x1A88_t* data = &fp->x1A88;
+    Vec3 sp48;
+    Vec3 sp3C;
+    int line_id;
+    u32 flags;
+    int hit;
+    int var_r27;
+    f32 sp20;
+    int do_state_12;
+    int out_of_bounds;
+    Item_GObj* item_gobj;
+    Item* item;
+    int item_targetable;
+
+    var_r27 = 0;
+    line_id = -1;
+    hit = mpCheckFloor(data->x54.x, (f32) (data->x54.y + 5.0),
+                       data->x54.x, (f32) (data->x54.y - 5.0), 0.0f,
+                       &sp3C, &line_id, &flags, &sp48,
+                       -1, -1, -1, NULL, NULL);
+    if (!(hit && ftCo_800A1B38(line_id))) {
+        var_r27 = hit;
+    }
+    if (var_r27 != 0) {
+        f32 cy = data->x54.y;
+        f32 cx = data->x54.x;
+        if (cx < data->half_width + Stage_GetBlastZoneLeftOffset() ||
+            cx > Stage_GetBlastZoneRightOffset() - data->half_width ||
+            cy < data->half_height + Stage_GetBlastZoneBottomOffset() ||
+            cy > Stage_GetBlastZoneTopOffset() - data->half_height)
+        {
+            out_of_bounds = 1;
+        } else {
+            out_of_bounds = 0;
+        }
+        if (out_of_bounds == 0) {
+            goto skip_recompute;
+        }
+    }
+    data->xFA_b2 = false;
+    if (fp->ground_or_air == GA_Air) {
+        var_r27 = 0;
+        line_id = -1;
+        hit = mpCheckFloor(fp->cur_pos.x, fp->cur_pos.y,
+                           fp->cur_pos.x, fp->cur_pos.y - 1000.0f, 0.0f,
+                           &sp3C, &line_id, &flags, &sp48,
+                           -1, -1, -1, NULL, NULL);
+        if (!(hit && ftCo_800A1B38(line_id))) {
+            var_r27 = hit;
+        }
+        if (var_r27 != 0) {
+            data->x54.x = sp3C.x;
+            data->x54.y = sp3C.y;
+        } else {
+            data->x54.x = fp->cur_pos.x;
+            data->x54.y = fp->cur_pos.y;
+        }
+    } else {
+        data->x54.x = fp->cur_pos.x;
+        data->x54.y = fp->cur_pos.y;
+    }
+skip_recompute:
+    {
+        f32 dy = fp->cur_pos.y - data->x54.y;
+        f32 dx = fp->cur_pos.x - data->x54.x;
+        f32 sq = dx * dx + dy * dy;
+        if (sq > 0.0f) {
+            sp20 = sqrtf(sq);
+            sq = sp20;
+        }
+        data->x5C = sq;
+    }
+    if (data->x88 > 0) {
+        data->x88 = data->x88 - 1;
+    }
+    if (data->x8C != (s32) gm_8016C75C(fp->gobj)) {
+        data->x88 = 0x12C;
+        data->x8C = (s32) gm_8016C75C(fp->gobj);
+    }
+    if (data->xC == 0xE) {
+        if (data->x7C % 120 == 0) {
+            if (HSD_Randf() > 0.5) {
+                data->xF8_b5 = 1;
+            } else {
+                data->xF8_b5 = 0;
+            }
+        }
+    } else if (data->x7C % 400 == 0) {
+        if (HSD_Randf() > 0.5) {
+            data->xF8_b5 = 1;
+        } else {
+            data->xF8_b5 = 0;
+        }
+    }
+    if (!fp->x221B_b5) {
+        data->x94 = 0;
+    }
+    if (data->x18 == 0x12) {
+        return 1;
+    }
+    if (fp->kind == FTKIND_GKOOPS) {
+        do_state_12 = 0;
+    } else if (data->xC == 0xF || data->xC == 0) {
+        do_state_12 = 0;
+    } else if (!fp->x221A_b3) {
+        do_state_12 = 0;
+    } else {
+        data->xF9_b0 = false;
+        if (0.1f * (f32) data->level > HSD_Randf()) {
+            data->xFA_b1 = true;
+        } else {
+            data->xFA_b1 = false;
+        }
+    }
+    if (do_state_12 != 0) {
+        ftCo_800B4A78(fp);
+        data->x18 = 0x12;
+        return 1;
+    }
+    if (data->x18 == 0x11) {
+        return 1;
+    }
+    {
+        int trigger;
+        if (fp->motion_id == 0x125) {
+            trigger = 1;
+        } else if (fp->motion_id == 0x154) {
+            trigger = 2;
+        } else {
+            trigger = 0;
+        }
+        if (trigger != 0) {
+            ftCo_800B4A78(fp);
+            data->x18 = 0x11;
+            return 1;
+        }
+    }
+    if (data->x18 == 0x13) {
+        return 1;
+    }
+    {
+        int trigger;
+        if (fp->motion_id == 0x131) {
+            trigger = 1;
+        } else if (fp->motion_id == 0x132) {
+            trigger = 2;
+        } else {
+            trigger = 0;
+        }
+        if (trigger != 0) {
+            ftCo_800B4A78(fp);
+            data->x18 = 0x13;
+            return 1;
+        }
+    }
+    if (data->x18 == 5) {
+        return 1;
+    }
+    {
+        int trigger;
+        switch (fp->motion_id) {
+        case 0xBF:
+        case 0xB7:
+            trigger = 1;
+            break;
+        case 0xC0:
+        case 0xB8:
+            trigger = 2;
+            break;
+        default:
+            trigger = 0;
+            break;
+        }
+        if (trigger != 0) {
+            ftCo_800B4A78(fp);
+            data->x18 = 5;
+            return 1;
+        }
+    }
+    if (data->x18 == 6) {
+        return 1;
+    }
+    {
+        int trigger;
+        switch (fp->motion_id) {
+        case 0xFC:
+            trigger = 1;
+            break;
+        case 0xFD:
+            trigger = 2;
+            break;
+        default:
+            trigger = 0;
+            break;
+        }
+        if (trigger != 0) {
+            ftCo_800B4A78(fp);
+            data->x18 = 6;
+            return 1;
+        }
+    }
+    if (data->x18 == 9) {
+        return 1;
+    }
+    if (ftCo_IsGrabbing(fp)) {
+        ftCo_800B4A78(fp);
+        data->x18 = 9;
+        return 1;
+    }
+    if (data->x18 == 4) {
+        return 1;
+    }
+    if (ftCo_800A2C80(fp)) {
+        ftCo_800B4A78(fp);
+        data->x18 = 4;
+        return 1;
+    }
+    if (data->x18 == 0xF) {
+        return 1;
+    }
+    {
+        int trigger;
+        if (data->level < 5) {
+            trigger = 0;
+        } else if (fp->motion_id == 0x26) {
+            trigger = 1;
+        } else {
+            trigger = 0;
+        }
+        if (trigger != 0) {
+            ftCo_800B4A78(fp);
+            data->x18 = 0xF;
+            return 1;
+        }
+    }
+    if (data->x18 == 0x10) {
+        return 1;
+    }
+    {
+        int trigger;
+        if (fp->motion_id == 0xE0) {
+            trigger = 1;
+        } else if (fp->motion_id == 0xE3) {
+            trigger = 1;
+        } else if (fp->motion_id >= 0x10A && fp->motion_id <= 0x10E) {
+            trigger = 1;
+        } else {
+            trigger = 0;
+        }
+        if (trigger != 0) {
+            ftCo_800B4A78(fp);
+            data->x18 = 0x10;
+            return 1;
+        }
+    }
+    if (data->x18 == 7) {
+        ftCo_800BB9B4(fp);
+        return 1;
+    }
+    if (ftCo_800A5ACC(fp)) {
+        ftCo_800BB9B4(fp);
+        if (data->xF8_b12) {
+            ftCo_800B4A78(fp);
+            data->x18 = 7;
+            return 1;
+        }
+    }
+    if (data->x18 == 3) {
+        return 1;
+    }
+    if (ftCo_800B9CBC(fp)) {
+        ftCo_800B4A78(fp);
+        data->x18 = 3;
+        return 1;
+    }
+    if (data->x18 == 2) {
+        return 1;
+    }
+    if (ftCo_800B8A9C(fp)) {
+        ftCo_800B4A78(fp);
+        data->x18 = 2;
+        return 1;
+    }
+    if (data->x18 == 8) {
+        return 1;
+    }
+    data->xF8_b34 = ftCo_800B732C(fp);
+    if (data->xF8_b34) {
+        data->x18 = 8;
+        return 1;
+    }
+    if (data->x18 == 0xD) {
+        return 1;
+    }
+    if (ftCo_800A3710(fp)) {
+        data->x18 = 0xD;
+        return 1;
+    }
+    if (data->x18 == 0xE) {
+        return 1;
+    }
+    item_gobj = fp->item_gobj;
+    if (item_gobj == NULL) {
+        item_targetable = 0;
+    } else {
+        item = item_gobj->user_data;
+        if (data->xC == 0x1D) {
+            item_targetable = 1;
+        } else if (item->kind == It_Kind_M_Ball) {
+            item_targetable = 1;
+        } else if (item->kind < It_Kind_M_Ball) {
+            if (item->kind < 7) {
+                if (item->kind < 0) {
+                    item_targetable = ftCo_800A5980((Fighter*) item) ? 1 : 0;
+                } else {
+                    item_targetable = 1;
+                }
+            } else {
+                item_targetable = ftCo_800A5980((Fighter*) item) ? 1 : 0;
+            }
+        } else if (item->kind == It_Kind_EvYoshiEgg) {
+            item_targetable = 1;
+        } else {
+            item_targetable = ftCo_800A5980((Fighter*) item) ? 1 : 0;
+        }
+    }
+    if (item_targetable) {
+        data->x18 = 0xE;
+        return 1;
+    }
+    if (data->x18 == 0xA) {
+        return 1;
+    }
+    if (data->x20 != 0 && ftCo_800A3554(fp, 0.0f)) {
+        data->x18 = data->x20;
+        return 1;
+    }
+    return 0;
+}
 
 static void ftCo_800AE7AC(Fighter* fp, Vec3* arg1, int arg2)
 {
