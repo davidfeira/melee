@@ -1121,7 +1121,7 @@ def shlex_quote(s: str) -> str:
     return "'" + s.replace("'", "'\"'\"'") + "'"
 
 
-DEFAULT_MAX_CONCURRENT_PERMUTERS = 2
+DEFAULT_MAX_CONCURRENT_PERMUTERS = 3
 
 
 def list_active_permuters() -> list[tuple[str, str, bool]]:

@@ -22,7 +22,7 @@ See `docs/agent-loops.md` for visual diagrams of all three loops.
 
 Current host: Ryzen 5 5600X, 6c/12t.
 
-- Max 2 concurrent **local** permuters at `-j 4` (uses 8 of 12 logical cores).
+- Max 3 concurrent **local** permuters at `-j 4` (saturates 12 of 12 logical cores).
 - Cluster permuters do NOT count — use `--cluster` to bypass the cap.
 - Single-permuter wall-clock cap: 60 min (cluster) — enforced by `reap`.
 - Mama Claude can spawn up to 3 subagents in parallel. They mostly think+read, but compile bursts can stack with active permuters. Drop to 2 if the build feels slow.
