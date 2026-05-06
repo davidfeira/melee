@@ -6,6 +6,7 @@
 
 #include <placeholder.h>
 
+#include "cm/camera.h"
 #include "ef/efasync.h"
 #include "ft/fighter.h"
 
@@ -31,6 +32,8 @@
 #include <dolphin/mtx.h>
 #include <baselib/dobj.h>
 #include <baselib/jobj.h>
+
+float atan2f(float, float);
 
 /* 0C63BC */ static void fn_800C63BC(Fighter_GObj* gobj);
 /* 0C63E0 */ static void fn_800C63E0(Fighter_GObj* gobj);
@@ -677,6 +680,59 @@ void ftCo_800C7C60(Fighter_GObj* gobj, int damage_amount)
 bool ftCo_800C7CA0(Fighter_GObj* gobj)
 {
     NOT_IMPLEMENTED;
+}
+
+void fn_800C7DC4(HSD_GObj* gobj, s32 motion_state, Vec3* normal, Vec3* offset)
+{
+    f32 angle;
+    Vec3 next_pos;
+    Vec3 vel;
+    Fighter* fp = GET_FIGHTER(gobj);
+    CollData* coll_data = &fp->coll_data;
+    f32 kb_vel;
+
+    ftCommon_8007D5D4(fp);
+
+    next_pos.x = fp->cur_pos.x + offset->x;
+    next_pos.y = fp->cur_pos.y + offset->y;
+    next_pos.z = fp->cur_pos.z + offset->z;
+
+    angle = atan2f(-normal->x, normal->y);
+    efAsync_Spawn(gobj, &fp->x60C, 5, 0x406, NULL, &next_pos, &angle);
+    Camera_80030E44(2, (Point3d*) &next_pos);
+
+    kb_vel = fp->xF0_ground_kb_vel;
+    vel.x = normal->x;
+    vel.y = normal->y;
+    vel.z = normal->z;
+    vel.x *= kb_vel;
+    vel.y *= kb_vel;
+    vel.z *= kb_vel;
+    vel.x *= p_ftCommonData->x1BC;
+    vel.y *= p_ftCommonData->x1BC;
+    fp->x8c_kb_vel.x = vel.x;
+    fp->x8c_kb_vel.y = vel.y;
+    fp->x8c_kb_vel.z = vel.z;
+    fp->self_vel.z = 0.0f;
+    fp->self_vel.y = 0.0f;
+    fp->self_vel.x = 0.0f;
+    fp->facing_dir = (fp->x8c_kb_vel.x < 0.0f) ? -1.0f : 1.0f;
+
+    Fighter_ChangeMotionState((Fighter_GObj*) gobj, motion_state, 0x18040, 0.0f,
+                              1.0f, 0.0f, NULL);
+
+    if ((coll_data->env_flags & Collide_RightWallHug) != 0 ||
+        (coll_data->env_flags & Collide_RightWallHug) != 0)
+    {
+        fp->cur_pos.x = -((fp->x68C_transNPos.z * -fp->facing_dir) -
+                          (fp->cur_pos.x + offset->x));
+    } else {
+        fp->cur_pos.y = fp->x68C_transNPos.y + (fp->cur_pos.y + offset->y);
+    }
+    ftCo_80090574((Fighter_GObj*) gobj);
+    fp->dmg.x18A8 = kb_vel;
+    ftCommon_8007EBAC(fp, 7, 0);
+    ftColl_8007B760((Fighter_GObj*) gobj, p_ftCommonData->x1B8);
 }
 
 void ftCo_DownReflect_Anim(Fighter_GObj* gobj)
