@@ -153,7 +153,60 @@ void gm_801BAAD0(MinorScene* arg0)
     temp_r31->xA = -1;
 }
 
-/// #gm_801BAB40
+typedef struct gm_801BAB40_src {
+    /* 0x00 */ u8 c_kind;
+    /* 0x01 */ u8 slot_type;
+    /* 0x02 */ u8 stocks;
+    /* 0x03 */ u8 color;
+    /* 0x04 */ u8 x5;
+    /* 0x05 */ u8 sub_color;
+    /* 0x06 */ u8 team;
+    /* 0x07 */ u8 xB;
+    /* 0x08 */ u8 flags;
+    /* 0x09 */ u8 xE;
+    /* 0x0A */ u8 cpu_level;
+    /* 0x0B */ u8 pad;
+    /* 0x0C */ u16 x12;
+    /* 0x0E */ u16 hp;
+    /* 0x10 */ f32 x18;
+    /* 0x14 */ f32 x1C;
+    /* 0x18 */ f32 x20;
+} gm_801BAB40_src;
+
+void gm_801BAB40(PlayerInitData* arg0, int arg1)
+{
+    gm_801BAB40_src* src = (gm_801BAB40_src*) arg1;
+    gm_8016795C(arg0);
+    arg0->c_kind = src->c_kind;
+    arg0->slot_type = src->slot_type;
+    arg0->stocks = src->stocks;
+    arg0->color = src->color;
+    arg0->slot = 0;
+    arg0->x5 = src->x5;
+    arg0->sub_color = src->sub_color;
+    arg0->handicap = 9;
+    arg0->team = src->team;
+    arg0->xA = 0x78;
+    arg0->xB = src->xB;
+    arg0->xC_b0 = 0;
+    arg0->xC_b1 = (src->flags & 0x80) >> 7;
+    arg0->xC_b2 = (src->flags & 0x40) >> 6;
+    arg0->xC_b3 = (src->flags & 0x20) >> 5;
+    arg0->xC_b4 = (src->flags & 0x10) >> 4;
+    arg0->xC_b6 = (src->flags & 0x08) >> 3;
+    arg0->xC_b7 = (src->flags & 0x04) >> 2;
+    arg0->xD_b1 = 0;
+    arg0->xD_b2 = 0;
+    arg0->xD_b4 = 0;
+    arg0->xE = src->xE;
+    arg0->cpu_level = src->cpu_level;
+    arg0->x10 = 0;
+    arg0->x12 = src->x12;
+    arg0->hp = src->hp;
+    arg0->x18 = src->x18;
+    arg0->x1C = src->x1C;
+    arg0->x20 = src->x20;
+}
 
 u8 gm_801BAC9C(MinorScene* arg0, int count)
 {
