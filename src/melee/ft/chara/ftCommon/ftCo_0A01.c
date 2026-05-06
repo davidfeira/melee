@@ -1123,7 +1123,134 @@ bool ftCo_800A2C08(Fighter* fp)
     }
 }
 
-/// #ftCo_800A2C80
+static bool ftCo_800A2C80(Fighter* fp)
+{
+    Vec3 sp3C;
+    Vec3 sp30;
+    int line_id;
+    u32 flags;
+    Vec3 vel;
+    f32 vel_x_abs;
+    f32 mag_sq;
+    f32 start_x, start_y, end_x, end_y;
+    bool is_blast_zone;
+    bool var_r29;
+    int var_r30;
+    int gnd;
+    struct Fighter_x1A88_t* data = &fp->x1A88;
+
+    if (data->xFA_b6) {
+        return false;
+    }
+    if (fp->ground_or_air == GA_Ground) {
+        gnd = fp->coll_data.floor.index;
+        if (grBigBlue_801EF844(gnd) || grInishie1_801FCAAC(gnd) ||
+            grCorneria_801E2D90(gnd) || grVenom_80206D10(gnd))
+        {
+            return true;
+        }
+        return false;
+    }
+    if (fp->motion_id == 0xF4) {
+        return false;
+    }
+    vel = fp->pos_delta;
+    mag_sq = vel.x * vel.x + vel.y * vel.y;
+    if (mag_sq < 0.00001f && mag_sq > -0.00001f) {
+        return false;
+    }
+    if (vel.y > 0.0) {
+        return false;
+    }
+    vel_x_abs = vel.x;
+    if (vel_x_abs < 0.0f) {
+        vel_x_abs = -vel_x_abs;
+    }
+    if (lb_8000D008(vel.y, vel_x_abs) > -1.0471975511965976) {
+        return false;
+    }
+    if (data->xFA_b5) {
+        return false;
+    }
+    if (stage_info.internal_stage_id == INISHIE1) {
+        if (fp->cur_pos.y < 5.0f) {
+            return true;
+        }
+    } else if (stage_info.internal_stage_id == FOURSIDE &&
+               fp->cur_pos.y < -35.0f)
+    {
+        return true;
+    }
+    lbVector_Normalize(&vel);
+    var_r29 = false;
+    start_x = fp->coll_data.cur_pos.x + fp->coll_data.ecb.bottom.x;
+    start_y = fp->coll_data.cur_pos.y + fp->coll_data.ecb.bottom.y;
+    line_id = -1;
+    end_x = 1000.0f * vel.x + start_x;
+    end_y = 1000.0f * vel.y + start_y;
+    var_r30 = mpCheckFloor(start_x, start_y, end_x, end_y, 0.0f, &sp3C,
+                           &line_id, &flags, &sp30, -1, -1, -1, NULL, NULL);
+    if (var_r30) {
+        if (grBigBlue_801EF844(line_id) || grInishie1_801FCAAC(line_id) ||
+            grCorneria_801E2D90(line_id) || grVenom_80206D10(line_id))
+        {
+            var_r29 = true;
+        }
+        if (var_r29) {
+            var_r30 = 0;
+        }
+    }
+    if (var_r30) {
+        struct Fighter_x1A88_t* d2 = &fp->x1A88;
+        if (sp3C.x < fp->x1A88.half_width + Stage_GetBlastZoneLeftOffset() ||
+            sp3C.x > Stage_GetBlastZoneRightOffset() - d2->half_width ||
+            sp3C.y < d2->half_height + Stage_GetBlastZoneBottomOffset() ||
+            sp3C.y > Stage_GetBlastZoneTopOffset() - d2->half_height)
+        {
+            is_blast_zone = true;
+        } else {
+            is_blast_zone = false;
+        }
+        if (!is_blast_zone) {
+            return false;
+        }
+    }
+    if (mpCheckLeftWall(start_x, start_y, end_x, end_y, &sp3C, &line_id,
+                        &flags, &sp30, -1, -1))
+    {
+        struct Fighter_x1A88_t* d2 = &fp->x1A88;
+        if (sp3C.x < fp->x1A88.half_width + Stage_GetBlastZoneLeftOffset() ||
+            sp3C.x > Stage_GetBlastZoneRightOffset() - d2->half_width ||
+            sp3C.y < d2->half_height + Stage_GetBlastZoneBottomOffset() ||
+            sp3C.y > Stage_GetBlastZoneTopOffset() - d2->half_height)
+        {
+            is_blast_zone = true;
+        } else {
+            is_blast_zone = false;
+        }
+        if (!is_blast_zone) {
+            return false;
+        }
+    }
+    if (mpCheckRightWall(start_x, start_y, end_x, end_y, &sp3C, &line_id,
+                         &flags, &sp30, -1, -1))
+    {
+        struct Fighter_x1A88_t* d2 = &fp->x1A88;
+        if (sp3C.x < fp->x1A88.half_width + Stage_GetBlastZoneLeftOffset() ||
+            sp3C.x > Stage_GetBlastZoneRightOffset() - d2->half_width ||
+            sp3C.y < d2->half_height + Stage_GetBlastZoneBottomOffset() ||
+            sp3C.y > Stage_GetBlastZoneTopOffset() - d2->half_height)
+        {
+            is_blast_zone = true;
+        } else {
+            is_blast_zone = false;
+        }
+        if (!is_blast_zone) {
+            return false;
+        }
+    }
+    return true;
+}
 
 enum_t ftCo_800A3134(Fighter* fp)
 {
