@@ -35,7 +35,7 @@ struct Allocator {
     u8 x6EC[0x6F0 - 0x6EC];
 };
 
-/* 015184 */ extern void fn_80015184(OSAlarm* alarm, OSContext* context);
+/* 015184 */ void fn_80015184(OSAlarm* alarm, OSContext* context);
 /* 015320 */ static void lbMemory_80015320(int, Handle*, void*, bool cancelflag);
 
 /// lbMemory_804318B0
@@ -261,6 +261,32 @@ static void lbMemory_80015320(int unused, Handle* h, void* args, bool cancelflag
         }
     } else {
         ((void (*)(u32)) g_alloc.x6E8)(g_alloc.x6E0);
+    }
+}
+
+void fn_80015184(OSAlarm* alarm, OSContext* context)
+{
+    DefragJob* job = &g_alloc.x6A0_job;
+    u32 progress;
+    u32 chunk;
+
+    if (job->x30_size == 0) {
+        __assert(__FILE__, 0x127, "p->size");
+    }
+    progress = job->x34_progress;
+    chunk = job->x30_size - progress;
+    if (chunk > 0x19000) {
+        chunk = 0x19000;
+    }
+    memcpy((void*) ((u32) job->x2C_dest + progress),
+           (void*) ((u32) job->x28_src + progress), chunk);
+    job->x34_progress += chunk;
+    if (job->x34_progress == job->x30_size) {
+        job->x30_size = 0;
+        job->x3C_callback(0, (int) job->x38_args, NULL, 0);
+    } else {
+        OSCreateAlarm(&job->x0_alarm);
+        OSSetAlarm(&job->x0_alarm, OSMillisecondsToTicks(3), fn_80015184);
     }
 }
 
