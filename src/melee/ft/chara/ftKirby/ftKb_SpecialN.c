@@ -1229,6 +1229,33 @@ void ftKb_SpecialAirLwEnd_Phys(Fighter_GObj* gobj)
 
 /// #ftKb_SpecialAirLw_Coll
 
+void ftKb_SpecialAirLwEnd_Coll(Fighter_GObj* gobj)
+{
+    Fighter* fp = GET_FIGHTER(gobj);
+    Fighter* fp2;
+    ft_80081D0C(gobj);
+    fp2 = GET_FIGHTER(gobj);
+    fp2->mv.kb.speciallw.x24 = ftKb_Init_803CB4EC.vec;
+    fp2->mv.kb.speciallw.x54 = fp2->mv.kb.speciallw.x24;
+    fp2->mv.kb.speciallw.x88[0] = 0.0f;
+    fp2->mv.kb.speciallw.x88[4] = 0.0f;
+    fp2->mv.kb.speciallw.x30 = ftKb_Init_803CB4EC.vec;
+    fp2->mv.kb.speciallw.x60 = fp2->mv.kb.speciallw.x30;
+    fp2->mv.kb.speciallw.x88[1] = 0.0f;
+    fp2->mv.kb.speciallw.x88[5] = 0.0f;
+    fp2->mv.kb.speciallw.x3C = ftKb_Init_803CB4EC.vec;
+    fp2->mv.kb.speciallw.x6C = fp2->mv.kb.speciallw.x3C;
+    fp2->mv.kb.speciallw.x88[2] = 0.0f;
+    fp2->mv.kb.speciallw.x88[6] = 0.0f;
+    fp2->mv.kb.speciallw.x48 = ftKb_Init_803CB4EC.vec;
+    fp2->mv.kb.speciallw.x78 = fp2->mv.kb.speciallw.x48;
+    fp2->mv.kb.speciallw.x88[3] = 0.0f;
+    fp2->mv.kb.speciallw.x88[7] = 0.0f;
+    fp2->mv.kb.speciallw.x18 = ftKb_Init_803CB4EC.vec;
+    fp2->mv.kb.speciallw.x84 = 0.0f;
+    ftPartSetRotX(fp, 0, 0.0f);
+}
+
 void ftKb_SpecialAirLw_800F5318(Fighter_GObj* gobj)
 {
     Fighter* fp = GET_FIGHTER(gobj);
