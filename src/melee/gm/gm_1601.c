@@ -2337,7 +2337,42 @@ u8 fn_80165548(MatchEnd* arg0, s8 arg1, s8 arg2)
 
 /// #fn_8016588C
 
-/// #fn_80165AC0
+void fn_80165AC0(MatchEnd* arg0)
+{
+    s32 i;
+    s32 j;
+    s32 max_loser;
+    s32 n;
+
+    max_loser = 0;
+    for (i = 0; i < 6; i++) {
+        if ((u8) arg0->player_standings[i].slot_type != 3) {
+            for (j = 0; j < 6; j++) {
+                if ((u8) arg0->player_standings[j].slot_type != 3 && i != j &&
+                    arg0->player_standings[i].score <
+                        arg0->player_standings[j].score)
+                {
+                    arg0->player_standings[i].is_big_loser++;
+                }
+            }
+            if (max_loser < (s32) arg0->player_standings[i].is_big_loser) {
+                max_loser = arg0->player_standings[i].is_big_loser;
+            }
+        }
+    }
+    arg0->loser = (arg0->loser & ~0xF0) | ((max_loser << 4) & 0xF0);
+
+    n = 0;
+    for (i = 0; i < 6; i++) {
+        if ((u8) arg0->player_standings[i].slot_type != 3 &&
+            (u8) arg0->player_standings[i].is_big_loser == 0)
+        {
+            arg0->winners[n] = i;
+            n++;
+        }
+    }
+    arg0->n_winners = n;
+}
 
 MatchEnd* fn_80165D60(MatchEnd* arg0)
 {
