@@ -155,7 +155,40 @@ void gm_801BAAD0(MinorScene* arg0)
 
 /// #gm_801BAB40
 
-/// #gm_801BAC9C
+u8 gm_801BAC9C(MinorScene* arg0, int count)
+{
+    u8 buf[0x21];
+    StartMeleeData* sd;
+    struct EventData* temp_r30 = &gmMainLib_804D3EE0->unk_530;
+    u8* list;
+    u8* dst;
+    int found;
+    int i;
+    int k;
+    int matches;
+    PAD_STACK(0x10);
+
+    sd = gm_801A427C(arg0);
+    dst = buf;
+    list = (u8*) gm_804D6900[temp_r30->unk_535]->x4;
+    found = 0;
+    for (i = 0; i < 0x21; i++) {
+        if (list[i] == 0x21) {
+            break;
+        }
+        matches = 0;
+        for (k = 0; k < count; k++) {
+            if ((s8) sd->players[k].c_kind == (s8) list[i]) {
+                matches++;
+            }
+        }
+        if (matches == 0) {
+            *dst++ = list[i];
+            found++;
+        }
+    }
+    return buf[HSD_Randi(found)];
+}
 
 /// #gm_801BAD70
 
