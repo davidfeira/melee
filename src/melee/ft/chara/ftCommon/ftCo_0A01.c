@@ -2229,7 +2229,104 @@ static bool ftCo_800A6D2C(Fighter* fp, Vec3* out)
 
 /// #ftCo_800A6FC4
 
-/// #ftCo_800A75DC
+static void ftCo_800A75DC(Fighter* fp0, Fighter* fp1)
+{
+    Vec3 sp50;
+    Vec3 sp44;
+    int sp40;
+    u32 sp3C;
+    Vec2 sp18;
+
+    if (fp1 == NULL) {
+        return;
+    }
+    if (fp1->ground_or_air == GA_Air) {
+        int found_special = 0;
+        int hit;
+        sp40 = -1;
+        hit = mpCheckFloor(fp1->cur_pos.x, fp1->cur_pos.y + 10.0f,
+                           fp1->cur_pos.x, fp1->cur_pos.y - 1000.0f,
+                           0.0f, &sp50, &sp40, &sp3C, &sp44,
+                           -1, -1, -1, NULL, NULL);
+        if (hit) {
+            if (grBigBlue_801EF844(sp40) || grInishie1_801FCAAC(sp40) ||
+                grCorneria_801E2D90(sp40) || grVenom_80206D10(sp40))
+            {
+                found_special = 1;
+            }
+            if (found_special) {
+                hit = 0;
+            }
+        }
+        if (hit) {
+            mp_UnkStruct0* island = mpIsland_8005AB54(sp40);
+            if (ftCo_800A2718_dontinline(island)) {
+                return;
+            }
+            ftCo_800A1F3C(fp0, sp50.x, sp50.y,
+                          fp0->x1A88.x56C + fp1->x1A88.x564);
+            if (island == NULL) {
+                return;
+            }
+            if (ABS(island->x14.x - fp0->x1A88.x54.x) < 5.0) {
+                ftCo_800A1F3C(fp0, island->x14.x - 5.0f, island->x14.y,
+                              fp0->x1A88.x56C + fp1->x1A88.x564);
+            } else if (ABS(island->x8.x - fp0->x1A88.x54.x) < 5.0) {
+                ftCo_800A1F3C(fp0, island->x8.x + 5.0f, island->x8.y,
+                              fp0->x1A88.x56C + fp1->x1A88.x564);
+            }
+        } else {
+            ((void (*)(Fighter*, Vec2*)) ftCo_800A4768)(fp1, &sp18);
+            ftCo_800A1F3C(fp0, sp18.x, sp18.y,
+                          fp0->x1A88.x56C + fp1->x1A88.x564);
+        }
+    } else {
+        mp_UnkStruct0* island;
+        int same_island;
+        if (ftCo_800A2718_dontinline(
+                mpIsland_8005AB54(fp1->coll_data.floor.index)))
+        {
+            return;
+        }
+        ftCo_800A1F3C(fp0, fp1->cur_pos.x, fp1->cur_pos.y,
+                      fp0->x1A88.x56C + fp1->x1A88.x564);
+        if (fp0->ground_or_air == GA_Air) {
+            same_island = 0;
+        } else if (fp1->ground_or_air == GA_Air) {
+            same_island = 0;
+        } else {
+            island = mpIsland_8005AB54(fp0->coll_data.floor.index);
+            if (island == NULL) {
+                same_island = 0;
+            } else if (mpIsland_8005AB54(fp1->coll_data.floor.index) == island)
+            {
+                same_island = 1;
+            } else {
+                same_island = 0;
+            }
+        }
+        if (same_island) {
+            return;
+        }
+        island = mpIsland_8005AB54(fp1->coll_data.floor.index);
+        if (island == NULL) {
+            return;
+        }
+        if (fp0->x1A88.x54.y - fp0->cur_pos.y > 0.0f) {
+            if (fp0->x1A88.x54.x - fp0->cur_pos.x > 0.0f) {
+                if (fp0->cur_pos.x < island->x8.x) {
+                    ftCo_800A1F3C(fp0, island->x8.x + 5.0f, island->x8.y,
+                                  fp0->x1A88.x56C + fp1->x1A88.x564);
+                }
+            } else {
+                if (fp0->cur_pos.x > island->x14.x) {
+                    ftCo_800A1F3C(fp0, island->x14.x - 5.0f, island->x14.y,
+                                  fp0->x1A88.x56C + fp1->x1A88.x564);
+                }
+            }
+        }
+    }
+}
 
 /// #ftCo_800A7AAC
 

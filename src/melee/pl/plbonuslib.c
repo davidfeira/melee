@@ -928,6 +928,130 @@ void fn_8003F53C(int arg0, int arg1)
     }
 }
 
+void fn_8003F654(int slot, int index, Vec3* pos, Vec3* prevPos)
+{
+    pl_StaleMoveTableExt_t* temp_r31;
+    HSD_GObj* temp_r27;
+    pl_StaleMoveTableExt_t* temp_r3_3;
+    int temp_r3_2;
+    int temp_r3;
+    Vec3 sp44;
+    Vec3 sp38;
+    float var_f31;
+    float var_f30;
+    float diff_x;
+    float diff_y;
+    float var_f1;
+    float var_f0;
+    int var_r25;
+    int var_r26;
+
+    temp_r31 = Player_GetStaleMoveTableIndexPtr2(slot);
+    temp_r27 = Player_GetEntityAtIndex(slot, index);
+
+    if (!pl_Verify_gm_8016AEDC()) {
+        return;
+    }
+    if (index == 1) {
+        return;
+    }
+
+    {
+        if (ftLib_8008732C(temp_r27)) {
+            return;
+        }
+
+        temp_r3 = ft_80087B34((Fighter_GObj*) temp_r27);
+        if (temp_r3 == 1) {
+            float dxsq;
+            float dysq;
+            diff_x = prevPos->x - pos->x;
+            diff_y = prevPos->y - pos->y;
+            dxsq = diff_x * diff_x;
+            dysq = diff_y * diff_y;
+            var_f31 = dxsq + dysq;
+            if (var_f31 > 0.0f) {
+                var_f31 = sqrtf(var_f31);
+            }
+
+            temp_r3_2 = ftLib_80087300(temp_r27);
+            temp_r31->xD80 += var_f31;
+            if (var_f31 > temp_r31->xD84) {
+                temp_r31->xD84 = var_f31;
+            }
+            if (temp_r3_2 != 6) {
+                temp_r3_3 = Player_GetStaleMoveTableIndexPtr2(temp_r3_2);
+                if (var_f31 > temp_r3_3->xD88) {
+                    temp_r3_3->xD88 = var_f31;
+                }
+            }
+        } else if (temp_r3 == 0) {
+            if (ftLib_800865CC(temp_r27) == 0) {
+                diff_x = pos->x - prevPos->x;
+                if (diff_x < 0.0f) {
+                    var_f1 = -diff_x;
+                } else {
+                    var_f1 = diff_x;
+                }
+                temp_r31->xD74 += var_f1;
+            } else {
+                diff_y = pos->y - prevPos->y;
+                if (diff_y > 0.0f) {
+                    if (diff_y < 0.0f) {
+                        var_f1 = -diff_y;
+                    } else {
+                        var_f1 = diff_y;
+                    }
+                    temp_r31->xD78 += var_f1;
+                } else {
+                    if (diff_y < 0.0f) {
+                        var_f1 = -diff_y;
+                    } else {
+                        var_f1 = diff_y;
+                    }
+                    temp_r31->xD7C += var_f1;
+                }
+            }
+        }
+
+        var_f30 = 0.0f;
+        var_r25 = 0;
+        for (var_r26 = 0; var_r26 < 6; var_r26++) {
+            if (var_r26 != slot) {
+                if (!pl_CheckIfSameTeam(slot, var_r26) &&
+                    Player_8003221C(var_r26) &&
+                    !ftLib_8008732C(Player_GetEntity(var_r26)))
+                {
+                    Player_LoadPlayerCoords(var_r26, &sp44);
+                    var_f0 = pos->x - sp44.x;
+                    if (var_f0 < 0.0f) {
+                        var_f0 = -var_f0;
+                    }
+                    var_f30 += var_f0;
+                    var_r25 += 1;
+                }
+            }
+        }
+
+        if (var_r25 != 0) {
+            temp_r31->xD90 += 1;
+            temp_r31->xD8C =
+                pl_CalculateAverage(temp_r31->xD8C * (temp_r31->xD90 - 1) +
+                                        pl_CalculateAverage(var_f30, var_r25),
+                                    temp_r31->xD90);
+        }
+
+        temp_r31->xD98 += 1;
+        Stage_UnkSetVec3TCam_Offset(&sp38);
+        var_f0 = pos->x - sp38.x;
+        if (var_f0 < 0.0f) {
+            var_f0 = -var_f0;
+        }
+        temp_r31->xD94 = pl_CalculateAverage(
+            temp_r31->xD94 * (temp_r31->xD98 - 1) + var_f0, temp_r31->xD98);
+    }
+}
+
 void pl_8003FAA8(int slot, int index, Vec3* pos, Vec3* prevPos)
 {
     float temp_f30;
