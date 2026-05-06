@@ -615,7 +615,32 @@ void grGreens_802159B8(Ground* gp, int i, int j, int value)
     }
 }
 
-/// #fn_80215B84
+void fn_80215B84(Item_GObj* item_gobj, Ground* gp, Vec3* u2, HSD_GObj* arg3,
+                 f32 u4)
+{
+    int i;
+    int j;
+    int found;
+    int found_i = -1;
+    int found_j = -1;
+    struct grGreens_BlockVars* b;
+
+    found = 0;
+    for (i = 0; i < 5; i++) {
+        for (j = 0; j < 6; j++) {
+            b = &gp->gv.greens.x8_blocks[i * 6 + j];
+            if (b->status && (Item_GObj*) b->x10 == item_gobj) {
+                found_i = i;
+                found_j = j;
+                found = 1;
+                goto done;
+            }
+        }
+    }
+done:
+    HSD_ASSERT(1465, found);
+    grGreens_802159B8(gp, found_j, found_i, (int) arg3);
+}
 
 void fn_80215D50(Item_GObj* item_gobj, Ground* gp, HSD_GObj* gobj)
 {
