@@ -837,7 +837,68 @@ void fn_8003EE2C(int arg0, int arg1)
     }
 }
 
-/// fn_8003F294
+void fn_8003F294(int arg0, int arg1)
+{
+    pl_StaleMoveTableExt_t* temp_r31;
+    plActionStats* temp_r29;
+    pl_StaleMoveTableExt_t* temp_r3;
+    f32 temp_f1;
+    f32 temp_f0;
+    u32 temp_r4;
+
+    temp_r31 = Player_GetStaleMoveTableIndexPtr2(arg0);
+    Player_GetEntityAtIndex(arg0, arg1);
+    temp_r29 = Player_GetActionStats(arg0);
+
+    if (arg1 != 1) {
+        pl_8003906C(arg0, 0x3B, NULL, pl_804D6470->x70, pl_804D6470->x74,
+                    pl_800386D8(temp_r29, 0x6B), &temp_r31->xD9C);
+        pl_8003906C(arg0, 0x45, NULL, pl_804D6470->x90, pl_804D6470->x94,
+                    pl_800386D8(temp_r29, 0x70), &temp_r31->xDA0);
+        pl_8003906C(arg0, 0x49, NULL, pl_804D6470->xA8, pl_804D6470->xAC,
+                    pl_800386E8((pl_800386E8_arg0_t*) temp_r29),
+                    &temp_r31->xDA4);
+        pl_8003906C(arg0, 0x54, NULL, pl_804D6470->xC4, pl_804D6470->xC8,
+                    pl_800386D8(temp_r29, 0x6F), &temp_r31->xDA8);
+        pl_8003906C(arg0, -1, (unsigned int*) &temp_r31->xDC8,
+                    pl_804D6470->x18, pl_804D6470->x1C,
+                    temp_r29->hits.total, &temp_r31->xDAC);
+        pl_8003906C(arg0, 0x13, NULL, pl_804D6470->x2C, pl_804D6470->x30,
+                    temp_r29->attacks.total, &temp_r31->xDB0);
+        pl_8003906C(arg0, 0x5C, NULL, pl_804D6470->xE0,
+                    (u32) pl_804D6470->xE4, (u32) temp_r31->xD70,
+                    &temp_r31->xDB4);
+        pl_8003906C(arg0, 0x99, NULL, pl_804D6470->x130, pl_804D6470->x134,
+                    (u32) temp_r31->xD34, &temp_r31->xDB8);
+        pl_8003906C(arg0, 0x3D, NULL, pl_804D6470->x7C, pl_804D6470->x80,
+                    (u32) temp_r31->x0_staleMoveTable.xCD8, &temp_r31->xDBC);
+
+        temp_r3 = Player_GetStaleMoveTableIndexPtr2(arg0);
+        temp_f1 = temp_r3->x0_staleMoveTable.xCDC;
+        temp_f0 = temp_r3->x0_staleMoveTable.xCE0;
+        pl_80039238(arg0, 0x44, NULL, pl_804D6470->x88, &temp_r31->xDC0,
+                    *(float*) &pl_804D6470->x8C,
+                    sqrtf__Ff((temp_f1 * temp_f1) + (temp_f0 * temp_f0)));
+
+        if (pl_8003906C(arg0, -1, (unsigned int*) &temp_r31->xDCC,
+                        pl_804D6470->xB8, pl_804D6470->xBC,
+                        (unsigned int) temp_r31->xCF4,
+                        &temp_r31->xDC4) != 0)
+        {
+            temp_r4 = pl_804D6470->xB8;
+            if (temp_r4 == gm_8016AEDC()) {
+                if (temp_r31->xD5C <= temp_r4) {
+                    temp_r31->xDD1.bit2 = 1;
+                }
+            } else {
+                if (temp_r31->xDD1.bit2 && (temp_r31->xD5C > temp_r4)) {
+                    temp_r31->xDD1.bit2 = 0;
+                }
+            }
+            temp_r31->xD5C = -1U;
+        }
+    }
+}
 
 void fn_8003F53C(int arg0, int arg1)
 {
