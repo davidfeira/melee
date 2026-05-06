@@ -2,6 +2,8 @@
 
 #include "mn/mndatadel.static.h"
 
+#include "mn/inlines.h"
+
 #include "placeholder.h"
 
 #include "baselib/gobj.h"
