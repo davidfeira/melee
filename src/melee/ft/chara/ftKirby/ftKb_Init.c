@@ -71,6 +71,7 @@
 #include "it/items/itseakneedleheld.h"
 #include "lb/lb_00B0.h"
 #include "lb/lbanim.h"
+#include "lb/lbarchive.h"
 #include "lb/lbvector.h"
 #include "mp/mpcoll.h"
 #include "mp/mplib.h"
@@ -3271,7 +3272,41 @@ char* ftKb_Init_GetMotionFileString(enum_t arg0)
 
 /// #ftKb_SpecialN_800EEC34
 
-/// #ftKb_SpecialN_800EED50
+void ftKb_SpecialN_800EED50(s32 arg0, s32 arg1)
+{
+    if (arg0 != -1 && arg0 != 4) {
+        ftKirby_CopyName* copy = &ftKb_Init_803CA9D0[arg0];
+        if (copy->filename != NULL) {
+            HSD_Archive** entry = &((HSD_Archive**) &ft_80459B88)[arg0];
+            if (*entry == NULL) {
+                lbArchive_80017040(NULL, copy->filename, entry, copy->name, 0);
+            }
+        }
+        {
+            Fighter_CostumeStrings* costumes = ftKb_Init_803CB3E8[arg0];
+            if (costumes != NULL) {
+                struct {
+                    HSD_Joint* joint;
+                    HSD_MatAnimJoint* matanim;
+                }* item = (void*) ftKb_Init_803C9FC8[arg0];
+                item = &item[arg1];
+                if (item->joint == NULL) {
+                    Fighter_CostumeStrings* cs = &costumes[arg1];
+                    if (cs->matanim_joint_name != NULL) {
+                        lbArchive_80017040(NULL, cs->dat_filename, item,
+                                           cs->joint_name, &item->matanim,
+                                           cs->matanim_joint_name, 0);
+                    } else {
+                        lbArchive_80017040(NULL, cs->dat_filename, item,
+                                           cs->joint_name, 0);
+                        item->matanim = NULL;
+                    }
+                }
+            }
+        }
+        efAsync_LoadSync(ftKb_Init_803CB46C[arg0]);
+    }
+}
 
 void ftKb_Init_UnkMotionStates5(void)
 {
