@@ -1890,7 +1890,92 @@ u32 unknown[] = {
     0xFFFFFFFF, 0,          0,          0,
 };
 
-/// #void Ground_801C34AC
+void Ground_801C34AC(s32 map_id, HSD_JObj* root, struct HSD_Joint* joint)
+{
+    HSD_JObj* phi_r31;
+    UnkStageDat* temp_r3_2;
+    UnkArchiveStruct* archive;
+    int temp_r4_2;
+    struct {
+        void* x0;
+        u8 x4_pad[0x8];
+    }* phi_r3;
+    s16* pair;
+    int count;
+    int phi_r28;
+    int phi_r5;
+    int target;
+    int i;
+    int j;
+
+    phi_r31 = root;
+    phi_r28 = -1;
+    archive = grDatFiles_801C6330(map_id);
+    if (archive == NULL) {
+        return;
+    }
+    if (root == NULL || joint == NULL) {
+        OSReport("%s:%d:Error (root=%08x joint=%08x)\n", __FILE__, __FILE__,
+                 root, joint);
+        return;
+    }
+    temp_r3_2 = archive->unk4;
+    temp_r4_2 = temp_r3_2->unk4;
+    if (temp_r4_2 == 0) {
+        return;
+    }
+    phi_r3 = temp_r3_2->unk0;
+    for (i = 0; true; i++) {
+        if (i >= temp_r4_2) {
+            return;
+        }
+        if (phi_r3[i].x0 == joint) {
+            break;
+        }
+    }
+    count = ((s32*) &phi_r3[i])[2];
+    pair = (s16*) ((void**) &phi_r3[i])[1];
+    if (count <= 0) {
+        return;
+    }
+    for (j = count; j > 0; j--) {
+        target = pair[0];
+        if (phi_r28 > target || phi_r28 == -1) {
+            phi_r31 = root;
+            phi_r5 = 0;
+        } else {
+            phi_r5 = phi_r28;
+        }
+        while (phi_r31 != NULL) {
+            if (phi_r5 == target) {
+                break;
+            }
+            if (!(phi_r31->flags & JOBJ_INSTANCE) &&
+                HSD_JObjGetChild(phi_r31) != NULL)
+            {
+                phi_r31 = HSD_JObjGetChild(phi_r31);
+            } else if (HSD_JObjGetNext(phi_r31) != NULL) {
+                phi_r31 = HSD_JObjGetNext(phi_r31);
+            } else {
+                while (1) {
+                    if (HSD_JObjGetParent(phi_r31) == NULL) {
+                        phi_r31 = NULL;
+                        break;
+                    }
+                    if (HSD_JObjGetNext(HSD_JObjGetParent(phi_r31)) != NULL) {
+                        phi_r31 = HSD_JObjGetNext(HSD_JObjGetParent(phi_r31));
+                        break;
+                    }
+                    phi_r31 = HSD_JObjGetParent(phi_r31);
+                }
+            }
+            phi_r5++;
+        }
+        phi_r28 = phi_r5;
+        stage_info.x280[pair[1]] = phi_r31;
+        pair = (s16*) ((u8*) pair + 4);
+    }
+}
 
 void Ground_801C36F4(int map_id, HSD_JObj* root, UNK_T joint)
 {
