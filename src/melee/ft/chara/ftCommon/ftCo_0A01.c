@@ -3854,7 +3854,68 @@ void ftCo_800ADC28(Fighter* fp)
 
 /// #ftCo_800ADE48
 
-/// #ftCo_800AE7AC
+static void ftCo_800AE7AC(Fighter* fp, Vec3* arg1, int arg2)
+{
+    struct Fighter_x1A88_t* data = &fp->x1A88;
+    Vec3 sp30;
+    Vec2 sp24;
+    Item* item;
+    f32 cx;
+    f32 cy;
+
+    data->xF8_b0 = true;
+    data->xF9_b3 = false;
+    data->xF9_b5 = false;
+    data->xF9_b7 = false;
+    data->xF9_b1 = false;
+    if (arg2 > 1) {
+        data->xFA_b2 = false;
+        data->xFA_b34 = data->xFA_b34 & ~1;
+        data->xFA_b6 = false;
+    } else {
+        data->xFA_b2 = true;
+        data->xFA_b34 = data->xFA_b34 | 1;
+        data->xFA_b6 = true;
+    }
+    data->x44 = ftCo_800A4BEC(fp);
+    item = fp->item_gobj != NULL ? GET_ITEM(fp->item_gobj) : NULL;
+    if (item != NULL && ftCo_800A5908(item)) {
+        if (fp->x2168 != 0) {
+            data->x4C = NULL;
+        } else {
+            data->x4C = ftCo_800A5F4C(fp, It_Kind_L_Gun_Ray);
+        }
+    } else {
+        data->x4C = NULL;
+    }
+    data->x50 = ftCo_800A648C(fp);
+    if (inlineI1(data)) {
+        if (arg2 >= 0) {
+            ((void (*)(Fighter*, Vec3*)) ftCo_800A8210)(fp, arg1);
+        } else if (fp->ground_or_air == GA_Ground) {
+            cx = 0.5f *
+                 (Stage_GetBlastZoneLeftOffset() +
+                  Stage_GetBlastZoneRightOffset());
+            cy = 0.5f *
+                 (Stage_GetBlastZoneBottomOffset() +
+                  Stage_GetBlastZoneTopOffset());
+            sp30.x = cx - fp->cur_pos.x;
+            sp30.y = cy - fp->cur_pos.y;
+            sp30.z = 0.0f;
+            if (((int (*)(Fighter*, Vec2*, Vec3*)) ftCo_800A6FC4)(fp, &sp24, &sp30) != 0) {
+                if (data->x60 == 0) {
+                    data->x54.x = sp24.x;
+                    data->x54.y = sp24.y;
+                    data->x38 = 5.0f;
+                    ftCo_800A1CC4(fp, ftCo_803C6594[stage_info.internal_stage_id]);
+                }
+            } else {
+                ftCo_800A75DC(fp, data->x44);
+            }
+        }
+    }
+    ftCo_800ADE48(fp);
+}
 
 /// #ftCo_800AEA8C
 
