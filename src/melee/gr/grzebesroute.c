@@ -14,6 +14,7 @@
 #include <baselib/gobj.h>
 #include <baselib/gobjgxlink.h>
 #include <baselib/gobjproc.h>
+#include <baselib/lobj.h>
 #include <baselib/random.h>
 
 StageCallbacks grZe_Route_803E5DB0[] = {
@@ -188,7 +189,83 @@ void fn_8020B4D8(Ground* gp, s32 arg1, CollData* coll, s32 arg3,
     }
 }
 
-/// #grZebesRoute_8020B548
+void grZebesRoute_8020B548(void)
+{
+    Vec3 pos0;
+    Vec3 pos1;
+    Vec3 pos2;
+    Vec3 pos3;
+    Vec3 lpos;
+    GXColor color0;
+    GXColor color1;
+    GXColor color2;
+    HSD_LObj* lobj;
+    s32 i;
+    f32 scale;
+    HSD_GObj* gobj;
+    Vec3* base;
+
+    gobj = HSD_GObjGXLinkHead[4];
+    HSD_ASSERT(361, gobj);
+    lobj = (HSD_LObj*) gobj->hsd_obj;
+    scale = Ground_801C0498();
+    base = &grZe_Route_803B83A0;
+    for (i = 0, lobj = HSD_LObjGetNext(lobj); i < 3 && lobj != NULL;
+         i++, lobj = HSD_LObjGetNext(lobj))
+    {
+        if (!HSD_LObjGetPosition(lobj, &lpos)) {
+            HSD_ASSERT(372, 0);
+        }
+        switch (lobj->flags & 3) {
+        case 3:
+            pos0 = base[1];
+            pos1 = base[2];
+            color0.r = 0xFF;
+            color0.g = 0xCC;
+            color0.b = 0xFF;
+            color0.a = 0xFF;
+            HSD_LObjSetColor(lobj, color0);
+            pos0.x *= scale;
+            pos0.y *= scale;
+            pos0.z *= scale;
+            HSD_LObjSetPosition(lobj, &pos0);
+            pos1.x *= scale;
+            pos1.y *= scale;
+            pos1.z *= scale;
+            HSD_LObjSetInterest(lobj, &pos1);
+            HSD_LObjSetSpot(lobj, 45.0f, 3);
+            HSD_LObjSetDistAttn(lobj, 600.0f * scale, 0.99f, 3);
+            break;
+        case 2:
+            if (lpos.y > 500.0f) {
+                pos2 = base[3];
+                color1.r = 0xFD;
+                color1.g = 0xFD;
+                color1.b = 0xBF;
+                color1.a = 0xFF;
+                HSD_LObjSetColor(lobj, color1);
+                pos2.x *= scale;
+                pos2.y *= scale;
+                pos2.z *= scale;
+                HSD_LObjSetPosition(lobj, &pos2);
+                HSD_LObjSetDistAttn(lobj, 1000.0f * scale, 0.03f, 3);
+            } else if (lpos.y < 500.0f) {
+                pos3 = base[4];
+                color2.r = 0x00;
+                color2.g = 0x00;
+                color2.b = 0xF7;
+                color2.a = 0xFF;
+                HSD_LObjSetColor(lobj, color2);
+                pos3.x *= scale;
+                pos3.y *= scale;
+                pos3.z *= scale;
+                HSD_LObjSetPosition(lobj, &pos3);
+                HSD_LObjSetDistAttn(lobj, 400.0f * scale, 0.03f, 3);
+            }
+            break;
+        }
+    }
+}
 
 DynamicsDesc* grZebesRoute_8020B854(enum_t arg)
 {
