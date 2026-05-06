@@ -251,7 +251,59 @@ void grMaterial_801C8E74(void)
 
 /// #fn_801C8EF8
 
-/// #grMaterial_801C92C0
+void grMaterial_801C92C0(HSD_JObj* jobj)
+{
+    HSD_DObj* dobj;
+    HSD_JObj* grandchild;
+    HSD_MObj* mobj;
+    s32 cond;
+    u32 unused[8];
+
+    if (jobj == NULL) {
+        return;
+    }
+    if (jobj->flags & 0x4020) {
+        cond = 0;
+    } else {
+        cond = 1;
+    }
+    if (cond != 0) {
+        dobj = HSD_JObjGetDObj(jobj);
+        while (dobj != NULL) {
+            mobj = dobj != NULL ? dobj->mobj : NULL;
+            if (mobj != NULL) {
+                hsdChangeClass(mobj, &grMaterial_803E0A20);
+            }
+            dobj = dobj != NULL ? dobj->next : NULL;
+        }
+    }
+    jobj = jobj == NULL ? NULL : jobj->child;
+    while (jobj != NULL) {
+        if (jobj != NULL) {
+            if (jobj->flags & 0x4020) {
+                cond = 0;
+            } else {
+                cond = 1;
+            }
+            if (cond != 0) {
+                dobj = HSD_JObjGetDObj(jobj);
+                while (dobj != NULL) {
+                    mobj = dobj != NULL ? dobj->mobj : NULL;
+                    if (mobj != NULL) {
+                        hsdChangeClass(mobj, &grMaterial_803E0A20);
+                    }
+                    dobj = dobj != NULL ? dobj->next : NULL;
+                }
+            }
+            grandchild = jobj == NULL ? NULL : jobj->child;
+            while (grandchild != NULL) {
+                grMaterial_801C92C0(grandchild);
+                grandchild = grandchild == NULL ? NULL : grandchild->next;
+            }
+        }
+        jobj = jobj == NULL ? NULL : jobj->next;
+    }
+}
 
 void grMaterial_801C9470(Item_GObj* gobj, CommandInfo* cmd)
 {
