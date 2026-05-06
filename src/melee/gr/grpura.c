@@ -92,6 +92,8 @@ void grPura_80211CFC(bool num) {}
 
 const f32 grPu_804DBA58 = 0.8;
 const f32 grPu_804DBA5C = 3600.0;
+const f64 grPu_804DBA60 = 4503601774854144.0;
+const f64 grPu_804DBA68 = 4503599627370496.0;
 const f32 grPu_804DBA70 = 0.0;
 const f32 grPu_804DBA74 = 2.0;
 const f32 grPu_804DBA78 = 30.0;
@@ -236,7 +238,34 @@ bool grPura_802120D8(Ground_GObj* arg0)
     return false;
 }
 
-/// #grPura_802120E0
+void grPura_802120E0(Ground_GObj* arg0)
+{
+    GXColor next;
+    GXColor cur;
+    Ground* gp = GET_GROUND(arg0);
+    s16 t;
+    f32 f;
+    PAD_STACK(8);
+
+    if (*(s16*) &gp->gv.pura.xC8 < 3600) {
+        next = grPu_803E6AA0[gp->gv.pura.xC6];
+        cur = grPu_803E6AA0[*(s16*) &gp->gv.pura.xC4];
+        t = *(s16*) &gp->gv.pura.xC8;
+        *(s16*) &gp->gv.pura.xC8 = t + 1;
+        f = (f32) t / grPu_804DBA5C;
+        cur.r = (s8) (f * (f32) ((u8) next.r - (u8) cur.r) + (f32) (u8) cur.r);
+        cur.g = (s8) (f * (f32) ((u8) next.g - (u8) cur.g) + (f32) (u8) cur.g);
+        cur.b = (s8) (f * (f32) ((u8) next.b - (u8) cur.b) + (f32) (u8) cur.b);
+        Ground_801C205C(&cur);
+        Camera_SetBackgroundColor(cur.r, cur.g, cur.b);
+    } else {
+        *(s16*) &gp->gv.pura.xC4 = gp->gv.pura.xC6;
+        do {
+            gp->gv.pura.xC6 = HSD_Randi(4);
+        } while (*(s16*) &gp->gv.pura.xC4 == gp->gv.pura.xC6);
+        *(s16*) &gp->gv.pura.xC8 = 0;
+    }
+}
 
 void grPura_8021228C(Ground_GObj* arg0) {}
 
