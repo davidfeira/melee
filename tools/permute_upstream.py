@@ -77,11 +77,14 @@ def check_upstream(func: str, c_file: Optional[Path] = None,
     """Look up `func` against upstream/master.
 
     Returns {'state': str, 'detail': str, 'path': str or None} where state is:
-      - 'matched'      — upstream has a real definition (we'd be redoing work)
-      - 'unmatched'    — upstream has INCLUDE_ASM or /// # placeholder (safe to attempt)
-      - 'unknown-tu'   — upstream doesn't have the .c file at all (likely safe; new TU)
-      - 'unknown-func' — file exists upstream but no trace of the function name (suspicious)
-      - 'no-upstream'  — no doldecomp upstream remote configured
+      - 'matched'           — upstream has a real definition AND our local file is still
+                              an INCLUDE_ASM/placeholder stub (we'd be retyping their work)
+      - 'matched-divergent' — upstream has a real def AND we also have a real def, but
+                              they differ (regression after upstream edit; safe to attempt)
+      - 'unmatched'         — upstream has INCLUDE_ASM or /// # placeholder (safe to attempt)
+      - 'unknown-tu'        — upstream doesn't have the .c file at all (likely safe; new TU)
+      - 'unknown-func'      — file exists upstream but no trace of the function name
+      - 'no-upstream'       — no doldecomp upstream remote configured
     """
     remote = _upstream_remote()
     if remote is None:
@@ -118,6 +121,26 @@ def check_upstream(func: str, c_file: Optional[Path] = None,
         re.MULTILINE,
     )
     if def_pat.search(upstream_content):
+        # Upstream has a real definition. Check if we still have a stub locally
+        # (real duplicate-of-upstream-work) or also have a real def that diverged
+        # (regression case — safe to attempt, the source needs nudging back).
+        local_path = c_file if c_file.is_absolute() else (_ROOT / c_file)
+        try:
+            local_content = local_path.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            local_content = ""
+        local_stub = (
+            re.search(r"INCLUDE_ASM\([^)]*,\s*" + re.escape(func) + r"\s*\)", local_content)
+            or re.search(r"^\s*///\s*#\s*" + re.escape(func) + r"\s*$",
+                         local_content, re.MULTILINE)
+        )
+        if local_stub:
+            return {"state": "matched", "detail": "definition exists upstream",
+                    "path": rel_path}
+        if def_pat.search(local_content):
+            return {"state": "matched-divergent",
+                    "detail": "upstream matched; local def diverged (regression)",
+                    "path": rel_path}
         return {"state": "matched", "detail": "definition exists upstream", "path": rel_path}
 
     # 4) Name appears but not as definition — likely just a call/extern
@@ -134,6 +157,7 @@ def format_result(func: str, result: dict) -> str:
     path = result.get("path") or "(unknown)"
     icons = {
         "matched": "STOP",
+        "matched-divergent": "OK",
         "unmatched": "OK",
         "unknown-tu": "ok",
         "unknown-func": "?",
@@ -157,7 +181,7 @@ def cmd_upstream_check(args: argparse.Namespace) -> None:
 
     if result["state"] == "matched":
         sys.exit(2)  # exit code 2: matched upstream (waste-of-time signal)
-    if result["state"] in ("unmatched", "unknown-tu"):
+    if result["state"] in ("unmatched", "unknown-tu", "matched-divergent"):
         sys.exit(0)
     sys.exit(1)  # unknown — caller should investigate
 
