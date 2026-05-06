@@ -2522,7 +2522,57 @@ void fn_8016758C(void)
     }
 }
 
-/// #fn_80167638
+extern f32 lbl_803B7A44[7];
+
+s32 fn_80167638(s32 slot, Vec3* pos, Vec3* offset)
+{
+    s32 var_r28;
+    s32 idx;
+    s8 ckind;
+    lbl_8046B6A0_t* mi;
+
+    var_r28 = slot;
+    mi = gm_8016AE44();
+    if (mi->FighterMatchInfo[0].x8 == 0) {
+        idx = 0;
+    } else if (mi->FighterMatchInfo[1].x8 == 0) {
+        idx = 1;
+    } else if (mi->FighterMatchInfo[2].x8 == 0) {
+        idx = 2;
+    } else if (mi->FighterMatchInfo[3].x8 == 0) {
+        idx = 3;
+    } else if (mi->FighterMatchInfo[4].x8 == 0) {
+        idx = 4;
+    } else if (mi->FighterMatchInfo[5].x8 == 0) {
+        idx = 5;
+    } else {
+        idx = 0;
+    }
+    ckind = Player_GetPlayerCharacter(var_r28);
+    if (stage_info.unk8C.b4) {
+        Stage_80224E38(pos, var_r28);
+        offset->z = 0.0f;
+        offset->y = 0.0f;
+        offset->x = 0.0f;
+    } else {
+        s32 sp1C[6];
+        var_r28 = 0;
+        Stage_80224E38(pos, 0);
+        sp1C[0] = ((s32*) lbl_803B7A44)[0];
+        sp1C[1] = ((s32*) lbl_803B7A44)[1];
+        sp1C[2] = ((s32*) lbl_803B7A44)[2];
+        sp1C[3] = ((s32*) lbl_803B7A44)[3];
+        sp1C[4] = ((s32*) lbl_803B7A44)[4];
+        sp1C[5] = ((s32*) lbl_803B7A44)[5];
+        offset->x = 16.0f * ((f32*) sp1C)[idx];
+        offset->z = 0.0f;
+        offset->y = 0.0f;
+        mi = gm_8016AE44();
+        mi->FighterMatchInfo[idx].x8 = 0x90;
+        mi->FighterMatchInfo[idx].x9 = ckind;
+    }
+    return var_r28;
+}
 
 void gm_801677C0(struct gm_801677C0_s* arg0)
 {
