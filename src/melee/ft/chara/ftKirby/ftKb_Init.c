@@ -37,6 +37,7 @@
 #include "ft/ftcommon.h"
 #include "ft/ftdata.h"
 #include "ft/ftdynamics.h"
+#include "ft/ftmaterial.h"
 #include "ft/ftparts.h"
 #include "ft/ftwalkcommon.h"
 #include "ft/inlines.h"
@@ -3406,7 +3407,110 @@ void ftKb_SpecialN_800EF040(Fighter_GObj* gobj, int arg1, KirbyHatStruct* hat)
     }
 }
 
-/// #ftKb_SpecialN_800EF0E4
+extern char ftKb_Init_804D3DAC[2];
+
+void ftKb_SpecialN_800EF0E4(Fighter_GObj* gobj, int arg1, u8* arg2)
+{
+    Fighter* fp = GET_FIGHTER(gobj);
+    HSD_Joint* sp28;
+    s32 sp24;
+    HSD_Joint* root;
+    s32 total_dobjs;
+    s32 part_off;
+    s32 byte_off;
+    s32 group_count;
+    s32 dst_off;
+    HSD_JObj* jobj;
+    HSD_DObj* dobj;
+    HSD_DObj* tail;
+    HSD_DObj** dst;
+    HSD_MObj* mobj;
+
+    ftPartsPObjSetDefaultClass();
+    root = ((HSD_Joint**) ftKb_Init_803C9FC8[arg1])[fp->x619_costume_id * 2];
+    total_dobjs = 0;
+    part_off = total_dobjs << 4;
+    sp28 = root;
+    sp24 = 0;
+    while (sp28 != NULL) {
+        FighterBone* parts = fp->parts;
+        FighterBone* bone = (FighterBone*) ((u8*) parts + part_off);
+        while (!bone->flags_b1) {
+            bone = (FighterBone*) ((u8*) bone + 0x10);
+            part_off += 0x10;
+        }
+        HSD_IDInsertToTable(
+            NULL, (u32) sp28,
+            ((FighterBone*) ((u8*) parts + part_off))->joint);
+        part_off += 0x10;
+        ftAnim_GetNextJointInTree(&sp28, &sp24);
+    }
+    sp28 = root;
+    sp24 = 0;
+    byte_off = total_dobjs << 2;
+    part_off = 0;
+    while (sp28 != NULL) {
+        FighterBone* parts = fp->parts;
+        FighterBone* bone;
+        group_count = 0;
+        bone = (FighterBone*) ((u8*) parts + part_off);
+        while (!bone->flags_b1) {
+            bone = (FighterBone*) ((u8*) bone + 0x10);
+            arg2++;
+            part_off += 0x10;
+        }
+        jobj = ((FighterBone*) ((u8*) parts + part_off))->joint;
+        dobj = HSD_DObjLoadDesc(sp28->u.dobjdesc);
+        *arg2 = total_dobjs;
+        if (dobj != NULL) {
+            tail = HSD_JObjGetDObj(jobj);
+            HSD_DObjResolveRefsAll(dobj, sp28->u.dobjdesc);
+            if (tail == NULL) {
+                HSD_JObjAddDObj(jobj, dobj);
+            } else {
+                while (tail != NULL) {
+                    HSD_DObj* nxt = (tail != NULL) ? tail->next : NULL;
+                    if (nxt == NULL) {
+                        break;
+                    }
+                    tail = (tail != NULL) ? tail->next : NULL;
+                }
+                lb_8000CE30(tail, dobj);
+            }
+            dst_off = byte_off;
+            while (dobj != NULL) {
+                if (total_dobjs >= 0x20) {
+                    OSReport(ftKb_Init_assert_msg_0);
+                    __assert(ftKb_Init_assert_msg_1, 0x43E,
+                             ftKb_Init_804D3DAC);
+                }
+                dst = (HSD_DObj**) fp->fv.gw.x2244_chefVar2;
+                *(HSD_DObj**) ((u8*) dst + dst_off) = dobj;
+                mobj = dobj->mobj;
+                if (mobj != NULL) {
+                    hsdChangeClass(mobj, &ftMObj);
+                }
+                dobj = (dobj != NULL) ? dobj->next : NULL;
+                dst_off += 4;
+                byte_off += 4;
+                total_dobjs += 1;
+                group_count += 1;
+            }
+            if (group_count >= 0x80) {
+                OSReport(ftKb_Init_assert_msg_2);
+                __assert(ftKb_Init_assert_msg_1, 0x44C,
+                         ftKb_Init_804D3DAC);
+            }
+            ((FighterBone*) ((u8*) fp->parts + part_off))->flags_b6 = true;
+        }
+        arg2++;
+        part_off += 0x10;
+        ftAnim_GetNextJointInTree(&sp28, &sp24);
+    }
+    fp->fv.gw.x2240_chefVar1 = total_dobjs;
+    ftPartsPObjClearDefaultClass();
+    PAD_STACK(8);
+}
 
 void ftKb_SpecialN_800EF35C(Fighter_GObj* gobj, int arg1, u8* arg2)
 {
@@ -3436,7 +3540,107 @@ void ftKb_SpecialN_800EF35C(Fighter_GObj* gobj, int arg1, u8* arg2)
     PAD_STACK(8);
 }
 
-/// #ftKb_SpecialN_800EF438
+void ftKb_SpecialN_800EF438(Fighter_GObj* gobj, KirbyHatStruct* hat)
+{
+    HSD_Joint* sp24;
+    s32 sp20;
+    Fighter* fp = GET_FIGHTER(gobj);
+    ftDynamics* dyn = hat->hat_dynamics[2];
+    s32 total_dobjs;
+    s32 part_off;
+    s32 byte_off;
+    HSD_DObj* dobj;
+    HSD_DObj* tail;
+    HSD_JObj* jobj;
+    HSD_DObj** dst;
+    HSD_MObj* mobj;
+    s32 group_count;
+
+    if (dyn != NULL) {
+        ftPartsPObjSetDefaultClass();
+        sp24 = (HSD_Joint*) dyn;
+        total_dobjs = 0;
+        sp20 = 0;
+        part_off = total_dobjs << 4;
+        while (sp24 != NULL) {
+            FighterBone* bone;
+            FighterBone* parts = fp->parts;
+            bone = (FighterBone*) ((u8*) parts + part_off);
+            while (!bone->flags_b1) {
+                bone = (FighterBone*) ((u8*) bone + 0x10);
+                part_off += 0x10;
+            }
+            HSD_IDInsertToTable(
+                NULL, (u32) sp24,
+                ((FighterBone*) ((u8*) parts + part_off))->joint);
+            part_off += 0x10;
+            ftAnim_GetNextJointInTree(&sp24, &sp20);
+        }
+        sp24 = (HSD_Joint*) dyn;
+        sp20 = 0;
+        byte_off = total_dobjs << 2;
+        part_off = 0;
+        while (sp24 != NULL) {
+            FighterBone* bone;
+            FighterBone* parts = fp->parts;
+            group_count = 0;
+            bone = (FighterBone*) ((u8*) parts + part_off);
+            while (!bone->flags_b1) {
+                bone = (FighterBone*) ((u8*) bone + 0x10);
+                part_off += 0x10;
+            }
+            jobj = ((FighterBone*) ((u8*) parts + part_off))->joint;
+            dobj = HSD_DObjLoadDesc((HSD_DObjDesc*) sp24->u.dobjdesc);
+            if (dobj != NULL) {
+                FighterBone* parts2 = fp->parts;
+                s32 flag_off = part_off + 9;
+                tail = HSD_JObjGetDObj(jobj);
+                ((u8*) parts2)[flag_off] |= 1;
+                HSD_DObjResolveRefsAll(dobj, (HSD_DObjDesc*) sp24->u.dobjdesc);
+                if (tail == NULL) {
+                    HSD_JObjAddDObj(jobj, dobj);
+                } else {
+                    while (tail != NULL) {
+                        HSD_DObj* nxt = (tail != NULL) ? tail->next : NULL;
+                        if (nxt == NULL) {
+                            break;
+                        }
+                        tail = (tail != NULL) ? tail->next : NULL;
+                    }
+                    lb_8000CE30(tail, dobj);
+                }
+                while (dobj != NULL) {
+                    if (total_dobjs >= 0x20) {
+                        OSReport(ftKb_Init_assert_msg_0);
+                        __assert(ftKb_Init_assert_msg_1, 0x4B9,
+                                 ftKb_Init_804D3DAC);
+                    }
+                    dst = (HSD_DObj**) fp->fv.gw.x224C_greenhouseGObj;
+                    *(HSD_DObj**) ((u8*) dst + byte_off) = dobj;
+                    mobj = dobj->mobj;
+                    if (mobj != NULL) {
+                        hsdChangeClass(mobj, &ftMObj);
+                    }
+                    dobj = (dobj != NULL) ? dobj->next : NULL;
+                    byte_off += 4;
+                    total_dobjs += 1;
+                    group_count += 1;
+                }
+                if (group_count >= 0x80) {
+                    OSReport(ftKb_Init_assert_msg_2);
+                    __assert(ftKb_Init_assert_msg_1, 0x4C7,
+                             ftKb_Init_804D3DAC);
+                }
+            }
+            part_off += 0x10;
+            ftAnim_GetNextJointInTree(&sp24, &sp20);
+        }
+        fp->fv.gw.x2248_manholeGObj = (HSD_GObj*) total_dobjs;
+        ftPartsPObjClearDefaultClass();
+    } else {
+        *(s32*) fp->fv.gw.x224C_greenhouseGObj = 0;
+    }
+}
 
 void ftKb_SpecialN_800EF69C(Fighter_GObj* gobj, int arg1, KirbyHatStruct* hat)
 {
