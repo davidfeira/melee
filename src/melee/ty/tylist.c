@@ -3,6 +3,7 @@
 #include "gm/gmmain_lib.h"
 #include "if/textlib.h"
 #include "lb/lb_00B0.h"
+#include "lb/lb_00F9.h"
 #include "lb/lbarchive.h"
 #include "lb/lblanguage.h"
 #include "ty/toy.h"
@@ -576,6 +577,8 @@ HSD_JObj* un_80313508(void* parent, void* symbol, float x, float y, float z)
 
 /// #un_80313774
 
+extern struct TyListGobjEntry un_804A2D6C;
+extern s32 un_804D6EE8;
 extern s32 un_804D6EEC;
 extern f32 un_804DDE44;
 extern f32 un_804DDE48;
@@ -587,6 +590,10 @@ extern f32 un_804DDE80;
 extern f32 un_804DDE84;
 extern f32 un_804DDE88;
 extern f32 un_804DDE8C;
+extern f32 un_804DDE90;
+extern f32 un_804DDE94;
+extern f32 un_804DDE98;
+extern char un_803FE5E8[];
 extern char un_804D5A88[3];
 
 s32 un_8031305C(void* a, void* b, s32 c);
@@ -924,7 +931,63 @@ void fn_80314504(HSD_GObj* gobj)
     }
 }
 
-/// #un_8031457C
+void un_8031457C(void)
+{
+    TyListGobjEntry* entry = &un_804A2D6C;
+    TyArchiveData* archive = un_804D6ED8;
+    HSD_CameraDescPerspective* desc;
+    HSD_CObj* cobj;
+    Vec3 interest;
+    Vec3 eye;
+    Scissor scissor;
+    HSD_RectS16 viewport;
+
+    desc = HSD_ArchiveGetPublicAddress(archive->data, un_803FE5E8);
+    if (desc != NULL) {
+        entry->x0 = GObj_Create(1, 2, 0);
+        HSD_GObjObject_80390A70(entry->x0, HSD_GObj_804D784B,
+                                lb_80013B14(desc));
+        GObj_SetupGXLinkMax(entry->x0, (GObj_RenderFunc) un_80306954, 0);
+        entry->x0->gxlink_prios = 0x9010000000000000ULL;
+        HSD_GObj_SetupProc(entry->x0, fn_8031438C, 0);
+        HSD_GObj_80390CD4(entry->x0);
+        entry->x16 = 0x1A;
+    }
+    un_804D6EEC = HSD_SisLib_803A611C(3, entry->x0, 0xC, 0xC, 0, 0x3F, 0, 0);
+    if (desc != NULL) {
+        entry->x4 = GObj_Create(1, 2, 0);
+        cobj = lb_80013B14(desc);
+        HSD_GObjObject_80390A70(entry->x4, HSD_GObj_804D784B, cobj);
+        GObj_SetupGXLinkMax(entry->x4, (GObj_RenderFunc) fn_80314504, 0);
+        entry->x4->gxlink_prios = 0x0210000000000000ULL;
+        interest.x = un_804DDE90;
+        interest.y = un_804DDE94;
+        interest.z = un_804DDE48;
+        HSD_CObjSetInterest(cobj, &interest);
+        eye.x = un_804DDE90;
+        eye.y = un_804DDE94;
+        eye.z = un_804DDE98;
+        HSD_CObjSetEyePosition(cobj, &eye);
+        viewport.xmin = 0x76;
+        viewport.xmax = 0x230;
+        viewport.ymin = 0x4E;
+        viewport.ymax = 0x19C;
+        HSD_CObjSetViewport(cobj, &viewport);
+        viewport.ymin = 0x60;
+        if (un_GetTrophyTotal() < 10) {
+            viewport.ymax = un_GetTrophyTotal() * 0x1E + 0x60;
+        } else {
+            viewport.ymax = 0x18A;
+        }
+        scissor.left = viewport.xmin;
+        scissor.right = viewport.xmax;
+        scissor.top = viewport.ymin;
+        scissor.bottom = viewport.ymax;
+        HSD_CObjSetScissor(cobj, &scissor);
+        un_804D6EE8 = HSD_SisLib_803A611C(0, entry->x4, 0xB, 0xB, 0, 0x3E, 0,
+                                          0);
+    }
+}
 
 void un_803147C4(void)
 {
