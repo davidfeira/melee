@@ -22,6 +22,13 @@
 
 #define NUM_STAGES 29
 
+/// Stage switch positioning data (15 floats)
+static float mnStageSw_803ED488[15] = {
+    0.0f, 199.0f, 0.0f, 0.0f, 9.0f,
+    -0.1f, 0.0f, 0.0f, -0.1f, 0.0f,
+    0.0f, -0.1f, 0.0f, 0.0f, -0.1f,
+};
+
 /// Stage switch toggle indices - maps menu position to internal stage ID
 static u8 mnStageSw_803ED4C4[NUM_STAGES] = {
     0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09,
@@ -79,7 +86,78 @@ static void mnStageSw_8023593C(HSD_GObj* gobj)
 
 /// #mnStageSw_802359C8
 
-/// #mnStageSw_80235C58
+/// Find the nearest unlocked stage to arg0 within its block.
+/// Block is [0, 14] if arg0 < 15, else [15, 28].
+/// Returns -1 if no stage in the block is unlocked.
+/// Otherwise returns arg0 if unlocked, else searches outward by distance.
+static s32 mnStageSw_80235C58(u8 arg0)
+{
+    s32 i;
+    u8 block_start;
+    u8 block_end;
+    s32 j;
+    s32 lo;
+    s32 hi;
+    s32 none_unlocked;
+    s32 down;
+    s32 up;
+
+    if (arg0 < 15) {
+        block_start = 0;
+        block_end = 14;
+    } else {
+        block_start = 15;
+        block_end = 28;
+    }
+
+    if (arg0 < 15) {
+        j = 0;
+        hi = 14;
+    } else {
+        j = 15;
+        hi = 28;
+    }
+    lo = j;
+    (void) lo;
+
+    while ((s32) j <= (s32) hi) {
+        if (gm_80164430(gm_801641CC(mnStageSw_803ED4C4[(u8) j])) != 0) {
+            none_unlocked = 0;
+            goto check_self;
+        }
+        j++;
+    }
+    none_unlocked = 1;
+
+check_self:
+    if (none_unlocked != 0) {
+        return -1;
+    }
+
+    if ((u8) arg0 < 29 &&
+        gm_80164430(gm_801641CC(mnStageSw_803ED4C4[(u8) arg0])) != 0)
+    {
+        return (u8) arg0;
+    }
+
+    up = (u8) arg0 + 1;
+    i = 1;
+    while (true) {
+        down = (u8) arg0 - i;
+        if ((s32) (u8) block_start <= down &&
+            gm_80164430(gm_801641CC(mnStageSw_803ED4C4[(u8) down])) != 0)
+        {
+            return down;
+        }
+        if (up <= (s32) (u8) block_end &&
+            gm_80164430(gm_801641CC(mnStageSw_803ED4C4[(u8) ((u8) arg0 + i)])) != 0)
+        {
+            return (u8) arg0 + i;
+        }
+        up++;
+        i++;
+    }
+}
 
 /// #mnStageSw_80235DC8
 
