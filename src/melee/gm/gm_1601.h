@@ -158,7 +158,7 @@ struct lbl_8046B488_t;
 /* 1654A0 */ u8 fn_801654A0(MatchEnd*);
 /* 165548 */ u8 fn_80165548(MatchEnd*, s8, s8);
 /* 1656A8 */ u8 fn_801656A8(MatchEnd*, s8);
-/* 16588C */ UNK_RET fn_8016588C(UNK_PARAMS);
+/* 16588C */ s32 fn_8016588C(MatchEnd*, s32);
 /* 165AC0 */ void fn_80165AC0(MatchEnd*);
 /* 165D60 */ MatchEnd* fn_80165D60(MatchEnd*);
 /* 165E7C */ void fn_80165E7C(MatchEnd*);

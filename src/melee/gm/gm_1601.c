@@ -5,6 +5,7 @@
 #include "gm_unsplit.h"
 #include "gmmain_lib.h"
 #include "gmstamina.h"
+#include "math.h"
 #include "stddef.h"
 
 #include "baselib/gobjplink.h"
@@ -24,6 +25,7 @@
 #include "lb/lblanguage.h"
 #include "lb/lbtime.h"
 #include "mn/mnstagesel.h"
+#include "pl/plbonus.h"
 #include "pl/player.h"
 #include "sc/types.h"
 #include "ty/toy.h"
@@ -2741,7 +2743,81 @@ u8 fn_801656A8(MatchEnd* arg0, s8 arg1)
     return result;
 }
 
-/// #fn_8016588C
+s32 fn_8016588C(MatchEnd* arg0, s32 arg1)
+{
+    s32 hi;
+    s32 val;
+    u8 mode;
+
+    if (gm_801A4310() == 0x1F) {
+        if (arg0->player_standings[arg1].x28 != 0) {
+            val = (s32) (arg0->player_standings[arg1].x28 / 60U) -
+                  ((1 << 24) - 1);
+        } else {
+            val = arg0->player_standings[arg1].x9;
+        }
+        hi = ABS((1 << 24) - 1);
+        if (val > hi) {
+            return hi;
+        }
+        if (val < -hi) {
+            return -hi;
+        }
+        return val;
+    }
+    mode = arg0->x5;
+    if (mode == 2) {
+        val = arg0->player_standings[arg1].x1C;
+        hi = ABS((1 << 24) - 1);
+        if (val > hi) {
+            return hi;
+        }
+        if (val < -hi) {
+            return -hi;
+        }
+        return val;
+    }
+    if (mode == 1) {
+        if ((s8) arg0->player_standings[arg1].stocks != 0) {
+            val = (s8) arg0->player_standings[arg1].stocks;
+        } else {
+            val = (s32) (arg0->player_standings[arg1].x28 / 60U) -
+                  ((1 << 24) - 1);
+        }
+        hi = ABS((1 << 24) - 1);
+        if (val > hi) {
+            return hi;
+        }
+        if (val < -hi) {
+            return -hi;
+        }
+        return val;
+    }
+    if (mode == 3) {
+        pl_80039450(arg1);
+        val = fn_8016FFD4((struct lbl_8046B6A0_24C_t*) arg0, 2, (u8) arg1);
+        hi = ABS((1 << 24) - 1);
+        if (val > hi) {
+            return hi;
+        }
+        if (val < -hi) {
+            return -hi;
+        }
+        return val;
+    }
+    val = arg0->player_standings[arg1].x20 -
+          (arg0->player_standings[arg1].x24 -
+           arg0->player_standings[arg1].self_destructs) +
+          arg0->player_standings[arg1].self_destructs * (s8) arg0->xC;
+    hi = ABS((1 << 24) - 1);
+    if (val > hi) {
+        return hi;
+    }
+    if (val < -hi) {
+        val = -hi;
+    }
+    return val;
+}
 
 void fn_80165AC0(MatchEnd* arg0)
 {
