@@ -10,6 +10,7 @@
 
 #include <sysdolphin/baselib/gobj.h>
 #include <sysdolphin/baselib/gobjplink.h>
+#include <sysdolphin/baselib/gobjproc.h>
 #include <sysdolphin/baselib/jobj.h>
 #include <sysdolphin/baselib/sislib.h>
 
@@ -138,7 +139,53 @@ void fn_802523B8(HSD_GObj* gobj)
     HSD_GObjPLink_80390228(gobj);
 }
 
-/// #fn_802523D8
+void fn_802523D8(HSD_GObj* gobj)
+{
+    MnInfoData* data;
+    HSD_JObj* child;
+    HSD_GObjProc* proc;
+    HSD_JObj* jobj;
+    s32 i;
+
+    data = gobj->user_data;
+    if (mn_804A04F0.cur_menu != 0x1D) {
+        MnInfoData* dw;
+        MnInfoData* dr;
+        HSD_GObjProc_8038FE24(HSD_GObj_804D7838);
+        proc = HSD_GObj_SetupProc(gobj, fn_802523B8, 0);
+        proc->flags_3 = HSD_GObj_804D783C;
+        dw = gobj->user_data;
+        dr = dw;
+        for (i = 0; i < 4; i++) {
+            if (dw->left_column[0] != NULL) {
+                HSD_SisLib_803A5CC4(dr->left_column[0]);
+                dw->left_column[0] = NULL;
+            }
+            if (dw->right_column[0] != NULL) {
+                HSD_SisLib_803A5CC4(dr->right_column[0]);
+                dw->right_column[0] = NULL;
+            }
+            dw = (MnInfoData*) ((u8*) dw + 4);
+            dr = (MnInfoData*) ((u8*) dr + 4);
+        }
+        HSD_SisLib_803A5CC4(data->description);
+    } else {
+        jobj = gobj->hsd_obj;
+        lb_80011E24(jobj, &child, 2, -1);
+        if (data->scroll_idx != 0) {
+            HSD_JObjClearFlagsAll(child, JOBJ_HIDDEN);
+        } else {
+            HSD_JObjSetFlagsAll(child, JOBJ_HIDDEN);
+        }
+        lb_80011E24(jobj, &child, 1, -1);
+        if ((s32) (data->scroll_idx + 4) < mnInfo_80251AA4()) {
+            HSD_JObjClearFlagsAll(child, JOBJ_HIDDEN);
+        } else {
+            HSD_JObjSetFlagsAll(child, JOBJ_HIDDEN);
+        }
+        mn_8022ED6C(jobj, mnInfo_803EFC08);
+    }
+}
 
 /// #fn_80252548
 

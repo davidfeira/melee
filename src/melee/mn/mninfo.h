@@ -52,7 +52,7 @@ typedef struct HSD_GObj MenuInfo_GObj;
 /* 251FE4 */ UNK_RET fn_80251FE4(UNK_PARAMS);
 /* 2522B8 */ void mnInfo_802522B8(HSD_GObj*);
 /* 2523B8 */ void fn_802523B8(HSD_GObj*);
-/* 2523D8 */ UNK_RET fn_802523D8(UNK_PARAMS);
+/* 2523D8 */ void fn_802523D8(HSD_GObj*);
 /* 252548 */ UNK_RET fn_80252548(UNK_PARAMS);
 /* 252720 */ void mnInfo_80252720(MnInfoData*);
 /* 252758 */ UNK_RET mnInfo_80252758(UNK_PARAMS);
