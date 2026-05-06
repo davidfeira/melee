@@ -1815,7 +1815,61 @@ Fighter* ftCo_800A4A40(Fighter* fp)
 
 /// #ftCo_800A4BEC
 
-/// #ftCo_800A4E8C
+Fighter* ftCo_800A4E8C(Fighter* fp, Vec3* pos)
+{
+    Fighter* cur_fp;
+    Fighter* closest_fp;
+    HSD_GObj* cur;
+
+    f32 dx;
+    f32 dy;
+    f32 dz;
+    f32 distance;
+    f32 closest;
+
+    if (fp == NULL) {
+        return NULL;
+    }
+    closest_fp = NULL;
+    for (cur = HSD_GObj_Entities->fighters; cur != NULL; cur = cur->next) {
+        if (fp->gobj == cur) {
+            continue;
+        }
+        cur_fp = GET_FIGHTER(cur);
+        if (inlineD0(fp, cur_fp)) {
+            continue;
+        }
+        if (ftCo_IsAlly_dontinline(fp, cur_fp)) {
+            continue;
+        }
+        if (cur_fp->x2219_b1 || cur_fp->x2164 ||
+            (cur_fp->x2168 && !cur_fp->x2338.x) || cur_fp->x221F_b3)
+        {
+            continue;
+        }
+        if (inlineD1(cur_fp)) {
+            continue;
+        }
+
+        if (closest_fp == NULL) {
+            closest_fp = cur_fp;
+            dy = cur_fp->cur_pos.y - pos->y;
+            dx = cur_fp->cur_pos.x - pos->x;
+            dz = cur_fp->cur_pos.z - pos->z;
+            closest = sqrtf__Ff(dz * dz + (dx * dx + dy * dy));
+        } else {
+            dy = cur_fp->cur_pos.y - pos->y;
+            dx = cur_fp->cur_pos.x - pos->x;
+            dz = cur_fp->cur_pos.z - pos->z;
+            distance = sqrtf__Ff(dz * dz + (dx * dx + dy * dy));
+            if (closest > distance) {
+                closest = distance;
+                closest_fp = cur_fp;
+            }
+        }
+    }
+    return closest_fp;
+}
 
 /// Returns the closest enemy fighter
 Fighter* ftCo_800A50D4(Fighter* fp)
