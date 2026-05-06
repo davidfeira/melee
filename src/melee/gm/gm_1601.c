@@ -826,7 +826,32 @@ f32 fn_80160F58(u8 ckind)
     return result;
 }
 
-/// #fn_80161004
+s32 fn_80161004(MatchEnd* match_end)
+{
+    s32 max = 0;
+    s32 i;
+
+    if (match_end->is_teams == 1) {
+        for (i = 0; i < 5; i++) {
+            struct MatchTeamData* t = &match_end->team_standings[i];
+            if (match_end->team_standings[i].active != 0 &&
+                (s32) t->is_big_loser > max)
+            {
+                max = t->is_big_loser;
+            }
+        }
+    } else {
+        for (i = 0; i < 4; i++) {
+            struct MatchPlayerData* p = &match_end->player_standings[i];
+            if (match_end->player_standings[i].slot_type != 3 &&
+                (s32) p->is_big_loser > max)
+            {
+                max = p->is_big_loser;
+            }
+        }
+    }
+    return max;
+}
 
 /// #fn_80161154
 
