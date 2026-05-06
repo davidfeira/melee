@@ -157,7 +157,25 @@ void hsd_803AC3E0(struct hsd_803AC3E0_arg0_t* file_desc, int file_idx,
 
 /// #fn_803AC3F8
 
-/// #hsd_803AC558
+/// @todo Currently 76.6% match - mwcc emits combined `rlwimi. r6,r0,8,10,23`
+/// (14-bit insert with CR0) and `srawi/clrlwi` for top-2-bit extract; permuter
+/// queued
+void hsd_803AC558(struct hsd_803AC3E0_arg0_t* file_desc, u8* data)
+{
+    int i;
+    for (i = 0; i < 3; i++) {
+        u8 file_idx = data[0];
+        u8 byte1 = data[1];
+        u32 size = (((u32) data[2] | ((byte1 << 8) & 0x3F00)) << 8) | data[3];
+        u8 flags = byte1 >> 6;
+
+        if (size != 0 && file_desc->x4C[file_idx] == 0) {
+            file_desc->x28[file_idx] = flags;
+            file_desc->x4C[file_idx] = size;
+        }
+        data += 4;
+    }
+}
 
 u32 fn_803AC634(struct hsd_803AC3E0_arg0_t* file_desc, s32 file_idx)
 {
@@ -187,7 +205,65 @@ u32 fn_803AC634(struct hsd_803AC3E0_arg0_t* file_desc, s32 file_idx)
     }
 }
 
-/// #fn_803AC6B8
+/// @todo Currently 93.75% match - 16 mismatches: dead bgt/li/b branch in i=0
+/// path (compiler emits redundant 0-result fallback) plus regalloc swaps
+/// (r5/r6/r8) in inlined sector arithmetic, and +1 absorption order
+s32 fn_803AC6B8(struct hsd_803AC3E0_arg0_t* file_desc, s32 file_count)
+{
+    s32 first_size;
+    s32 total;
+    s32 i;
+    u32 sector_size;
+    u32 usable;
+    s32 remaining;
+    s32 cur_size;
+    s32 cur_blocks;
+
+    if (file_count >= 9) {
+        return 0;
+    }
+    if (file_count == 0) {
+        return 0;
+    }
+
+    first_size = file_desc->x4C[0];
+    total = 1;
+    if (first_size > 0) {
+        sector_size = file_desc->x8;
+        remaining = first_size - (s32) ((sector_size - 0x20) -
+                                        (file_desc->x24 + 0x30) % sector_size);
+        usable = sector_size - 0x20;
+        if (remaining <= 0) {
+            total = 1;
+        } else {
+            total = (u32) (remaining + sector_size - 0x21) / usable + 1;
+        }
+    }
+
+    for (i = 1; i < file_count; i++) {
+        cur_size = file_desc->x4C[i];
+        if (cur_size <= 0) {
+            cur_blocks = 0;
+        } else if (i == 0) {
+            sector_size = file_desc->x8;
+            remaining = first_size - (s32) ((sector_size - 0x20) -
+                                            (file_desc->x24 + 0x30) % sector_size);
+            usable = sector_size - 0x20;
+            if (remaining <= 0) {
+                cur_blocks = 1;
+            } else {
+                cur_blocks = (u32) (remaining + sector_size - 0x21) / usable + 1;
+            }
+        } else {
+            sector_size = file_desc->x8;
+            cur_blocks = (u32) (cur_size + sector_size - 0x21) /
+                         (sector_size - 0x20);
+        }
+        total += cur_blocks;
+    }
+
+    return total;
+}
 
 /// #fn_803AC7DC
 
