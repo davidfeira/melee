@@ -508,7 +508,59 @@ u32 pl_8003E420(int arg0)
     return sum;
 }
 
-/// pl_8003E4A4
+inline int match_item_kind_e4a4(int kind)
+{
+    if (kind >= 0 && kind < 0x23) {
+        return kind;
+    } else {
+        switch (kind) {
+        case 0xCD:
+            return 0x23;
+        case 0xE1:
+            return 0x24;
+        case 0xE2:
+            return 0x25;
+        case 0x28:
+            return 0x26;
+        default:
+            return -1;
+        }
+    }
+}
+
+void pl_8003E4A4(int slot, int arg1, int* kinds, int count)
+{
+    pl_StaleMoveTableExt_t* temp_r3 = Player_GetStaleMoveTableIndexPtr2(slot);
+    int seen[39];
+    int matched;
+    int kind;
+    int i;
+
+    for (i = 0; i < 39; i++) {
+        seen[i] = 0;
+    }
+
+    for (i = 0; i < count; i++) {
+        kind = kinds[i];
+        matched = match_item_kind_e4a4(kind);
+        if (matched < 39) {
+            kind = match_item_kind_e4a4(kind);
+            seen[kind] = 1;
+        }
+    }
+
+    for (i = 0; i < 39; i++) {
+        if ((unsigned int) seen[i] == 1) {
+            temp_r3->x0_staleMoveTable.x7AC[i]++;
+            if ((unsigned int) temp_r3->x0_staleMoveTable.x7AC[i] == pl_804D6470->x138) {
+                pl_80038788(slot, 0x9D, 1);
+                temp_r3->x0_staleMoveTable.x7AC[i] = 0;
+            }
+        } else {
+            temp_r3->x0_staleMoveTable.x7AC[i] = 0;
+        }
+    }
+}
 
 void pl_8003E70C(Item_GObj* igobj)
 {
