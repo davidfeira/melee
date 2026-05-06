@@ -688,7 +688,113 @@ void grAnime_801C7BA0(HSD_GObj* gobj, int arg1, u32 arg2, f32 arg8)
     HSD_JObjReqAnimByFlags(jobj, var_r31, arg8);
 }
 
-/// #grAnime_801C7C1C
+void grAnime_801C7C1C(HSD_JObj* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
+                      int arg5, f32 farg0, f32 farg1)
+{
+    UnkArchiveStruct* archive;
+    HSD_AnimJoint* anim;
+    HSD_MatAnimJoint* matj;
+    HSD_ShapeAnimJoint* shapej;
+    u32 var_r30 = 0;
+    u32 var_r29 = 0;
+    HSD_JObj* jobj_iter;
+    HSD_AnimJoint* anim_iter;
+    HSD_MatAnimJoint* matj_iter;
+    HSD_ShapeAnimJoint* shapej_iter;
+    u8* flags;
+    s32 var_r4;
+    s32 var_r5;
+
+    if (arg0 == NULL) {
+        return;
+    }
+    archive = grDatFiles_801C6330(arg1);
+    if (archive == NULL) {
+        __assert("granime.c", 0x4DE, "archive");
+    }
+    if ((arg3 & 1) &&
+        *(HSD_AnimJoint***) ((u8*) &archive->unk4->unk8[arg1] + 0x4) != NULL &&
+        (anim = (*(HSD_AnimJoint***) ((u8*) &archive->unk4->unk8[arg1] + 0x4))[arg4],
+         anim != NULL))
+    {
+        anim = &anim[arg2];
+        var_r30 |= 0x81;
+        var_r29 |= 0x220;
+    } else {
+        anim = NULL;
+    }
+    if ((arg3 & 2) &&
+        *(HSD_MatAnimJoint***) ((u8*) &archive->unk4->unk8[arg1] + 0x8) != NULL &&
+        (matj = (*(HSD_MatAnimJoint***) ((u8*) &archive->unk4->unk8[arg1] + 0x8))[arg4],
+         matj != NULL))
+    {
+        matj = (HSD_MatAnimJoint*) ((u8*) matj + arg2 * sizeof(HSD_MatAnimJoint));
+        var_r30 |= 0x416;
+        var_r29 |= 0x7484;
+    } else {
+        matj = NULL;
+    }
+    if ((arg3 & 4) &&
+        *(HSD_ShapeAnimJoint***) ((u8*) &archive->unk4->unk8[arg1] + 0xC) != NULL &&
+        (shapej = (*(HSD_ShapeAnimJoint***) ((u8*) &archive->unk4->unk8[arg1] + 0xC))[arg4],
+         shapej != NULL))
+    {
+        shapej = (HSD_ShapeAnimJoint*) ((u8*) shapej + arg2 * sizeof(HSD_ShapeAnimJoint));
+        var_r30 |= 8;
+        var_r29 |= 0x100;
+    } else {
+        shapej = NULL;
+    }
+    if (arg5 != 0) {
+        if (arg0 != NULL) {
+            grAnime_801C6A54(arg0, anim, matj, shapej);
+            if (!(arg0->flags & 0x1000)) {
+                jobj_iter = arg0->child;
+                anim_iter = anim != NULL ? anim->child : NULL;
+                matj_iter = matj != NULL ? matj->child : NULL;
+                shapej_iter = shapej != NULL ? shapej->child : NULL;
+                while (jobj_iter != NULL) {
+                    grAnime_801C6C0C(jobj_iter, anim_iter, matj_iter,
+                                     shapej_iter);
+                    jobj_iter = jobj_iter->next;
+                    anim_iter = anim_iter != NULL ? anim_iter->next : NULL;
+                    matj_iter = matj_iter != NULL ? matj_iter->next : NULL;
+                    shapej_iter = shapej_iter != NULL ? shapej_iter->next : NULL;
+                }
+            }
+        }
+        HSD_JObjReqAnimAllByFlags(arg0, var_r30, farg0);
+    } else {
+        if (arg0 != NULL) {
+            if (anim != NULL) {
+                if (anim->aobjdesc != NULL) {
+                    if (arg0->aobj != NULL) {
+                        HSD_AObjRemove(arg0->aobj);
+                    }
+                    arg0->aobj = HSD_AObjLoadDesc(anim->aobjdesc);
+                    grAnime_801C69FC(arg0->aobj);
+                }
+                grAnime_801C6960(arg0->robj, anim->robj_anim);
+            }
+            if (!(arg0->flags & 0x4020)) {
+                var_r5 = shapej != NULL ? (s32) shapej->shapeanimdobj : 0;
+                var_r4 = matj != NULL ? (s32) matj->matanim : 0;
+                grAnime_801C683C(arg0->u.dobj, (HSD_MatAnim*) var_r4,
+                                 (HSD_ShapeAnimDObj*) var_r5);
+            }
+        }
+        HSD_JObjReqAnimByFlags(arg0, var_r30, farg0);
+    }
+    grAnime_801C752C(arg0, arg5, var_r29, HSD_AObjSetRate, 1, farg1);
+    archive = grDatFiles_801C6330(arg1);
+    if (archive == NULL) {
+        __assert("granime.c", 0x148, "archive");
+    }
+    flags = (u8*) archive->unk4->unk8[arg1].x28;
+    if (flags != NULL ? (s32) flags[arg4] : 0) {
+        grAnime_801C752C(arg0, arg5, var_r29, HSD_AObjSetFlags, 3, 0x20000000);
+    }
+}
 
 void grAnime_801C7FF8(Ground_GObj* gobj, int arg1, int arg2, int arg3,
                       float arg4, float arg5)
