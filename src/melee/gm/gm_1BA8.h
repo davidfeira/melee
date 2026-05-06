@@ -21,7 +21,7 @@ struct EventData;
 /* 1BAD70 */ void gm_801BAD70(MinorScene*);
 /* 1BB758 */ void gm_801BB758(MinorScene*);
 /* 1BBA60 */ void gm_801BBA60_OnInit(void);
-/* 1BBB64 */ UNK_RET gm_801BBB64(UNK_PARAMS);
+/* 1BBB64 */ void gm_801BBB64();
 /* 1BBEA8 */ void gm_801BBEA8_OnLoad(void);
 /* 1BBFE4 */ void gm_801BBFE4_OnUnload(void);
 /* 1BBFE8 */ void fn_801BBFE8(void);

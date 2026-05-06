@@ -245,7 +245,125 @@ u8 gm_801BAC9C(MinorScene* arg0, int count)
 
 /// #gm_801BAD70
 
-/// #gm_801BB758
+void gm_801BB758(MinorScene* scene)
+{
+    struct EventData* ev = &gmMainLib_804D3EE0->unk_530;
+    MatchExitInfo* mei = gm_801A4284(scene);
+    u8 unk_535 = ev->unk_535;
+    s32 unk_flag;
+    s32 best_kos;
+    s32 cur_kos;
+    s32 updated;
+    CharacterKind ckind;
+    u16 stage;
+    struct GameCache* gc;
+
+    gm_8016A164();
+
+    if (mei->match_end.result == 8) {
+        unk_flag = 0;
+        if (ev->x20 != 0) {
+            unk_flag = 1;
+        }
+        if (unk_535 == 0x31) {
+            unk_flag = 0;
+        }
+        ev->xB_5 = false;
+        ev->x20 = 0;
+        ev->x24 = 0;
+        ev->x28 = 0;
+        ev->x2C = 0;
+        ev->x30 = 0;
+        ev->x34 = 0;
+        ev->x38 = 0x21;
+        ev->x3C = 0;
+        ev->x40 = 0;
+        gm_801BBB64(0);
+        if (unk_flag != 0) {
+            gc = &lbDvd_8001822C()->game_cache;
+            lbDvd_80018C6C();
+            gc->entries[0].char_id = (s8) ev->x0;
+            gc->entries[0].color = ev->x1;
+            lbDvd_80018254();
+            lbDvd_80017700(4);
+        }
+        gm_SetScenePendingMinor(1);
+        return;
+    }
+    if (mei->match_end.result == 7) {
+        gm_801A42F8(1);
+        return;
+    }
+    ev->x3C += gm_80168940(&mei->match_end);
+    ev->x40 += mei->match_end.frame_count;
+
+    if (ev->xB_4 && ev->xB_2) {
+        ev->x24 = (s8) mei->match_end.player_standings[0].stocks;
+        ev->x28 = (u16) mei->match_end.player_standings[0].x18;
+        ev->xB_2 = false;
+        ev->xB_5 = false;
+        gm_801BBB64(ev->x20++);
+        gm_SetScenePendingMinor(1);
+        return;
+    }
+
+    if (ev->xB_1) {
+        best_kos = gmMainLib_8015CF5C(unk_535);
+        cur_kos = ev->xC;
+        updated = 0;
+        if (ev->xB_6) {
+            if (best_kos == 0 || (u32) cur_kos < (u32) best_kos) {
+                best_kos = cur_kos;
+                updated = 1;
+            }
+        } else if ((u32) cur_kos > (u32) best_kos) {
+            best_kos = cur_kos;
+            updated = 1;
+        }
+        if (updated != 0) {
+            gmMainLib_8015CF70(unk_535, best_kos);
+        }
+        gmMainLib_8015CEB4(unk_535);
+    }
+
+    gm_8016247C(ev->x3C);
+    gm_80162968(ev->x40 / 60);
+
+    if (ev->xB_1) {
+        ckind = gm_801732D8(ev->unk_535);
+    } else {
+        ckind = CHKIND_MAX;
+    }
+
+    if (ev->unk_535 == gm_801BEBC0(0x32) &&
+        mei->match_end.player_standings[0].stocks == 3) {
+        gmMainLib_8015CF84();
+    }
+
+    if (ev->xB_1) {
+        stage = gm_8017335C();
+        if (stage != 0x148) {
+            gm_80164504(stage);
+        }
+    }
+
+    if (ev->xB_1) {
+        gm_80173D3C(ev->unk_535);
+    }
+
+    gm_80173EEC();
+    gm_80172898(0x10);
+
+    if ((u8) ckind != 0x21) {
+        gm_801736E8(ev->x0, ev->x1, ev->x6, ev->x4, (u8) ckind, 1);
+        gm_801A42F8(0x14);
+        return;
+    }
+
+    if (gm_80173754(1, ev->x6) == 0) {
+        gm_801A42F8(1);
+    }
+}
 
 void gm_801BBA60_OnInit(void)
 {
