@@ -486,7 +486,73 @@ bool grFourside_801F3CC0(Ground_GObj* arg)
     return false;
 }
 
-/// #grFourside_801F3CC8
+void grFourside_801F3CC8(Ground_GObj* gobj)
+{
+    Vec3 pos;
+    Ground* gp = GET_GROUND(gobj);
+    HSD_JObj* jobj = gobj->hsd_obj;
+    HSD_JObj* heli_jobj = Ground_801C3FA4(gobj, 2);
+    HSD_GObj* other;
+    Ground* other_gp;
+
+    switch (gp->gv.fourside2.x0) {
+    case 0:
+        if (gp->gv.fourside2.x4 <= 0) {
+            other = Ground_801C2BA4(5);
+            other_gp = other->user_data;
+            if (other_gp->gv.fourside2.x1 == 2 ||
+                other_gp->gv.fourside2.x0 == 0)
+            {
+                HSD_JObjClearFlagsAll(jobj, JOBJ_HIDDEN);
+                grAnime_801C8138(gobj, gp->map_id, 0);
+                gp->gv.fourside2.x1 = 0;
+                gp->gv.fourside2.x0 = 1;
+            }
+        } else {
+            gp->gv.fourside2.x4 -= 1;
+        }
+        break;
+    case 1:
+        if (gp->gv.fourside2.x1 == 0) {
+            lb_8000B1CC(heli_jobj, NULL, &pos);
+            if (pos.y <= 50.0f + Stage_GetCamBoundsTopOffset()) {
+                gp->gv.fourside2.x1 = 1;
+                Ground_801C53EC(0x704E1);
+            }
+        }
+        if (grAnime_801C83D0(gobj, 0, 7)) {
+            gp->gv.fourside2.x0 = 2;
+        }
+        break;
+    case 2:
+        if (gp->gv.fourside2.x4 <= 0) {
+            other = Ground_801C2BA4(5);
+            other_gp = other->user_data;
+            if (other_gp->gv.fourside2.x1 == 2 ||
+                other_gp->gv.fourside2.x0 == 0)
+            {
+                grAnime_801C8138(gobj, gp->map_id, 2);
+                gp->gv.fourside2.x0 = 3;
+                Ground_801C53EC(0x704E2);
+                gp->gv.fourside2.x4 = 0;
+            }
+        } else {
+            gp->gv.fourside2.x4 -= 1;
+        }
+        break;
+    case 3:
+        if (grAnime_801C83D0(gobj, 0, 7)) {
+            HSD_JObjSetFlagsAll(jobj, JOBJ_HIDDEN);
+            gp->gv.fourside2.x0 = 0;
+            gp->gv.fourside2.x4 = grFs_804D69D8->heli_wait +
+                                  (grFs_804D69D8->heli_wait_add != 0
+                                       ? HSD_Randi(grFs_804D69D8->heli_wait_add)
+                                       : 0);
+        }
+        gp->gv.fourside2.x4 += 1;
+        break;
+    }
+}
 
 void grFourside_801F3F0C(Ground_GObj* arg) {}
 

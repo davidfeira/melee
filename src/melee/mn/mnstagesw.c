@@ -228,7 +228,95 @@ static void mnStageSw_80235DC8(u8* user_data, s32 buttons)
     }
 }
 
-/// #fn_80235F80
+static void fn_80235F80(HSD_GObj* gobj)
+{
+    u8* user_data = mnStageSw_804D6BF0->user_data;
+    u32 buttons;
+    s32 count;
+    s32 ctr;
+    s32 idx;
+    s32 cond;
+    u8 pad[40];
+    (void) pad;
+
+    buttons = mn_804A04F0.buttons = mn_80229624(4);
+    count = 0;
+
+    if (buttons & 0x20) {
+        lbAudioAx_80024030(0);
+        mn_804A04F0.entering_menu = 0;
+        mnStageSw_8023593C(mnStageSw_804D6BF0);
+        lb_8001CE00();
+        mn_804D6BC8.cooldown = 5;
+        mn_802339FC();
+        HSD_GObjPLink_80390228(gobj);
+        return;
+    }
+    if (mnStageSw_804D6BF4 == 0) {
+        if (buttons & 0x200) {
+            if (mn_804A04F0.hovered_selection < 0x1D) {
+                if (mn_804A04F0.confirmed_selection != 0) {
+                    u8* ud2 = mnStageSw_804D6BF0->user_data;
+                    ctr = 0x1D;
+                    idx = 0;
+                    do {
+                        if (ud2[idx + 2] != 0) {
+                            count++;
+                        }
+                        idx++;
+                        ctr--;
+                    } while (ctr != 0);
+                    if (count > 1) {
+                        cond = 0;
+                    } else {
+                        cond = 1;
+                    }
+                    if (cond != 0) {
+                        lbAudioAx_80024030(3);
+                    } else {
+                        lbAudioAx_80024030(2);
+                        mn_804A04F0.confirmed_selection = 0;
+                    }
+                } else {
+                    lbAudioAx_80024030(2);
+                    mn_804A04F0.confirmed_selection = 1;
+                }
+                {
+                    u8* arr2 = mnStageSw_803ED4C4;
+                    u8* ptr = arr2;
+                    s32 j = 0;
+                    u8* ud3 = mnStageSw_804D6BF0->user_data;
+                    u8* p;
+                    do {
+                        p = arr2 + (u8) j;
+                        if (gm_80164430(gm_801641CC(*p)) != 0) {
+                            gm_801641E4(*ptr, ud3[j + 2]);
+                        }
+                        j++;
+                        ptr++;
+                    } while (j < NUM_STAGES);
+                }
+                return;
+            }
+        } else if (buttons & 0x100) {
+            lbAudioAx_80024030(1);
+            if ((s32) gm_801A4310() == 1) {
+                mnStageSw_8023593C(mnStageSw_804D6BF0);
+                lb_8001CE00();
+                mn_80229860(2);
+                return;
+            }
+            mnStageSw_8023593C(mnStageSw_804D6BF0);
+            lb_8001CE00();
+            mn_8022F4CC();
+            return;
+        }
+        if (buttons & 0xF) {
+            lbAudioAx_80024030(2);
+            mnStageSw_80235DC8(user_data, buttons);
+        }
+    }
+}
 
 /// Position stage icon JObj based on index
 /// Uses stored reference JObjs to calculate X/Y position
