@@ -1038,7 +1038,62 @@ void gm_80162574(u8 arg0, u8 arg1)
     *ptr = val;
 }
 
-/// #gm_8016260C
+void gm_8016260C(u8 arg0, u8 arg1)
+{
+    u32* counter;
+    u32* temp_r3;
+    struct gmm_retval_ED98* temp_r3_3;
+    struct gmm_retval_EDB0* temp_r3_4;
+    struct gmm_retval_EDBC* temp_r3_2;
+    struct gmm_retval_EDBC* temp_r3_5;
+    u32 var_r4;
+
+    counter = NULL;
+
+    if ((u8) (arg1 - 7) <= 1) {
+        temp_r3 = gmMainLib_GetMatchResetCounter();
+        var_r4 = MAX(-1U, *temp_r3 + 1);
+        *temp_r3 = var_r4;
+        return;
+    }
+
+    if (gm_801A4310() == 0x1F) {
+        counter = gmMainLib_8015CD5C();
+    } else {
+        switch (arg0) {
+        case 0:
+            counter = gmMainLib_GetTimeMatchTotal();
+            break;
+        case 1:
+            counter = gmMainLib_GetStockMatchTotal();
+            break;
+        case 2:
+            counter = gmMainLib_GetCoinMatchTotal();
+            temp_r3_2 = gmMainLib_8015EDBC();
+            var_r4 = MAX(-1U, temp_r3_2->x4 + 1);
+            temp_r3_2->x4 = var_r4;
+            break;
+        case 3:
+            counter = gmMainLib_GetBonusMatchTotal();
+            break;
+        }
+    }
+
+    var_r4 = MAX(-1U, *counter + 1);
+    *counter = var_r4;
+
+    temp_r3_3 = gmMainLib_8015ED98();
+    var_r4 = MAX(-1U, temp_r3_3->x0 + 1);
+    temp_r3_3->x0 = var_r4;
+
+    temp_r3_4 = gmMainLib_8015EDB0();
+    var_r4 = MAX(-1U, (u32) temp_r3_4->x0 + 1);
+    temp_r3_4->x0 = var_r4;
+
+    temp_r3_5 = gmMainLib_8015EDBC();
+    var_r4 = MAX(-1U, (u32) temp_r3_5->x0 + 1);
+    temp_r3_5->x0 = var_r4;
+}
 
 u32 gm_GetVsPlayMatchTotal(void)
 {
