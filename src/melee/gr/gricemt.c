@@ -458,7 +458,7 @@ void grIceMt_801F7728(Ground_GObj* gobj)
         grIceMt_801FA364(&gp->gv.corneria.xC8, &y, fn_801F8E58, gobj);
         grIceMt_801F9ACC((HSD_GObj*) &gp->gv.corneria.xC4,
                          grIceMt_801F96E0((HSD_GObj*) &gp->gv.corneria.xC4, -y),
-                         fn_801F9038, gobj);
+                         (HSD_GObjEvent) fn_801F9038, gobj);
         grIceMt_801F9668(y);
     }
 }
@@ -1015,7 +1015,38 @@ void grIceMt_801F8CDC(Ground_GObj* gobj, s16* joint_indices, int count,
 
 /// #fn_801F8E58
 
-/// #fn_801F9038
+s32 fn_801F9038(Ground_GObj* arg0)
+{
+    Ground* gp = arg0->user_data;
+    s32 idx;
+    IceMtRowData* row;
+    int i;
+    PAD_STACK(8);
+
+    do {
+        idx = HSD_Randi(6);
+        if (gp->gv.icemt.xF4[idx] != 0) {
+            continue;
+        }
+        row = &grIm_803E4068[idx];
+        if (gp->gv.icemt.xC4 == row->id) {
+            continue;
+        }
+        if (gp->gv.icemt.xC6 == row->id) {
+            continue;
+        }
+        break;
+    } while (1);
+
+    for (i = 0; i < 6; i++) {
+        if (gp->gv.icemt.xF4[i] > 0) {
+            gp->gv.icemt.xF4[i]--;
+        }
+    }
+
+    gp->gv.icemt.xF4[idx] = *(s16*) grIm_804D69F4;
+    return row->id;
+}
 
 IceMountainParams* fn_801F9150(HSD_GObj* arg0)
 {
