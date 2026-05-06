@@ -1091,7 +1091,55 @@ void un_8030663C(void)
     }
 }
 
-/// #un_803067BC
+void un_803067BC(s32 arg0, s32 arg1)
+{
+    s16* base = un_804D6E64;
+    s16* src;
+    s16* dst;
+    s32 count;
+    s32 work;
+    s32 i;
+
+    if (arg1 == 0) {
+        src = base + arg0;
+        for (i = 0; i < *gmMainLib_8015CC90(); i++) {
+            un_804D6EDC[i] = *src;
+            src += 3;
+        }
+        return;
+    }
+
+    count = *gmMainLib_8015CC90();
+    src = base + arg0;
+    dst = &un_804D6EDC[count];
+    work = count;
+    if (count != 0) {
+        s32 unroll = (u32) work >> 3;
+        if (unroll != 0) {
+            do {
+                dst[0] = src[0];
+                dst[-1] = src[3];
+                dst[-2] = src[6];
+                dst[-3] = src[9];
+                dst[-4] = src[12];
+                dst[-5] = src[15];
+                dst[-6] = src[18];
+                dst[-7] = src[21];
+                src += 24;
+                dst -= 8;
+            } while (--unroll != 0);
+            work &= 7;
+            if (work == 0) {
+                return;
+            }
+        }
+        do {
+            *dst = *src;
+            src += 3;
+            dst--;
+        } while (--work != 0);
+    }
+}
 
 s32 un_803068E0(HSD_GObj* gobj)
 {
