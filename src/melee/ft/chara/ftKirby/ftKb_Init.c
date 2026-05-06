@@ -4278,7 +4278,92 @@ void ftKb_SpecialAirN_Enter(Fighter_GObj* gobj)
     }
 }
 
-/// #ftKb_SpecialN_800F16D0
+void ftKb_SpecialN_800F16D0(Fighter_GObj* gobj, FighterKind kind)
+{
+    struct ft_80459B88_t* g = &ft_80459B88;
+    KirbyHatStruct* hat;
+    if ((u32) kind > 0x1F) {
+        return;
+    }
+    switch (kind) {
+    case FTKIND_MARIO:
+        it_8026B3F8((Article*) g->x0->xC, 0x82);
+        break;
+    case FTKIND_LUIGI:
+        it_8026B3F8((Article*) g->hats[16]->hat_dynamics[0], 0x84);
+        break;
+    case FTKIND_POPO:
+        it_8026B3F8((Article*) g->hats[9]->hat_dynamics[0], 0x85);
+        break;
+    case FTKIND_PEACH:
+        hat = g->hats[8];
+        it_8026B3F8((Article*) hat->hat_dynamics[0], 0x86);
+        it_8026B3F8((Article*) hat->hat_dynamics[1], 0x87);
+        break;
+    case FTKIND_FOX:
+        it_8026B3F8((Article*) g->hats[0]->hat_dynamics[0], 0x88);
+        it_8026B3F8((Article*) g->hats[0]->hat_dynamics[1], 0x8a);
+        break;
+    case FTKIND_FALCO:
+        hat = g->hats[21];
+        it_8026B3F8((Article*) hat->hat_dynamics[3], 0x89);
+        it_8026B3F8((Article*) hat->hat_dynamics[4], 0x8b);
+        break;
+    case FTKIND_LINK:
+        hat = g->hats[5];
+        it_8026B3F8((Article*) hat->hat_dynamics[0], 0x8c);
+        it_8026B3F8((Article*) hat->hat_dynamics[1], 0x8e);
+        break;
+    case FTKIND_CLINK:
+        hat = g->hats[19];
+        it_8026B3F8((Article*) hat->hat_dynamics[0], 0x8d);
+        it_8026B3F8((Article*) hat->hat_dynamics[1], 0x8f);
+        break;
+    case FTKIND_MEWTWO:
+        it_8026B3F8((Article*) g->hats[15]->hat_dynamics[3], 0x90);
+        break;
+    case FTKIND_NESS:
+        hat = g->hats[7];
+        it_8026B3F8((Article*) hat->hat_dynamics[0], 0x91);
+        it_8026B3F8((Article*) hat->hat_dynamics[1], 0x92);
+        break;
+    case FTKIND_PIKACHU:
+        hat = g->hats[11];
+        it_8026B3F8((Article*) hat->hat_dynamics[0], 0x93);
+        it_8026B3F8((Article*) hat->hat_dynamics[1], 0x94);
+        break;
+    case FTKIND_PICHU:
+        hat = g->hats[22];
+        it_8026B3F8((Article*) hat->hat_dynamics[0], 0x95);
+        it_8026B3F8((Article*) hat->hat_dynamics[1], 0x96);
+        break;
+    case FTKIND_SAMUS:
+        it_8026B3F8((Article*) g->hats[12]->hat_dynamics[0], 0x97);
+        break;
+    case FTKIND_KOOPA:
+        it_8026B3F8((Article*) g->hats[4]->hat_dynamics[0], 0x9a);
+        break;
+    case FTKIND_GKOOPS:
+        it_8026B3F8((Article*) g->hats[30]->hat_dynamics[0], 0x9a);
+        break;
+    case FTKIND_SEAK:
+        hat = g->hats[6];
+        it_8026B3F8((Article*) hat->hat_dynamics[0], 0x98);
+        it_8026B3F8((Article*) hat->hat_dynamics[1], 0x99);
+        break;
+    case FTKIND_DRMARIO:
+        it_8026B3F8((Article*) g->hats[20]->hat_dynamics[0], 0x83);
+        break;
+    case FTKIND_GAMEWATCH:
+        hat = g->hats[23];
+        it_8026B3F8((Article*) hat->hat_dynamics[5], 0x9b);
+        it_8026B3F8((Article*) hat->hat_dynamics[6], 0x9c);
+        break;
+    case FTKIND_YOSHI:
+        it_8026B3F8((Article*) g->hats[13]->hat_dynamics[5], 0x9d);
+        break;
+    }
+}
 
 void ftKb_SpecialN_800F190C(Fighter_GObj* gobj, FighterKind kind)
 {
