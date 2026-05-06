@@ -715,7 +715,101 @@ bool ftCo_8009E714(Fighter_GObj* gobj, Fighter_Part bone_id, int arg2, float x,
     return 0;
 }
 
-/// #ftCo_8009E7B4
+void ftCo_8009E7B4(Fighter* fp, u8 (*arg1)[2])
+{
+    ssize_t i;
+    if (fp->anim_id != -1) {
+        u32 b6 = fp->x2227_b6;
+        if (b6) {
+            if (fp->kind == FTKIND_KIRBY) {
+                return;
+            }
+            if (fp->kind == FTKIND_PURIN) {
+                ftCo_8009CB40(fp, 0, 0, NULL);
+                return;
+            }
+            for (i = 0; i < fp->dynamics_num; i++) {
+                ftCo_8009CB40(fp, i, 0, NULL);
+            }
+            return;
+        }
+        {
+            Fighter* check = fp;
+            if (fp->kind != FTKIND_MARS && fp->kind != FTKIND_EMBLEM) {
+                check = NULL;
+            } else if (b6 == 0) {
+                if (lb_80011ABC() > 0) {
+                    check = (Fighter*) 1;
+                } else {
+                    check = NULL;
+                }
+            }
+            if (check != NULL) {
+                if (fp->kind == FTKIND_KIRBY) {
+                    return;
+                }
+                if (fp->kind == FTKIND_PURIN) {
+                    ftCo_8009CB40(fp, 0, 1, NULL);
+                    return;
+                }
+                for (i = 0; i < fp->dynamics_num; i++) {
+                    ftCo_8009CB40(fp, i, 1, NULL);
+                }
+                return;
+            }
+        }
+        if (fp->x594_b4) {
+            FigaTree** tree = fp->ft_data->x2C->x10[(*arg1)[1]];
+            if (tree == NULL) {
+                for (i = 0; i < fp->dynamics_num; i++) {
+                    ftCo_8009CB40(fp, i, 0, NULL);
+                }
+                return;
+            }
+            for (i = 0; i < fp->dynamics_num; i++) {
+                ftCo_8009CB40(fp, i, 1, tree[i]);
+            }
+            return;
+        }
+        if (fp->x594_b3) {
+            if (fp->kind == FTKIND_KIRBY) {
+                return;
+            }
+            if (fp->kind == FTKIND_PURIN) {
+                ftCo_8009CB40(fp, 0, 0, NULL);
+                return;
+            }
+            for (i = 0; i < fp->dynamics_num; i++) {
+                ftCo_8009CB40(fp, i, 0, NULL);
+            }
+            return;
+        }
+        if (fp->kind == FTKIND_KIRBY) {
+            return;
+        }
+        if (fp->kind == FTKIND_PURIN) {
+            ftCo_8009CB40(fp, 0, 1, NULL);
+            return;
+        }
+        for (i = 0; i < fp->dynamics_num; i++) {
+            ftCo_8009CB40(fp, i, 1, NULL);
+        }
+        return;
+    }
+    if (!fp->x2227_b6) {
+        return;
+    }
+    if (fp->kind == FTKIND_KIRBY) {
+        return;
+    }
+    if (fp->kind == FTKIND_PURIN) {
+        ftCo_8009CB40(fp, 0, 0, NULL);
+        return;
+    }
+    for (i = 0; i < fp->dynamics_num; i++) {
+        ftCo_8009CB40(fp, i, 0, NULL);
+    }
+}
 
 void ftCo_8009EAF8(Fighter_GObj* gobj)
 {
