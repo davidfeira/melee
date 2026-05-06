@@ -17,6 +17,8 @@
 #include <sysdolphin/baselib/memory.h>
 #include <sysdolphin/baselib/sislib.h>
 
+#pragma push
+#pragma dont_inline on
 s32 mnInfo_80251A08(s32 arg0)
 {
     switch (arg0) { /* irregular */
@@ -36,6 +38,7 @@ s32 mnInfo_80251A08(s32 arg0)
         return gmMainLib_8015D94C(arg0);
     }
 }
+#pragma pop
 
 #pragma push
 #pragma dont_inline on
@@ -57,6 +60,8 @@ s32 mnInfo_80251AA4(void)
 
 /// #mnInfo_80251D58
 
+#pragma push
+#pragma dont_inline on
 void mnInfo_80251F04(HSD_GObj* gobj, u32 idx, u32 arg2)
 {
     MnInfoData* data;
@@ -76,6 +81,7 @@ void mnInfo_80251F04(HSD_GObj* gobj, u32 idx, u32 arg2)
     un_802FE3F8((s32) arg2, 0x4BD, &sp16, NULL);
     HSD_SisLib_803A6368(text, (s32) (u16) sp16);
 }
+#pragma pop
 
 /// #fn_80251FE4
 
@@ -193,7 +199,64 @@ void fn_802523D8(HSD_GObj* gobj)
     }
 }
 
-/// #fn_80252548
+extern u8 mnInfo_804A0968[0x48];
+
+void fn_80252548(HSD_GObj* gobj)
+{
+    MnInfoData* data;
+    HSD_GObjProc* proc;
+    HSD_JObj* jobj;
+    s32 i;
+
+    data = gobj->user_data;
+    if (mn_804A04F0.cur_menu != 0x1D) {
+        MnInfoData* dw;
+        MnInfoData* dr;
+        HSD_GObjProc_8038FE24(HSD_GObj_804D7838);
+        proc = HSD_GObj_SetupProc(gobj, fn_802523B8, 0);
+        proc->flags_3 = HSD_GObj_804D783C;
+        dw = gobj->user_data;
+        dr = dw;
+        for (i = 0; i < 4; i++) {
+            if (dw->left_column[0] != NULL) {
+                HSD_SisLib_803A5CC4(dr->left_column[0]);
+                dw->left_column[0] = NULL;
+            }
+            if (dw->right_column[0] != NULL) {
+                HSD_SisLib_803A5CC4(dr->right_column[0]);
+                dw->right_column[0] = NULL;
+            }
+            dw = (MnInfoData*) ((u8*) dw + 4);
+            dr = (MnInfoData*) ((u8*) dr + 4);
+        }
+        HSD_SisLib_803A5CC4(data->description);
+    } else {
+        u8* p;
+        if (data->anim_timer != 0) {
+            data->anim_timer--;
+            return;
+        }
+        p = mnInfo_804A0968;
+        for (i = 0; i < 4; i++) {
+            if (mnInfo_80251A08(*p) != 0) {
+                u8 v = *p;
+                mnInfo_80251D58(gobj, i, v, *gmMainLib_8015D804(v));
+                mnInfo_80251F04(gobj, i, v);
+            }
+            p++;
+        }
+        jobj = HSD_JObjLoadJoint(mnInfo_804A0958[0]);
+        HSD_GObjObject_80390A70(gobj, HSD_GObj_804D7849, jobj);
+        GObj_SetupGXLink(gobj, HSD_GObj_JObjCallback, 4, 0x80);
+        HSD_JObjAddAnimAll(jobj, mnInfo_804A0958[1], mnInfo_804A0958[2],
+                           mnInfo_804A0958[3]);
+        HSD_JObjReqAnimAll(jobj, 0.0f);
+        mnInfo_802522B8(gobj);
+        HSD_GObjProc_8038FE24(HSD_GObj_804D7838);
+        proc = HSD_GObj_SetupProc(gobj, fn_802523D8, 0);
+        proc->flags_3 = HSD_GObj_804D783C;
+    }
+}
 
 void mnInfo_80252720(MnInfoData* data)
 {
