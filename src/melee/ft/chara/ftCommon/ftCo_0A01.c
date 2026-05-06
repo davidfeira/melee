@@ -5258,7 +5258,77 @@ void ftCo_800B00F8(Fighter* fp)
     ftCo_800ADE48(fp);
 }
 
-/// #ftCo_800B04DC
+void ftCo_800B04DC(Fighter* fp)
+{
+    struct Fighter_x1A88_t* data = &fp->x1A88;
+    Fighter* target;
+    Vec3 vec;
+    f32 dist_sq;
+    int is_healing = 1;
+    int zero = 0;
+
+    data->xF8_b0 = true;
+    data->xF9_b2 = false;
+    data->xF9_b4 = false;
+    data->xF9_b3 = false;
+    data->xF9_b5 = false;
+    data->xF9_b6 = false;
+    data->xF9_b7 = false;
+    data->xF9_b1 = true;
+
+    data->x44 = ftCo_800A4BEC(fp);
+
+    if (fp->item_gobj != NULL) {
+        ItemKind kind = GET_ITEM(fp->item_gobj)->kind;
+        if (kind != It_Kind_Heart && kind != It_Kind_Tomato &&
+            kind != It_Kind_Foods)
+        {
+            is_healing = zero;
+        }
+        if (is_healing == 0) {
+            data->x4C = NULL;
+            goto skip;
+        }
+    }
+    if (fp->x2168 != 0) {
+        data->x4C = NULL;
+    } else {
+        data->x4C = ftCo_800A61D8(fp);
+    }
+skip:
+    data->x50 = ftCo_800A648C(fp);
+
+    if (data->x18 != data->x20 && data->x18 != data->x1C) {
+        data->x60 = 0;
+    }
+    if (data->x18 == 4) {
+        is_healing = 0;
+    } else {
+        data->xFA_b2 = false;
+        is_healing = 1;
+    }
+    if (is_healing != 0) {
+        target = data->x44;
+        if (target != NULL && fp->ground_or_air != GA_Air) {
+            f32 dx = fp->cur_pos.x - target->cur_pos.x;
+            f32 dy = fp->cur_pos.y - target->cur_pos.y;
+            dist_sq = dx * dx + dy * dy;
+            if (dist_sq > 0.0f) {
+                dist_sq = sqrtf(dist_sq);
+            }
+            if (dist_sq <= 50.0 &&
+                ftCo_800A6700(fp, &target->cur_pos, &vec) &&
+                data->x60 == 0)
+            {
+                data->x54.x = vec.x;
+                data->x54.y = vec.y;
+                data->x38 = 5.0f;
+                ftCo_800A1CC4(fp, ftCo_803C6594[stage_info.internal_stage_id]);
+            }
+        }
+    }
+    ftCo_800ADE48(fp);
+}
 
 static inline void inlineI0(Fighter* fp, struct Fighter_x1A88_t* data)
 {
