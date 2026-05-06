@@ -10,13 +10,56 @@
 #include "baselib/gobjplink.h"
 #include "baselib/gobjproc.h"
 #include "baselib/jobj.h"
+#include "gm/gm_1601.h"
+#include "gm/gm_16F1.h"
+#include "gm/gmmain_lib.h"
 #include "lb/lb_00F9.h"
+#include "lb/lbcardgame.h"
 #include "lb/lblanguage.h"
 #include "mn/mnmain.h"
 #include "mn/mnmainrule.h"
 #include "sc/types.h"
 
-/// #mnDataDel_8024E940
+void mnDataDel_8024E940(void)
+{
+    HSD_JObj* jobj;
+    f32 frame;
+    u8 stage;
+    u8 found;
+    struct MnDataDelData* data;
+    u8* user_data;
+    PAD_STACK(16);
+
+    data = &mnDataDel_803EF870;
+    user_data = mnDataDel_804D6C68->user_data;
+    lb_80011E24((HSD_JObj*) mn_80231634(
+                    *(struct mn_80231634_t**) (user_data + data->x40 * 4 +
+                                               0x10)),
+                &jobj, 1, -1);
+    frame = mn_8022F298(jobj);
+    HSD_JObjReqAnimAll(jobj, 1.0f);
+    mn_8022F3D8(jobj, 0xff, (HSD_TypeMask) 0x80);
+    HSD_JObjAnimAll(jobj);
+    HSD_JObjReqAnimAll(jobj, frame);
+    mn_8022F3D8(jobj, 0xff, (HSD_TypeMask) 0x480);
+    HSD_JObjAnimAll(jobj);
+    user_data[4] = 1;
+    gm_801647D0();
+    gmMainLib_8015F490();
+    found = 0;
+    for (stage = 0; stage < 0x1D; stage++) {
+        if (gm_80164430(gm_801641CC(stage)) &&
+            gm_80164250((u16) stage) != 0) {
+            found = 1;
+            break;
+        }
+    }
+    if (!found) {
+        gm_801641E4(0, 1);
+    }
+    gm_801729EC();
+    lb_8001CE00();
+}
 
 /// #mnDataDel_8024EA6C
 
