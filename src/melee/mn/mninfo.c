@@ -2,12 +2,36 @@
 
 #include "placeholder.h"
 
+#include "gm/gm_1601.h"
 #include "gm/gmmain_lib.h"
 #include "if/ifprize.h"
 #include "lb/lb_00F9.h"
 #include "lb/lblanguage.h"
 #include "mn/inlines.h"
 #include "mn/mnmain.h"
+
+extern GXColor mn_804D4B64;
+
+static AnimLoopSettings mnInfo_803EFC08[0x12] = {
+    { 0.0f, 199.0f, 0.0f },
+    { 1.8e-42f, 1.802e-42f, 1.803e-42f },
+    { 1.805e-42f, 2.1092525e-16f, 1.379729e31f },
+    { 0.0f, 2.109659e-16f, 1.4748028e31f },
+    { 0.0f, 225.43028f, 5.083402e31f },
+    { 5.085142e31f, 7.153577e22f, 2.817505e20f },
+    { 6.162976e-33f, 4.6115556e27f, 2.8237532e23f },
+    { 0.0f, 3.0854143e32f, 1.6456562e19f },
+    { 1.4757395e20f, 2.405757e8f, 2.6912729e20f },
+    { 7.3738955e28f, 1.5307577e19f, 1.6892836e19f },
+    { 1.8878586e28f, 2.405757e8f, 2.6912729e20f },
+    { 7.3738955e28f, 1.5307577e19f, 1.6244036e19f },
+    { 4.5346362e27f, 1.8878586e28f, 2.405757e8f },
+    { 2.6912729e20f, 7.3738955e28f, 1.5307577e19f },
+    { 1.710508e19f, 2.7487011e20f, 1.6892836e19f },
+    { 1.8878586e28f, 2.405757e8f, 2.6912729e20f },
+    { 7.3738955e28f, 1.5307577e19f, 1.7539375e19f },
+    { 2.8395941e29f, 1.7935375e25f, 7.2243537e28f },
+};
 
 #include <sysdolphin/baselib/debug.h>
 #include <sysdolphin/baselib/gobj.h>
@@ -59,7 +83,47 @@ s32 mnInfo_80251AA4(void)
 
 /// #mnInfo_80251AFC
 
-/// #mnInfo_80251D58
+void mnInfo_80251D58(HSD_GObj* gobj, s32 idx, u8 unused, u32 secs)
+{
+    HSD_Text* text;
+    datetime dt;
+    char sp34[4];
+    char sp30[4];
+    char sp2C[4];
+    char sp28[4];
+    char sp24[4];
+    char sp20[4];
+
+    if (((MnInfoData*) gobj->user_data)->left_column[idx] != NULL) {
+        HSD_SisLib_803A5CC4(
+            ((MnInfoData*) gobj->user_data)->left_column[idx]);
+    }
+    text = HSD_SisLib_803A6754(0, 1);
+    ((MnInfoData*) gobj->user_data)->left_column[idx] = text;
+    text->pos_x = -7.5f;
+    text->pos_y = (3.45f * idx) + -5.8f;
+    text->pos_z = 17.0f;
+    text->text_color = mn_804D4B64;
+    text->default_alignment = 2;
+    text->font_size.x = 0.03f;
+    text->font_size.y = 0.03f;
+    gm_801692E8(secs, &dt);
+    mn_8022EA78(sp30, 2, dt.hour);
+    mn_8022EA78(sp2C, 2, dt.minute);
+    mn_8022EA78(sp28, 2, dt.second);
+    mn_8022EA78(sp34, 4, dt.year);
+    mn_8022EA78(sp24, 2, dt.month);
+    mn_8022EA78(sp20, 2, dt.day);
+    if (lbLang_IsSavedLanguageUS()) {
+        HSD_SisLib_803A6B98(text, 0.0f, 0.0f,
+                            (char*) mnInfo_803EFC08 + 0x1C, sp24, sp20, sp34);
+    } else {
+        HSD_SisLib_803A6B98(text, 0.0f, 0.0f,
+                            (char*) mnInfo_803EFC08 + 0x1C, sp34, sp24, sp20);
+    }
+    HSD_SisLib_803A6B98(text, 0.0f, 40.0f,
+                        (char*) mnInfo_803EFC08 + 0x28, sp30, sp2C, sp28);
+}
 
 #pragma push
 #pragma dont_inline on
@@ -180,27 +244,6 @@ void fn_80251FE4(HSD_GObj* unused)
         }
     }
 }
-
-static AnimLoopSettings mnInfo_803EFC08[0x12] = {
-    { 0.0f, 199.0f, 0.0f },
-    { 1.8e-42f, 1.802e-42f, 1.803e-42f },
-    { 1.805e-42f, 2.1092525e-16f, 1.379729e31f },
-    { 0.0f, 2.109659e-16f, 1.4748028e31f },
-    { 0.0f, 225.43028f, 5.083402e31f },
-    { 5.085142e31f, 7.153577e22f, 2.817505e20f },
-    { 6.162976e-33f, 4.6115556e27f, 2.8237532e23f },
-    { 0.0f, 3.0854143e32f, 1.6456562e19f },
-    { 1.4757395e20f, 2.405757e8f, 2.6912729e20f },
-    { 7.3738955e28f, 1.5307577e19f, 1.6892836e19f },
-    { 1.8878586e28f, 2.405757e8f, 2.6912729e20f },
-    { 7.3738955e28f, 1.5307577e19f, 1.6244036e19f },
-    { 4.5346362e27f, 1.8878586e28f, 2.405757e8f },
-    { 2.6912729e20f, 7.3738955e28f, 1.5307577e19f },
-    { 1.710508e19f, 2.7487011e20f, 1.6892836e19f },
-    { 1.8878586e28f, 2.405757e8f, 2.6912729e20f },
-    { 7.3738955e28f, 1.5307577e19f, 1.7539375e19f },
-    { 2.8395941e29f, 1.7935375e25f, 7.2243537e28f },
-};
 
 #pragma push
 #pragma dont_inline on
