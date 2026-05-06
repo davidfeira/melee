@@ -2,6 +2,8 @@
 
 #include "mnmain.h"
 
+#include "mn/types.h"
+
 #include "gm/gm_1A3F.h"
 
 #include <sysdolphin/baselib/gobj.h>
@@ -44,12 +46,24 @@ extern StaticModelDesc MenMainCursorSs_Top;
 struct mn_8022FB88_t {
     /* 0x000 */ u8 pad0[0x58];
     /* 0x058 */ HSD_JObj* slots[12];
+    /* 0x088 */ u8 pad88[0xA8 - 0x88];
+    /* 0x0A8 */ HSD_JObj* parent_a;
+    /* 0x0AC */ HSD_JObj* parent_b;
 };
 
 extern u32 mn_804DBDFC;
 extern f32 mn_804D4B90;
 extern f32 mn_804D6BD8;
 extern f32 mn_804DBE00;
+extern HSD_GObj* mn_804D6BD0;
+
+struct mn_803EC600_t {
+    /* 0x000 */ u8 pad0[0x134];
+    /* 0x134 */ AnimLoopSettings array_134[5];
+    /* 0x170 */ AnimLoopSettings array_170[9];
+    /* 0x1DC */ u8 array_1DC[0x3C];
+};
+extern struct mn_803EC600_t mn_803EC600;
 
 void mn_8022FB88(u8 arg0, struct mn_8022FB88_t* arg1)
 {
@@ -99,7 +113,66 @@ void mn_8022FB88(u8 arg0, struct mn_8022FB88_t* arg1)
 
 /// #mn_8022FD18
 
-/// #mn_8022FEC8
+void mn_8022FEC8(HSD_GObj* gobj, HSD_JObj* jobj, u8 mode, u8 value)
+{
+    struct mn_8022FB88_t* data = gobj->user_data;
+    HSD_JObj* sub;
+    AnimLoopSettings* loop;
+
+    switch ((s32) mode) {
+    case 1:
+        if (((MainMenuPanelData*) mn_804D6BD0->user_data)->x2 != 1) {
+            mn_8022FB88(value, data);
+            return;
+        }
+        sub = data->slots[7];
+        HSD_JObjReqAnimAll(sub, (f32) (u8) (value / 10));
+        HSD_JObjAnimAll(sub);
+        sub = data->slots[8];
+        HSD_JObjReqAnimAll(sub, (f32) (u8) (value % 10));
+        HSD_JObjAnimAll(sub);
+        return;
+    case 3:
+        sub = data->parent_a;
+        if (sub == NULL) {
+            sub = NULL;
+        } else {
+            sub = sub->child;
+        }
+        HSD_JObjReqAnimAll(sub, (f32) (u8) (value / 10));
+        HSD_JObjAnimAll(sub);
+        sub = data->parent_b;
+        if (sub == NULL) {
+            sub = NULL;
+        } else {
+            sub = sub->child;
+        }
+        HSD_JObjReqAnimAll(sub, (f32) (u8) (value % 10));
+        HSD_JObjAnimAll(sub);
+        return;
+    case 0:
+    case 2:
+    case 4:
+        loop = NULL;
+        if ((mn_804A04F0.buttons & 4ULL) != 0ULL) {
+            if (mode == 0 || mode == 2 || mode == 4) {
+                loop = &mn_803EC600.array_170[mn_803EC600.array_1DC[mode * 2 + 1] - value];
+            }
+            HSD_JObjReqAnimAll(jobj, loop->start_frame);
+        } else {
+            if (mode == 0 || mode == 2 || mode == 4) {
+                if (value == 0) {
+                    loop = &mn_803EC600.array_134[mn_803EC600.array_1DC[mode * 2 + 1]];
+                } else {
+                    loop = &mn_803EC600.array_134[value - 1];
+                }
+            }
+            HSD_JObjReqAnimAll(jobj, loop->start_frame);
+        }
+        HSD_JObjAnimAll(jobj);
+        return;
+    }
+}
 
 /// #mn_80230198
 
