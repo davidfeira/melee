@@ -349,10 +349,33 @@ void grPura_802125F0(HSD_GObj* arg0)
 /// #grPura_80212CD4
 
 /// #grPura_80212EF4
+typedef struct grPura_unk128 {
+    u8 _0[8];
+    u32 x8;
+    u8 _C[4];
+    Vec3 x10;
+} grPura_unk128;
+
 void grPura_80212EF4(HSD_GObj* arg0)
 {
     Ground* gp = GET_GROUND(arg0);
-    // HSD_JObjGetFlags();
+    HSD_JObj** jobjs = (HSD_JObj**) ((s8*) gp + 0xC4);
+    grPura_unk128** structs = (grPura_unk128**) ((s8*) gp + 0x128);
+    int i = 0;
+    Vec3 vec;
+
+    do {
+        if (jobjs[i] != NULL && structs[i] != NULL) {
+            lb_8000B1CC(jobjs[i], NULL, &vec);
+            structs[i]->x10 = vec;
+            if (HSD_JObjGetFlags(jobjs[i]) & 0x10) {
+                structs[i]->x8 = 1;
+            } else {
+                structs[i]->x8 = 0;
+            }
+        }
+        i++;
+    } while (i < 25);
 }
 
 /// #grPura_80212FC0
