@@ -503,7 +503,68 @@ void grHomeRun_8021E4F8(Ground_GObj* arg) {}
 
 void grHomeRun_8021E4FC(Ground_GObj* arg) {}
 
-/// #grHomeRun_8021E500
+HSD_GObj* grHomeRun_8021E500(int arg)
+{
+    int idx;
+    HSD_GObj* gobj;
+    HSD_JObj* jobj;
+    HSD_JObj* child;
+    Ground* gp;
+
+    if ((arg / grHr_804D6ADC) % 4 == 0) {
+        if (grHr_804D6ADC - 1 != arg % grHr_804D6ADC) {
+            idx = 4;
+        } else {
+            idx = 5;
+        }
+    } else if ((arg / grHr_804D6ADC) % 4 == 1) {
+        if (grHr_804D6ADC - 1 != arg % grHr_804D6ADC) {
+            idx = 1;
+        } else {
+            idx = 2;
+        }
+    } else if ((arg / grHr_804D6ADC) % 4 == 2) {
+        if (grHr_804D6ADC - 1 != arg % grHr_804D6ADC) {
+            idx = 6;
+        } else {
+            idx = 7;
+        }
+    } else if ((arg / grHr_804D6ADC) % 4 == 3) {
+        if (grHr_804D6ADC - 1 != arg % grHr_804D6ADC) {
+            idx = 8;
+        } else {
+            idx = 9;
+        }
+    } else {
+        HSD_ASSERTMSG(0x3D2, 0, "0");
+    }
+
+    gobj = grHomeRun_8021C82C(idx);
+    HSD_ASSERTMSG(0x3D5, gobj, "gobj");
+    jobj = (HSD_JObj*) gobj->hsd_obj;
+    HSD_ASSERTMSG(0x3D6, jobj, "jobj");
+    gp = (Ground*) gobj->user_data;
+    HSD_ASSERTMSG(0x3D7, gp, "gp");
+
+    HSD_JObjSetScaleX(jobj, grHr_804D6AE4 * HSD_JObjGetScaleX(jobj));
+    HSD_JObjSetScaleY(jobj, grHr_804D6AE4 * HSD_JObjGetScaleY(jobj));
+    HSD_JObjSetScaleZ(jobj, grHr_804D6AE4 * HSD_JObjGetScaleZ(jobj));
+
+    child = jobj ? jobj->child : NULL;
+    HSD_JObjSetTranslateX(child, 0.0f);
+
+    {
+        f32 part = grHr_804D6AE4 * ((f32) arg * (160.0f * Ground_801C0498()));
+        *(f32*) ((u8*) gp + 0xD0) =
+            (160.0f * (grHr_804D6AE4 * Ground_801C0498())) + part;
+    }
+    HSD_JObjSetTranslateX(jobj, *(f32*) ((u8*) gp + 0xD0));
+
+    gp->gv.homerun.xC6 =
+        (s16) ((s32) grHr_804D6AE0 * ((s32) (arg + 1) / grHr_804D6ADC));
+    gp->gv.homerun.xC4 = arg;
+    return gobj;
+}
 
 void fn_8021E994(Ground* gp_unused, s32 arg1, CollData* coll, s32 arg3,
                  mpLib_GroundEnum env, f32 arg5)
