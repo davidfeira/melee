@@ -1484,7 +1484,123 @@ bool ftCo_800BB104(Fighter* fp, Fighter* arg1, Vec3* arg2, f32 arg3)
     return false;
 }
 
-/// #ftCo_800BB220
+int ftCo_800BB220(Fighter* fp, Item* ip, Vec3* arg2, f32 arg3)
+{
+    Vec3 dst;
+    int i;
+    s32 count;
+    HitCapsule* hit;
+    HitCapsuleState state;
+    bool result;
+    struct Fighter_x1A88_t* temp_r31;
+
+    if (ip->owner == fp->gobj) {
+        return 0;
+    }
+    if (ftLib_80086960(ip->owner) &&
+        ftCo_IsAlly(fp, GET_FIGHTER(ip->owner)))
+    {
+        return 0;
+    }
+    if (ip->kind == It_Kind_Unk4 || ip->kind == It_Kind_Star) {
+        result = true;
+    } else {
+        result = ftCo_800A5980((Fighter*) ip);
+    }
+    if (result) {
+        return 0;
+    }
+
+    temp_r31 = &fp->x1A88;
+    if (fp->x1A88.level < 3) {
+        count = (s32) (20.0f * HSD_Randf()) + 10;
+    } else if (temp_r31->level < 6) {
+        count = (s32) (10.0f * HSD_Randf()) + 5;
+    } else if (temp_r31->level < 9) {
+        count = (s32) (5.0f * HSD_Randf()) + 3;
+    } else {
+        count = 1;
+    }
+
+    dst.x = fp->pos_delta.x * count + arg2->x;
+    dst.y = fp->pos_delta.y * count + arg2->y;
+    dst.z = fp->pos_delta.z * count + arg2->z;
+
+    if (fp->kind == FTKIND_NESS && temp_r31->level > 3) {
+        if (count < 21) {
+            Vec3 sp94;
+            Vec3 spAC;
+            Vec3 spB8;
+            for (i = 0; i < 4; i++) {
+                state = ip->x5D4_hitboxes[i].hit.state;
+                hit = &ip->x5D4_hitboxes[i].hit;
+                if (state != HitCapsule_Disabled &&
+                    state != HitCapsule_Enabled && !hit->x43_b2 &&
+                    hit->element != 0xB && !lbColl_8000ACFC(fp, hit))
+                {
+                    sp94.x = (hit->x4C.x - hit->x58.x) * count + hit->x4C.x;
+                    sp94.y = (hit->x4C.y - hit->x58.y) * count + hit->x4C.y;
+                    sp94.z = (hit->x4C.z - hit->x58.z) * count + hit->x4C.z;
+                    if (lbColl_80006094(&hit->x4C, &sp94, arg2, &dst, &spAC,
+                                        &spB8, hit->scale, arg3))
+                    {
+                        return 2;
+                    }
+                }
+            }
+            return 0;
+        } else {
+            Vec3 sp60;
+            Vec3 sp78;
+            Vec3 sp84;
+            for (i = 0; i < 4; i++) {
+                state = ip->x5D4_hitboxes[i].hit.state;
+                hit = &ip->x5D4_hitboxes[i].hit;
+                if (state != HitCapsule_Disabled &&
+                    state != HitCapsule_Enabled && !hit->x43_b2 &&
+                    hit->element != 0xB && !lbColl_8000ACFC(fp, hit))
+                {
+                    sp60.x = (hit->x4C.x - hit->x58.x) * count + hit->x4C.x;
+                    sp60.y = (hit->x4C.y - hit->x58.y) * count + hit->x4C.y;
+                    sp60.z = (hit->x4C.z - hit->x58.z) * count + hit->x4C.z;
+                    if (lbColl_80006094(&hit->x4C, &sp60, arg2, &dst, &sp78,
+                                        &sp84, hit->scale, arg3))
+                    {
+                        if (hit->x42_b0) {
+                            return 3;
+                        }
+                        return 2;
+                    }
+                }
+            }
+            return 0;
+        }
+    }
+
+    {
+        Vec3 sp2C;
+        Vec3 sp44;
+        Vec3 sp50;
+        for (i = 0; i < 4; i++) {
+            state = ip->x5D4_hitboxes[i].hit.state;
+            hit = &ip->x5D4_hitboxes[i].hit;
+            if (state != HitCapsule_Disabled && state != HitCapsule_Enabled &&
+                !hit->x43_b2 && hit->element != 0xB &&
+                !lbColl_8000ACFC(fp, hit))
+            {
+                sp2C.x = (hit->x4C.x - hit->x58.x) * count + hit->x4C.x;
+                sp2C.y = (hit->x4C.y - hit->x58.y) * count + hit->x4C.y;
+                sp2C.z = (hit->x4C.z - hit->x58.z) * count + hit->x4C.z;
+                if (lbColl_80006094(&hit->x4C, &sp2C, arg2, &dst, &sp44, &sp50,
+                                    hit->scale, arg3))
+                {
+                    return 2;
+                }
+            }
+        }
+    }
+    return 0;
+}
 
 bool ftCo_800BB768(Fighter* fp, Fighter* arg1)
 {
