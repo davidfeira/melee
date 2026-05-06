@@ -2929,7 +2929,26 @@ void un_80311788(void)
         DevText_Print(un_804D6E9C, buf);
     }
 }
-/// #un_80311960
+void un_80311960(void)
+{
+    Toy* toy = (Toy*) &un_804A26B8;
+    u16* table = gmMainLib_8015CC78();
+    u16* state = gmMainLib_8015CC84();
+    s32 i;
+
+    for (i = 0; i < 0x125; i++) {
+        table[i] = 0;
+        ((u16*) &toy->x194)[5 + i] = 0;
+    }
+    *state = 0;
+    toy->x19C = 0;
+    toy->x19A = 0;
+    ((u16*) toy)[0x1F4] = 0;
+    ((u16*) toy)[0x1F5] = 0;
+    ((u8*) &toy->x194)[3] = 0;
+    *gmMainLib_8015CC90() = 0;
+    toy->trophyCount = 0;
+}
 
 /// #un_80311AB0_OnEnter
 
