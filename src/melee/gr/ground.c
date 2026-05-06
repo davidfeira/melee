@@ -75,7 +75,7 @@
 /* 1C1D38 */ static void Ground_801C1D38(HSD_GObj*);
 /* 1C1E2C */ static void Ground_801C1E2C(HSD_GObj* gobj, int code);
 /* 1C1E94 */ static void Ground_801C1E94(void);
-/* 1C20E0 */ UNK_T Ground_801C20E0(UnkArchiveStruct*, UNK_T);
+/* 1C20E0 */ LightList** Ground_801C20E0(UnkArchiveStruct*, LightList**);
 /* 1C24F8 */ static bool Ground_801C24F8(s32, u32, s32*);
 /* 1C28CC */ void Ground_801C28CC(void*, s32);
 /* 1C2BBC */ static void Ground_801C2BBC(HSD_GObj*, s32);
@@ -1150,7 +1150,126 @@ f32 Ground_801C20D0(void)
 char lightset[9] = "lightset";
 char plightset[10] = "*lightset";
 
-/// #Ground_801C20E0
+typedef struct LightOverrideEntry {
+    /* 0x0 */ HSD_LightDesc* desc;
+    /* 0x4 */ u8 _flag_pad0;
+    /* 0x5 */ u8 _flag_pad1;
+    /* 0x6 */ u8 _flag_pad2;
+    /* 0x7 */ u8 _flag_pad3;
+} LightOverrideEntry;
+
+typedef struct LightOverrideFlags {
+    u8 a:1;
+    u8 b:1;
+    u8 c:1;
+    u8 _:5;
+} LightOverrideFlags;
+
+LightList** Ground_801C20E0(UnkArchiveStruct* archive, LightList** lights)
+{
+    LightList** walker;
+    LightList** out;
+    LightList** clean;
+    LightOverrideEntry* arr;
+    UnkStageDat* dat;
+    HSD_LightDesc* desc;
+    s32 count;
+    s32 i;
+    s32 byte_off;
+    s32 found;
+    s32 b6, b7, b5;
+    s32 matched;
+
+    if (lights == NULL) {
+        __assert(__FILE__, 0x773, lightset);
+    }
+    if (*lights == NULL) {
+        __assert(__FILE__, 0x774, plightset);
+    }
+
+    walker = lights;
+    matched = 0;
+    while (*walker != NULL) {
+        dat = archive->unk4;
+        desc = *(HSD_LightDesc**)*walker;
+        count = dat->unk1C;
+        if (count != 0) {
+            found = 0;
+            for (i = 0, byte_off = 0; i < count; byte_off += 8, i++) {
+                arr = (LightOverrideEntry*)dat->unk18;
+                if (*(u32*)((u8*)arr + byte_off) == (u32)desc) {
+                    LightOverrideFlags* p = (LightOverrideFlags*)((u8*)arr + i * 8 + 4);
+                    found = 1;
+                    b6 = p->b;
+                    b7 = p->a;
+                    b5 = p->c;
+                    break;
+                }
+            }
+        } else {
+            found = 0;
+        }
+        if (found != 0 && (b6 != 0 || b7 != 0 || b5 != 0)) {
+            matched = 1;
+            break;
+        }
+        walker++;
+    }
+
+    if (matched == 0) {
+        return lights;
+    }
+
+    out = lights;
+    while (*out != NULL) {
+        desc = *(HSD_LightDesc**)*out;
+        if (desc->flags & 3) {
+            dat = archive->unk4;
+            count = dat->unk1C;
+            if (count != 0) {
+                found = 0;
+                for (i = 0, byte_off = 0; i < count; byte_off += 8, i++) {
+                    arr = (LightOverrideEntry*)dat->unk18;
+                    if (*(u32*)((u8*)arr + byte_off) == (u32)desc) {
+                        u8* p = (u8*)arr + i * 8 + 4;
+                        found = 1;
+                        b6 = (*p >> 6) & 1;
+                        b7 = (*p >> 7) & 1;
+                        b5 = (*p >> 5) & 1;
+                        break;
+                    }
+                }
+            } else {
+                found = 0;
+            }
+            if (found == 0 || (b6 == 0 && b7 == 0 && b5 == 0)) {
+                clean = out;
+                while ((clean[0] = clean[1]) != NULL) {
+                    clean++;
+                }
+                out--;
+            } else {
+                if (b6) {
+                    desc->flags |= 4;
+                } else {
+                    desc->flags &= ~4;
+                }
+                if (b7) {
+                    (*(HSD_LightDesc**)*out)->flags |= 8;
+                } else {
+                    (*(HSD_LightDesc**)*out)->flags &= ~8;
+                }
+                if (b5) {
+                    (*(HSD_LightDesc**)*out)->flags |= 0x400;
+                } else {
+                    (*(HSD_LightDesc**)*out)->flags &= ~0x400;
+                }
+            }
+        }
+        out++;
+    }
+    return lights;
+}
 
 void Ground_801C2374(HSD_LObj* lobj)
 {
