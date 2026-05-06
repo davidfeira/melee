@@ -467,7 +467,182 @@ void fn_801BBFE8(void)
     gm_801BC00C();
 }
 
-/// #gm_801BC00C
+typedef struct gm_801BC00C_x10 {
+    /* 0x00 */ s32 count;
+    /* 0x04 */ u8 pad[0x0C];
+    /* 0x10 */ u8* entries[1];
+} gm_801BC00C_x10;
+
+void gm_801BC00C(void)
+{
+    struct EventData* ev = &gmMainLib_804D3EE0->unk_530;
+    struct gm_804D6900_t** tbl = gm_804D6900;
+    gm_801BC00C_x10* x10;
+    u8* p;
+    u8 c;
+    s32 i;
+    u8 unk_535 = ev->unk_535;
+    s8 char_id;
+    PAD_STACK(0x40);
+
+    ev->xB_1 = false;
+    ev->x10 = 0;
+    ev->x14 = 0;
+    ev->x18 = 0;
+
+    switch (unk_535) {
+    case 4:
+    case 9:
+    case 12:
+    case 15:
+    case 19:
+    case 21:
+    case 23:
+    case 27:
+    case 29:
+    case 35:
+    case 39:
+    case 43:
+    case 44:
+    case 48:
+        gm_801BA8FC();
+        tbl = gm_804D6900;
+        break;
+    }
+
+    switch (unk_535) {
+    case 0x23:
+        if (ev->x20 == 0) {
+            x10 = (gm_801BC00C_x10*) tbl[unk_535]->x10;
+            p = x10->entries[2];
+            char_id = Player_800325C8((CharacterKind) (s8) p[0], 0);
+            ftLib_80087508(char_id, p[3]);
+            x10 = (gm_801BC00C_x10*) tbl[unk_535]->x10;
+            p = x10->entries[3];
+            char_id = Player_800325C8((CharacterKind) (s8) p[0], 0);
+            ftLib_80087508(char_id, p[3]);
+        } else {
+            x10 = (gm_801BC00C_x10*) tbl[unk_535]->x10;
+            p = x10->entries[4];
+            char_id = Player_800325C8((CharacterKind) (s8) p[0], 0);
+            ftLib_80087508(char_id, p[3]);
+        }
+        break;
+    case 0x2B:
+        char_id = Player_800325C8(
+            (CharacterKind) (s8) *(s8*) tbl[unk_535]->x4->x4, 0);
+        ftLib_80087508(char_id, ev->x50[2]);
+        if (ev->x0 == 4) {
+            Player_80031DA8(char_id, ev->x1);
+        }
+        break;
+    }
+
+    switch (unk_535) {
+    case 9:
+    case 19:
+    case 29:
+    case 35:
+    case 39:
+    case 48:
+        if (ev->x20 > 0) {
+            lbl_8046B6A0_t* tmr = gm_8016AE44();
+            tmr->timer_seconds = ev->x2C;
+            tmr->unk_2C = (u16) ev->x30;
+        }
+        break;
+    }
+
+    switch (unk_535) {
+    case 9:
+    case 19:
+    case 29:
+    case 39:
+    case 48:
+        x10 = (gm_801BC00C_x10*) tbl[unk_535]->x10;
+        for (i = ev->x20; i < x10->count; i++) {
+            p = x10->entries[i];
+            c = p[3];
+            if (ev->x0 == (s8) p[0] && ev->x1 == c) {
+                if (c <= 2) {
+                    c++;
+                } else {
+                    c = 0;
+                }
+            }
+            gm_8016A9E8(c);
+        }
+        break;
+    case 35:
+        if (ev->x20 == 0) {
+            x10 = (gm_801BC00C_x10*) tbl[unk_535]->x10;
+            p = x10->entries[0];
+            c = p[3];
+            if (ev->x0 == (s8) p[0] && ev->x1 == c) {
+                if (c <= 2) {
+                    c++;
+                } else {
+                    c = 0;
+                }
+            }
+            gm_8016A9E8(c);
+            x10 = (gm_801BC00C_x10*) tbl[unk_535]->x10;
+            p = x10->entries[2];
+            c = p[3];
+            if (ev->x0 == (s8) p[0] && ev->x1 == c) {
+                if (c <= 2) {
+                    c++;
+                } else {
+                    c = 0;
+                }
+            }
+            gm_8016A9E8(c);
+            x10 = (gm_801BC00C_x10*) tbl[unk_535]->x10;
+            p = x10->entries[3];
+            c = p[3];
+            if (ev->x0 == (s8) p[0] && ev->x1 == c) {
+                if (c <= 2) {
+                    c++;
+                } else {
+                    c = 0;
+                }
+            }
+            gm_8016A9E8(c);
+        }
+        if (ev->x20 <= 1) {
+            x10 = (gm_801BC00C_x10*) tbl[unk_535]->x10;
+            p = x10->entries[1];
+            c = p[3];
+            if (ev->x0 == (s8) p[0] && ev->x1 == c) {
+                if (c <= 2) {
+                    c++;
+                } else {
+                    c = 0;
+                }
+            }
+            gm_8016A9E8(c);
+            x10 = (gm_801BC00C_x10*) tbl[unk_535]->x10;
+            p = x10->entries[4];
+            c = p[3];
+            if (ev->x0 == (s8) p[0] && ev->x1 == c) {
+                if (c <= 2) {
+                    c++;
+                } else {
+                    c = 0;
+                }
+            }
+            gm_8016A9E8(c);
+        }
+        break;
+    }
+
+    if (unk_535 == 0x24) {
+        lbBgFlash_80021A10(0.2f);
+    }
+    Camera_80030E34(ev->x1C);
+    HSD_GObj_SetupProc(GObj_Create(0xF, 0x11, 0), gm_803DF94C[unk_535]->x0,
+                       0x15);
+}
 
 static u8 gm_803DF918[] = {
     0x00, 0x11, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A,
