@@ -3,6 +3,20 @@
 #include <platform.h>
 
 #include <baselib/debug.h>
+#include <baselib/devcom.h>
+
+#include <dolphin/os.h>
+#include <dolphin/os/OSAlarm.h>
+
+typedef struct DefragJob {
+    OSAlarm x0_alarm;
+    void* x28_src;
+    void* x2C_dest;
+    u32 x30_size;
+    u32 x34_progress;
+    void* x38_args;
+    HSD_DevComCallback x3C_callback;
+} DefragJob;
 
 struct Allocator {
     void* x0_arenaLo;
@@ -14,14 +28,15 @@ struct Allocator {
     u8 x638[0x698 - 0x638];
     Handle* x698_free_heap;
     Handle* x69C;
-    u8 x6A0[0x6E0 - 0x6A0];
+    DefragJob x6A0_job;
     u32 x6E0;
     void* x6E4;
     void* x6E8;
     u8 x6EC[0x6F0 - 0x6EC];
 };
 
-/* 015320 */ static void lbMemory_80015320(int, Handle*, int, int);
+/* 015184 */ extern void fn_80015184(OSAlarm* alarm, OSContext* context);
+/* 015320 */ static void lbMemory_80015320(int, Handle*, void*, bool cancelflag);
 
 /// lbMemory_804318B0
 static struct Allocator g_alloc;
@@ -197,6 +212,56 @@ void lbMemory_800150F0(Handle* h, void* arg1)
     }
     OSReport("[LbMem] Error: lbMemFreeToHeap %x.\n", arg1);
     __assert("lbmemory.c", 283, "0");
+}
+
+static void lbMemory_80015320(int unused, Handle* h, void* args, bool cancelflag)
+{
+    u32 src;
+    u32 dest;
+    u32 size;
+    DefragJob* job;
+    bool enabled;
+
+    dest = (u32) g_alloc.x6E4;
+    if (cancelflag) {
+        __assert(__FILE__, 0x188, "!cancelflag");
+    }
+    if (h != NULL) {
+        src = (u32) h->x4_lo;
+        if (src != dest) {
+            h->x4_lo = (void*) dest;
+            g_alloc.x6E4 = (void*) ((u32) h->x4_lo + (u32) h->x8_hi);
+            if ((u32) h->x4_lo < 0x80000000) {
+                HSD_DevComRequest(0, src, dest,
+                                  ((u32) h->x8_hi + 0x1F) & ~0x1F, 0x1B, 1,
+                                  (HSD_DevComCallback) lbMemory_80015320,
+                                  h->x0_next);
+            } else {
+                size = ((u32) h->x8_hi + 0x1F) & ~0x1F;
+                args = h->x0_next;
+                job = &g_alloc.x6A0_job;
+                enabled = OSDisableInterrupts();
+                if (job->x30_size != 0) {
+                    __assert(__FILE__, 0x14F, "!p->size");
+                }
+                job->x28_src = (void*) src;
+                job->x2C_dest = (void*) dest;
+                job->x30_size = size;
+                job->x34_progress = 0;
+                job->x38_args = args;
+                job->x3C_callback = (HSD_DevComCallback) lbMemory_80015320;
+                OSRestoreInterrupts(enabled);
+                OSCreateAlarm(&job->x0_alarm);
+                OSSetAlarm(&job->x0_alarm, OSMillisecondsToTicks(3),
+                           fn_80015184);
+            }
+        } else {
+            g_alloc.x6E4 = (void*) (src + (u32) h->x8_hi);
+            lbMemory_80015320(0, h->x0_next, NULL, 0);
+        }
+    } else {
+        ((void (*)(u32)) g_alloc.x6E8)(g_alloc.x6E0);
+    }
 }
 
 u32 lbMemory_8001529C(Handle* h, void* arg1, u32 arg2)
