@@ -895,7 +895,119 @@ s32 fn_80161004(MatchEnd* match_end)
 
 /// #fn_80161154
 
-/// #fn_80161C90
+struct fn_80161C90_stats {
+    u16 sd_count;
+    u8 pad_2[2];
+    u32 attacks_hit;
+    u32 attacks_total;
+    s32 damage_dealt;
+    s32 damage_taken;
+    s32 damage_recovered;
+    u16 peak_damage;
+    u16 match_count;
+    u16 victories;
+    u16 losses;
+    u32 play_time;
+    u32 total_player_count;
+    s32 walk_distance;
+    s32 run_distance;
+    s32 fall_distance;
+    s32 peak_height;
+    s32 coins_collected;
+    s32 coins_swiped;
+    s32 coins_lost;
+};
+
+void fn_80161C90(MatchEnd* arg0, s32 arg1, u16* arg2)
+{
+    struct MatchPlayerData* p = &arg0->player_standings[arg1];
+    struct fn_80161C90_stats* s = (struct fn_80161C90_stats*) arg2;
+    u32 sum;
+    s32 isum;
+    s32 count;
+    u8 win_team;
+
+    isum = s->sd_count + p->self_destructs;
+    s->sd_count = (isum > 0xFFFF) ? 0xFFFF : isum;
+
+    sum = s->attacks_hit + *(u32*) ((u8*) p + 0x38);
+    s->attacks_hit = (sum > (u32) -1) ? (u32) -1 : sum;
+
+    sum = s->attacks_total + *(u32*) ((u8*) p + 0x3C);
+    s->attacks_total = (sum > (u32) -1) ? (u32) -1 : sum;
+
+    sum = s->damage_dealt + p->x40;
+    s->damage_dealt = (sum > (u32) -1) ? (u32) -1 : sum;
+
+    sum = s->damage_taken + p->x44;
+    s->damage_taken = (sum > (u32) -1) ? (u32) -1 : sum;
+
+    sum = s->damage_recovered + p->x48;
+    s->damage_recovered = (sum > (u32) -1) ? (u32) -1 : sum;
+
+    if ((u32) s->peak_damage < p->x4C) {
+        s->peak_damage = (u16) p->x4C;
+    }
+
+    isum = s->match_count + 1;
+    s->match_count = (isum > 0xFFFF) ? 0xFFFF : isum;
+
+    win_team = fn_801654A0(arg0);
+    if (arg1 == fn_80165548(arg0, fn_80165418(arg0), (s8) win_team)) {
+        isum = s->victories + 1;
+        s->victories = (isum > 0xFFFF) ? 0xFFFF : isum;
+    }
+
+    if (arg1 == fn_80161154(arg0)) {
+        isum = s->losses + 1;
+        s->losses = (isum > 0xFFFF) ? 0xFFFF : isum;
+    }
+
+    sum = s->play_time + arg0->frame_count / 60;
+    s->play_time = (sum > (u32) -1) ? (u32) -1 : sum;
+
+    count = 0;
+    if ((u8) arg0->player_standings[0].slot_type != 3) {
+        count = 1;
+    }
+    if ((u8) arg0->player_standings[1].slot_type != 3) {
+        count += 1;
+    }
+    if ((u8) arg0->player_standings[2].slot_type != 3) {
+        count += 1;
+    }
+    if ((u8) arg0->player_standings[3].slot_type != 3) {
+        count += 1;
+    }
+    sum = s->total_player_count + count;
+    s->total_player_count = (sum > 0xFFFF) ? 0xFFFF : sum;
+
+    sum = s->walk_distance + p->x50;
+    s->walk_distance = (sum > (u32) -1) ? (u32) -1 : sum;
+
+    sum = p->x50 + gmMainLib_8015EDBC()->x10;
+    gmMainLib_8015EDBC()->x10 = (sum > (u32) -1) ? (u32) -1 : sum;
+
+    sum = s->run_distance + p->x54;
+    s->run_distance = (sum > (u32) -1) ? (u32) -1 : sum;
+
+    sum = s->fall_distance + p->x58;
+    s->fall_distance = (sum > (u32) -1) ? (u32) -1 : sum;
+
+    sum = s->peak_height + p->x5C;
+    s->peak_height = (sum > (u32) -1) ? (u32) -1 : sum;
+
+    if (arg0->x5 == 2) {
+        sum = s->coins_collected + p->x60;
+        s->coins_collected = (sum > (u32) -1) ? (u32) -1 : sum;
+
+        sum = s->coins_swiped + p->x64;
+        s->coins_swiped = (sum > (u32) -1) ? (u32) -1 : sum;
+
+        sum = s->coins_lost + p->x68;
+        s->coins_lost = (sum > (u32) -1) ? (u32) -1 : sum;
+    }
+}
 
 void fn_80162068(MatchEnd* match_end)
 {
