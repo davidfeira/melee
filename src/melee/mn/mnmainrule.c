@@ -7,6 +7,7 @@
 #include <sysdolphin/baselib/gobj.h>
 #include <sysdolphin/baselib/gobjplink.h>
 #include <sysdolphin/baselib/gobjproc.h>
+#include <sysdolphin/baselib/jobj.h>
 #include <sysdolphin/baselib/sislib.h>
 #include <melee/gm/gmmain_lib.h>
 #include <melee/lb/lb_00F9.h>
@@ -40,7 +41,61 @@ extern StaticModelDesc MenMainCursorSs_Top;
 
 /// #fn_8022F538
 
-/// #mn_8022FB88
+struct mn_8022FB88_t {
+    /* 0x000 */ u8 pad0[0x58];
+    /* 0x058 */ HSD_JObj* slots[12];
+};
+
+extern u32 mn_804DBDFC;
+extern f32 mn_804D4B90;
+extern f32 mn_804D6BD8;
+extern f32 mn_804DBE00;
+
+void mn_8022FB88(u8 arg0, struct mn_8022FB88_t* arg1)
+{
+    u32 indices;
+    u8* p;
+    HSD_JObj* jobj;
+    s32 i;
+
+    indices = mn_804DBDFC;
+    if (arg0 == 0) {
+        p = (u8*) &indices;
+        for (i = 0; i < 4; i++) {
+            HSD_JObjSetFlagsAll(arg1->slots[*p], 0x10);
+            p++;
+        }
+        jobj = arg1->slots[4];
+        HSD_JObjReqAnimAll(jobj, mn_804D4B90);
+        HSD_JObjAnimAll(jobj);
+        return;
+    }
+
+    p = (u8*) &indices;
+    for (i = 0; i < 4; i++) {
+        HSD_JObjClearFlagsAll(arg1->slots[*p], 0x10);
+        p++;
+    }
+    jobj = arg1->slots[4];
+    HSD_JObjReqAnimAll(jobj, mn_804D6BD8);
+    HSD_JObjAnimAll(jobj);
+
+    jobj = arg1->slots[2];
+    HSD_JObjReqAnimAll(jobj, (f32) (u8) (arg0 / 10));
+    HSD_JObjAnimAll(jobj);
+
+    jobj = arg1->slots[3];
+    HSD_JObjReqAnimAll(jobj, (f32) (u8) (arg0 % 10));
+    HSD_JObjAnimAll(jobj);
+
+    jobj = arg1->slots[5];
+    HSD_JObjReqAnimAll(jobj, mn_804DBE00);
+    HSD_JObjAnimAll(jobj);
+
+    jobj = arg1->slots[6];
+    HSD_JObjReqAnimAll(jobj, mn_804DBE00);
+    HSD_JObjAnimAll(jobj);
+}
 
 /// #mn_8022FD18
 
