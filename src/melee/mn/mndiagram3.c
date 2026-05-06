@@ -570,3 +570,245 @@ void mnDiagram3_8024714C(void* arg0)
         proc->flags_3 = HSD_GObj_804D783C;
     }
 }
+
+static inline void fn_802461BC_clearRows(Diagram3* data)
+{
+    int i;
+    for (i = 0; i < 10; i++) {
+        if (data->row_labels[i] != NULL) {
+            HSD_SisLib_803A5CC4(data->row_labels[i]);
+            data->row_labels[i] = NULL;
+        }
+    }
+}
+
+static inline void fn_802461BC_rebuildRows(Vec3* sp, char* base)
+{
+    Diagram3* data;
+    HSD_JObj* row0;
+    HSD_JObj* row1;
+    f32 row_spacing;
+    f32 neg_spacing;
+    f32 row_spacing_const;
+    u8 saved_selection;
+    int i;
+
+    data = mnDiagram3_804D6C20->user_data;
+    row0 = data->jobjs[8];
+    saved_selection = data->scroll_offset;
+    ((row0) ? ((void) 0)
+            : __assert(mnDiagram3_804D4FD8, 0x3EE, mnDiagram3_804D4FE0));
+    row1 = data->jobjs[9];
+    row_spacing = row0->translate.y;
+    ((row1) ? ((void) 0)
+            : __assert(mnDiagram3_804D4FD8, 0x3EE, mnDiagram3_804D4FE0));
+    row_spacing = row1->translate.y - row_spacing;
+    lb_8000B1CC(data->jobjs[8], (Vec3*) (base + 0x18), sp);
+
+    neg_spacing = -row_spacing;
+    row_spacing_const = mnDiagram3_804DBFF8;
+
+    for (i = 0; i < 10; i++) {
+        f32 fi = (f32) i;
+        HSD_Text* text = HSD_SisLib_803A5ACC(
+            0, 1, sp->x - row_spacing_const,
+            neg_spacing * fi + -sp->y, sp->z,
+            row_spacing_const, mnDiagram3_804DBFFC);
+        data->row_labels[i] = text;
+        {
+            u8 type_idx = (u8) i;
+            int val;
+            u8 limit;
+
+            if (data->is_name_mode != 0) {
+                limit = 0x18;
+            } else {
+                limit = 0x15;
+            }
+            val = saved_selection + type_idx;
+            if (val >= (u8) limit) {
+                val = val - (u8) limit;
+            } else {
+                val = (u8) val;
+            }
+            {
+                u16* entry = (u16*) (base + 0x3C);
+                HSD_SisLib_803A6368(text, entry[(u8) val]);
+            }
+        }
+    }
+}
+
+static inline void fn_802461BC_movePopup(Diagram3* data, u8 selection)
+{
+    HSD_JObj* row0;
+    HSD_JObj* row1;
+    HSD_JObj* popup_jobj;
+    f32 row0_y;
+    f32 row_spacing;
+    f32 row0_x;
+
+    popup_jobj = data->popup_gobj->hsd_obj;
+    row0 = data->jobjs[8];
+    ((row0) ? ((void) 0)
+            : __assert(mnDiagram3_804D4FD8, 0x3EE, mnDiagram3_804D4FE0));
+    row1 = data->jobjs[9];
+    row0_y = row0->translate.y;
+    ((row1) ? ((void) 0)
+            : __assert(mnDiagram3_804D4FD8, 0x3EE, mnDiagram3_804D4FE0));
+    row_spacing = row1->translate.y - row0_y;
+
+    row0 = data->jobjs[8];
+    ((row0) ? ((void) 0)
+            : __assert(mnDiagram3_804D4FD8, 0x3E1, mnDiagram3_804D4FE0));
+    {
+        f32 tx = row0->translate.x;
+        ((popup_jobj)
+             ? ((void) 0)
+             : __assert(mnDiagram3_804D4FD8, 0x3A4, mnDiagram3_804D4FE0));
+        popup_jobj->translate.x = tx;
+    }
+    if (!(popup_jobj->flags & 0x02000000)) {
+        HSD_JObjSetMtxDirty(popup_jobj);
+    }
+
+    row0 = data->jobjs[8];
+    ((row0) ? ((void) 0)
+            : __assert(mnDiagram3_804D4FD8, 0x3EE, mnDiagram3_804D4FE0));
+    {
+        f32 ty = row_spacing * (f32) selection + row0->translate.y;
+        ((popup_jobj)
+             ? ((void) 0)
+             : __assert(mnDiagram3_804D4FD8, 0x3B3, mnDiagram3_804D4FE0));
+        popup_jobj->translate.y = ty;
+    }
+    if (!(popup_jobj->flags & 0x02000000)) {
+        HSD_JObjSetMtxDirty(popup_jobj);
+    }
+
+    row0 = data->jobjs[8];
+    ((row0) ? ((void) 0)
+            : __assert(mnDiagram3_804D4FD8, 0x3FB, mnDiagram3_804D4FE0));
+    {
+        f32 tz = row0->translate.z;
+        ((popup_jobj)
+             ? ((void) 0)
+             : __assert(mnDiagram3_804D4FD8, 0x3C2, mnDiagram3_804D4FE0));
+        popup_jobj->translate.z = tz;
+    }
+    if (!(popup_jobj->flags & 0x02000000)) {
+        HSD_JObjSetMtxDirty(popup_jobj);
+    }
+}
+
+void fn_802461BC(HSD_GObj* gobj)
+{
+    Vec3 spDC;
+    Vec3 spC0;
+    Vec3 spA4;
+    Diagram3* data;
+    u32 result;
+    int zero;
+    char* base;
+
+    base = (char*) &mnDiagram3_803EEC10;
+    data = mnDiagram3_804D6C20->user_data;
+    result = mn_80229624(4);
+    ((s32*) &mn_804A04F0.buttons)[1] = result;
+    ((s32*) &mn_804A04F0.buttons)[0] = (zero = 0);
+
+    if (result & 0x20) {
+        lbAudioAx_80024030(0);
+        mn_804A04F0.entering_menu = 0;
+        gmMainLib_8015CC34()->xD =
+            ((Diagram3*) mnDiagram3_804D6C20->user_data)->is_name_mode;
+        mnDiagram2_ClearDetailView(mnDiagram3_804D6C20);
+        HSD_GObjPLink_80390228(data->popup_gobj);
+        fn_802461BC_clearRows(mnDiagram3_804D6C20->user_data);
+        mn_80229894(0x1C, 0, 3);
+        return;
+    }
+
+    if (result & 0xC0) {
+        lbAudioAx_80024030(1);
+        gmMainLib_8015CC34()->xD =
+            ((Diagram3*) mnDiagram3_804D6C20->user_data)->is_name_mode;
+        mnDiagram2_ClearDetailView(mnDiagram3_804D6C20);
+        HSD_GObjPLink_80390228(data->popup_gobj);
+        fn_802461BC_clearRows(mnDiagram3_804D6C20->user_data);
+        HSD_GObjPLink_80390228(gobj);
+        if (result & 0x40) {
+            mnDiagram2_Init();
+            return;
+        }
+        mnDiagram_802437E8(0, 0);
+        return;
+    }
+
+    if (result & 0xC00) {
+        if (GetNameCount() == 0) {
+            lbAudioAx_80024030(3);
+            return;
+        }
+        lbAudioAx_80024030(1);
+        if (data->is_name_mode == 0) {
+            zero = 1;
+        }
+        data->is_name_mode = zero;
+        if (data->is_name_mode == 0 && (s32) (data->scroll_offset + 10) >= 0x15)
+        {
+            data->scroll_offset = 0;
+        }
+        fn_802461BC_clearRows(mnDiagram3_804D6C20->user_data);
+        fn_802461BC_rebuildRows(&spDC, base);
+        mnDiagram2_ClearDetailView(mnDiagram3_804D6C20);
+        mnDiagram3_80245BA4(mnDiagram3_804D6C20);
+        return;
+    }
+
+    if (result & 1) {
+        if (data->saved_selection != 0) {
+            lbAudioAx_80024030(2);
+            data->saved_selection = data->saved_selection - 1;
+            fn_802461BC_movePopup(mnDiagram3_804D6C20->user_data,
+                                  data->saved_selection);
+            mnDiagram2_ClearDetailView(mnDiagram3_804D6C20);
+            mnDiagram3_80245BA4(mnDiagram3_804D6C20);
+            return;
+        }
+        if (data->scroll_offset != 0) {
+            lbAudioAx_80024030(2);
+            data->scroll_offset = data->scroll_offset - 1;
+            fn_802461BC_clearRows(mnDiagram3_804D6C20->user_data);
+            fn_802461BC_rebuildRows(&spC0, base);
+            mnDiagram2_ClearDetailView(mnDiagram3_804D6C20);
+            mnDiagram3_80245BA4(mnDiagram3_804D6C20);
+        }
+    } else if (result & 2) {
+        if (data->saved_selection < 9) {
+            lbAudioAx_80024030(2);
+            data->saved_selection = data->saved_selection + 1;
+            fn_802461BC_movePopup(mnDiagram3_804D6C20->user_data,
+                                  data->saved_selection);
+            mnDiagram2_ClearDetailView(mnDiagram3_804D6C20);
+            mnDiagram3_80245BA4(mnDiagram3_804D6C20);
+            return;
+        }
+        {
+            u32 limit;
+            if (data->is_name_mode != 0) {
+                limit = 0x18;
+            } else {
+                limit = 0x15;
+            }
+            if ((u32) (data->scroll_offset + 10) < limit) {
+                lbAudioAx_80024030(2);
+                data->scroll_offset = data->scroll_offset + 1;
+                fn_802461BC_clearRows(mnDiagram3_804D6C20->user_data);
+                fn_802461BC_rebuildRows(&spA4, base);
+                mnDiagram2_ClearDetailView(mnDiagram3_804D6C20);
+                mnDiagram3_80245BA4(mnDiagram3_804D6C20);
+            }
+        }
+    }
+}
