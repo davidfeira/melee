@@ -1892,7 +1892,40 @@ bool gm_80164840(u8 ckind)
     return false;
 }
 
-/// #gm_80164910
+void gm_80164910(int arg0)
+{
+    u16* temp_r31;
+    u8 internal_id;
+    s32 i;
+    u8 unlock_idx;
+    u8 notify_val;
+
+    temp_r31 = gmMainLib_8015ED8C();
+    internal_id = lbl_803B78A4[(u8) arg0];
+
+    for (i = 0; i < NUM_UNLOCKABLE_CHARACTERS; i++) {
+        if ((s32) internal_id == (s32) lbl_803B78C8[i].ckind) {
+            unlock_idx = lbl_803B78C8[i].idx;
+            goto found_idx;
+        }
+    }
+    unlock_idx = NUM_UNLOCKABLE_CHARACTERS;
+
+found_idx:
+    if (unlock_idx != NUM_UNLOCKABLE_CHARACTERS) {
+        for (i = 0; i < NUM_UNLOCKABLE_CHARACTERS; i++) {
+            if ((s32) unlock_idx == (s32) lbl_803B78C8[i].idx) {
+                notify_val = lbl_803B78C8[i].x2;
+                goto found_notify;
+            }
+        }
+        notify_val = 0x42;
+
+    found_notify:
+        gmMainLib_8015D818(notify_val);
+        *temp_r31 |= (1LL << (s32) unlock_idx);
+    }
+}
 
 s32 gm_80164A0C(u8 arg0)
 {
