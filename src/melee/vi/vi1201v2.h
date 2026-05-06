@@ -6,7 +6,6 @@
 #include "ft/forward.h"
 #include <baselib/forward.h>
 
-/* 4D7028 */ extern u8 un_804D7028;
 /* 4D7030 */ extern HSD_GObj* un_804D7030;
 /* 4D7034 */ extern HSD_GObj* un_804D7034;
 
@@ -20,7 +19,7 @@
 /* 3208F0 */ void un_803208F0(HSD_GObj*);
 /* 320984 */ void un_80320984(HSD_GObj*);
 /* 320A1C */ void fn_80320A1C(HSD_GObj*);
-/* 320A40 */ void un_80320A40_OnEnter(UNK_T);
+/* 320A40 */ void un_80320A40_OnEnter(u8*);
 /* 3210EC */ void un_803210EC_OnFrame(void);
 
 #endif
