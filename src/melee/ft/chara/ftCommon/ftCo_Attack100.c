@@ -464,20 +464,19 @@ void ftCo_800D74A4(Fighter_GObj* gobj)
     s32 msid;
     struct Fighter_x2D0_t* p;
     struct Fighter_x2D0_t* tmp;
+    struct Fighter_x2D0_t* off;
     PAD_STACK(0x14);
     fp = gobj->user_data;
     p = fp->x2D0;
     fp->cmd_vars[0] = 0;
     tmp = fp->x2D0;
-    msid = fp->x1968_jumpsUsed +
-           ((struct Fighter_x2D0_t*) ((s32*) tmp +
-                                      ftCo_800D7268(fp)))->x2C;
+    off = (struct Fighter_x2D0_t*) ((s32*) tmp + ftCo_800D7268(fp));
+    msid = fp->x1968_jumpsUsed + off->x2C;
     vel.x = fp->input.lstick.x * p->x8;
     msid -= 1;
     tmp = fp->x2D0;
-    vel.y = p->x14[msid -
-                   ((struct Fighter_x2D0_t*) ((s32*) tmp +
-                                              ftCo_800D7268(fp)))->x2C];
+    off = (struct Fighter_x2D0_t*) ((s32*) tmp + ftCo_800D7268(fp));
+    vel.y = p->x14[msid - off->x2C];
     vel.z = ftCo_804D9018;
     ftCo_800CBAC4(gobj, msid, &vel, false);
     if ((fp->input.lstick.x * fp->facing_dir) < -p->x4) {
