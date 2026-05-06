@@ -4757,7 +4757,96 @@ void ftCo_800B1DA0(Fighter* fp)
     ftCo_800ADE48(fp);
 }
 
-/// #ftCo_800B1EF0
+void ftCo_800B1EF0(Fighter* fp)
+{
+    Vec3 sp28;
+    Fighter* temp_r3;
+    Fighter* var_r4;
+    s32 temp_r3_2;
+    s32 temp_r3_4;
+    s32 var_r0;
+    s32 var_r0_3;
+    struct Fighter_x1A88_t* temp_r31;
+    struct Fighter_x1A88_t* temp_r4;
+    int tmp;
+
+    temp_r31 = &fp->x1A88;
+    tmp = ftCo_800A229C(fp, &sp28);
+    if (tmp) {
+        ftCo_800AE7AC(fp, &sp28, tmp);
+        return;
+    }
+    temp_r3 = ftCo_800A5CE0(fp);
+    temp_r31->x44 = temp_r3;
+    if (temp_r3 != NULL) {
+        temp_r31->xF8_b0 = true;
+        temp_r31->xF9_b2 = false;
+        temp_r31->xF9_b4 = false;
+        temp_r31->xF9_b3 = false;
+        temp_r31->xF9_b5 = false;
+        temp_r31->xF9_b6 = false;
+        temp_r31->xF9_b7 = false;
+        temp_r31->xF9_b1 = true;
+        ftCo_800A20A0(fp);
+        temp_r3_2 = temp_r31->x18;
+        if ((temp_r3_2 != temp_r31->x20) && (temp_r3_2 != temp_r31->x1C)) {
+            temp_r31->x60 = 0;
+        }
+        if (temp_r31->x18 == 4) {
+            var_r0 = 0;
+        } else {
+            temp_r31->xFA_b2 = false;
+            var_r0 = 1;
+        }
+        if (var_r0 != 0) {
+            ftCo_800A80E4(fp);
+        }
+        ftCo_800ADE48(fp);
+        return;
+    }
+    temp_r31->xF8_b0 = false;
+    temp_r31->xF9_b2 = true;
+    temp_r31->xF9_b4 = false;
+    temp_r31->xF9_b3 = true;
+    temp_r31->xF9_b5 = true;
+    temp_r31->xF9_b6 = false;
+    temp_r31->xF9_b7 = true;
+    temp_r31->xF9_b1 = false;
+    fp->x1A88.x44 = ftCo_800A4BEC(fp);
+    if (fp->item_gobj != NULL && !ftCo_800A5908(GET_ITEM(fp->item_gobj))) {
+        temp_r31->x4C = NULL;
+    } else {
+        if (fp->x2168 != 0) {
+            temp_r31->x4C = NULL;
+        } else {
+            temp_r31->x4C = ftCo_800A5F4C(fp, It_Kind_L_Gun_Ray);
+        }
+    }
+    fp->x1A88.x50 = ftCo_800A648C(fp);
+    temp_r4 = &fp->x1A88;
+    temp_r3_4 = fp->x1A88.x18;
+    if (temp_r3_4 != fp->x1A88.x20 && temp_r3_4 != temp_r4->x1C) {
+        temp_r4->x60 = 0;
+    }
+    if (temp_r4->x18 == 4) {
+        var_r0_3 = 0;
+    } else {
+        temp_r4->xFA_b2 = false;
+        var_r0_3 = 1;
+    }
+    if (var_r0_3 != 0) {
+        if (temp_r31->x4C != NULL) {
+            ftCo_800A866C(fp);
+        } else {
+            var_r4 = ftCo_800A53DC(fp);
+            if (var_r4 == NULL) {
+                var_r4 = temp_r31->x44;
+            }
+            ftCo_800A75DC(fp, var_r4);
+        }
+    }
+    ftCo_800ADE48(fp);
+}
 
 /// #ftCo_800B21C8
 
