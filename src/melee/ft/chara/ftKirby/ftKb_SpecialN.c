@@ -1223,6 +1223,11 @@ void ftKb_SpecialAirLwEnd_Phys(Fighter_GObj* gobj)
 
 /// #ftKb_SpecialLw1_Coll
 
+struct ftKb_Init_803CB490_layout {
+    char pad[0x74];
+    Vec3 vec;
+};
+
 void ftKb_SpecialLw_Coll(Fighter_GObj* gobj)
 {
     Fighter* fp = GET_FIGHTER(gobj);
