@@ -1476,6 +1476,88 @@ bool fn_800D8E94(Fighter_GObj* gobj)
     return true;
 }
 
+bool fn_800D8EC8(Fighter_GObj* gobj)
+{
+    Fighter* fp = GET_FIGHTER(gobj);
+
+    if ((fp->kind == FTKIND_LINK) || (fp->kind == FTKIND_CLINK)) {
+        ftCo_LinkCatchAttrs* da = fp->dat_attrs;
+
+        fp->mv.co.catch.x0 += 1.0;
+        if (fp->mv.co.catch.x0 == (f32) da->x84) {
+            Vec3 pos;
+
+            lb_8000B1CC(
+                fp->parts[ftParts_GetBoneIndex(fp, FtPart_RThumbNb)].joint,
+                NULL, &pos);
+            fp->fv.lk.xC = it_802A2BA4(gobj, &pos, fp->facing_dir, da->xBC);
+            if (fp->fv.lk.xC == NULL) {
+                ft_8008A2BC(gobj);
+                return true;
+            }
+            fp->accessory2_cb = it_802A7AF0;
+            fp->death1_cb = it_802A7AAC;
+            fp->accessory3_cb = it_802A7B34;
+        } else if (fp->mv.co.catch.x0 > (f32) da->x84 &&
+                   fp->mv.co.catch.x0 <= (f32) da->x90)
+        {
+            Item_GObj* tether_gobj = fp->fv.lk.xC;
+            Item* tether_ip = tether_gobj->user_data;
+            struct TetherAttributes* tether_data =
+                tether_ip->xC4_article_data->x4_specialAttributes;
+
+            if (fp->mv.co.catch.x0 == (f32) da->x88) {
+                Vec3 pos;
+                PAD_STACK(8);
+                {
+                    HSD_JObj* jobj =
+                        fp->parts[ftParts_GetBoneIndex(fp, FtPart_RThumbNb)]
+                            .joint;
+                    f32 var_f3;
+
+                    HSD_JObjSetupMatrix(jobj);
+                    if (fp->kind == FTKIND_LINK) {
+                        var_f3 = 8.0 * fp->facing_dir * fp->x34_scale.y +
+                                 jobj->mtx[0][3];
+                    } else {
+                        var_f3 = 8.0 * fp->facing_dir * fp->x34_scale.y +
+                                 jobj->mtx[0][3];
+                    }
+                    if (mpCheckAllRemap(0, 0, 0, 0, -1, -1,
+                                        fp->coll_data.cur_pos.x,
+                                        jobj->mtx[1][3], var_f3,
+                                        jobj->mtx[1][3]) != 0)
+                    {
+                        it_802A2B10(fp->fv.lk.xC);
+                        ft_8008A2BC(gobj);
+                        return true;
+                    }
+                }
+                pos.x = tether_data->pos_x_0 * fp->facing_dir;
+                pos.y = 0.0F;
+                pos.z = 0.0F;
+                it_802A78B8(tether_gobj, &pos);
+                if (fp->kind == FTKIND_CLINK) {
+                    ft_PlaySFX(fp, 0x111B9, 0x7F, 0x40);
+                } else {
+                    ft_PlaySFX(fp, 0x27149, 0x7F, 0x40);
+                }
+            } else if (fp->mv.co.catch.x0 == (f32) da->x8C) {
+                it_802A77DC(tether_gobj);
+                if (fp->kind == FTKIND_CLINK) {
+                    ft_PlaySFX(fp, 0x111BC, 0x7F, 0x40);
+                } else {
+                    ft_PlaySFX(fp, 0x2714C, 0x7F, 0x40);
+                }
+            } else if (fp->mv.co.catch.x0 == (f32) da->x90) {
+                it_802A2B10(tether_gobj);
+            }
+        }
+    }
+
+    return false;
+}
+
 bool fn_800D9228(Fighter_GObj* gobj)
 {
     Fighter* fp = GET_FIGHTER(gobj);
