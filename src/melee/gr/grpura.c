@@ -57,9 +57,11 @@ StageCallbacks grPu_803E6800[] = {
       0x80000000 }
 };
 
+char grPu_803E6A30[] = "/GrPu.dat";
+
 StageData grPu_803E6A3C = { 0x11,
                             grPu_803E6800,
-                            "/GrPu.dat",
+                            grPu_803E6A30,
                             grPura_80211D00,
                             grPura_80211CFC,
                             grPura_80211DD8,
@@ -216,15 +218,15 @@ void grPura_80212024(Ground_GObj* arg0)
     PAD_STACK(16);
     grAnime_801C8138(arg0, gp->map_id, 0);
     gp->x11_flags.b012 = 2;
-    gp->gv.pura.xC4 = HSD_Randi(4);
+    *(s16*) &gp->gv.pura.xC4 = HSD_Randi(4);
     do {
         uVar1 = HSD_Randi(4);
-    } while (gp->gv.pura.xC4 == (gp->gv.pura.xC6 = uVar1));
-    Ground_801C205C(&grPu_803E6AA0[gp->gv.pura.xC4]);
-    Camera_SetBackgroundColor(grPu_803E6AA0[gp->gv.pura.xC4].r,
-                              grPu_803E6AA0[gp->gv.pura.xC4].g,
-                              grPu_803E6AA0[gp->gv.pura.xC4].b);
-    gp->gv.pura.xC8 = 0;
+    } while (*(s16*) &gp->gv.pura.xC4 == (gp->gv.pura.xC6 = uVar1));
+    Ground_801C205C(&grPu_803E6AA0[*(s16*) &gp->gv.pura.xC4]);
+    Camera_SetBackgroundColor(grPu_803E6AA0[*(s16*) &gp->gv.pura.xC4].r,
+                              grPu_803E6AA0[*(s16*) &gp->gv.pura.xC4].g,
+                              grPu_803E6AA0[*(s16*) &gp->gv.pura.xC4].b);
+    *(s16*) &gp->gv.pura.xC8 = 0;
 }
 
 bool grPura_802120D8(Ground_GObj* arg0)
