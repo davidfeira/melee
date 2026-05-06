@@ -295,7 +295,176 @@ void fn_8024F1D4(HSD_GObj* gobj)
     }
 }
 
-/// #fn_8024F318
+void fn_8024F318(HSD_GObj* gobj)
+{
+    HSD_JObj* jobj0;
+    HSD_JObj* jobj2;
+    HSD_JObj* jobj3;
+    HSD_JObj* jobj4;
+    HSD_GObjProc* proc;
+    HSD_Text* text;
+    s32 sis_id;
+    u8 visible;
+    f32 frame;
+    u32 input;
+    struct WarnCmnData* data;
+    struct MnDataDelData* mdata;
+    u8* user_data;
+
+    data = mnDataDel_804D6C68->user_data;
+    input = Menu_GetAllInputs();
+    mdata = &mnDataDel_803EF870;
+    if (input & 0x10) {
+        mn_804D6BC8.cooldown = 5;
+        if (data->x0 == 5) {
+            HSD_GObjProc_8038FE24(HSD_GObj_804D7838);
+            if (data->cursor_idx != 0) {
+                data->visible = 2;
+                data->cursor_idx = 0;
+                proc = HSD_GObj_SetupProc(gobj, fn_8024F1D4, 0);
+                proc->flags_3 = HSD_GObj_804D783C;
+                visible = data->visible;
+                if (mnDataDel_804D6C6C != NULL) {
+                    HSD_SisLib_803A5CC4(mnDataDel_804D6C6C);
+                }
+                if ((s32) visible == 1) {
+                    sis_id = 0x13E;
+                } else {
+                    sis_id = 0x13F;
+                }
+                text = HSD_SisLib_803A5ACC(0, 1, mdata->x64, mdata->x68,
+                                           mdata->x6C, 250.0f, 5.0f);
+                mnDataDel_804D6C6C = text;
+                text->font_size.x = 0.05f;
+                text->font_size.y = 0.05f;
+                text->default_alignment = 1;
+                HSD_SisLib_803A6368(text, sis_id);
+                mn_804D6BC8.cooldown = 0xA;
+                lbAudioAx_800237A8(0xBD, 0x7F, 0x40);
+                return;
+            }
+            sfxBack();
+            data->visible = 0;
+            data->cursor_idx = 0;
+            proc = HSD_GObj_SetupProc(gobj, fn_8024F840, 0);
+            proc->flags_3 = HSD_GObj_804D783C;
+            return;
+        }
+        if (data->cursor_idx != 0) {
+            switch (data->x0) {
+            case 0:
+                user_data = mnDataDel_804D6C68->user_data;
+                lb_80011E24(
+                    (HSD_JObj*) mn_80231634(
+                        *(struct mn_80231634_t**) (user_data + mdata->x3C * 4 +
+                                                   0x10)),
+                    &jobj0, 1, -1);
+                frame = mn_8022F298(jobj0);
+                HSD_JObjReqAnimAll(jobj0, 1.0f);
+                mn_8022F3D8(jobj0, 0xff, (HSD_TypeMask) 0x80);
+                HSD_JObjAnimAll(jobj0);
+                HSD_JObjReqAnimAll(jobj0, frame);
+                mn_8022F3D8(jobj0, 0xff, (HSD_TypeMask) 0x480);
+                HSD_JObjAnimAll(jobj0);
+                user_data[3] = 1;
+                gm_8016505C();
+                gmMainLib_8015F464();
+                gm_801729EC();
+                lb_8001CE00();
+                gmMainLib_8015DB80();
+                break;
+            case 1:
+                mnDataDel_8024E940();
+                break;
+            case 2:
+                user_data = mnDataDel_804D6C68->user_data;
+                lb_80011E24(
+                    (HSD_JObj*) mn_80231634(
+                        *(struct mn_80231634_t**) (user_data + mdata->x44 * 4 +
+                                                   0x10)),
+                    &jobj2, 1, -1);
+                frame = mn_8022F298(jobj2);
+                HSD_JObjReqAnimAll(jobj2, 1.0f);
+                mn_8022F3D8(jobj2, 0xff, (HSD_TypeMask) 0x80);
+                HSD_JObjAnimAll(jobj2);
+                HSD_JObjReqAnimAll(jobj2, frame);
+                mn_8022F3D8(jobj2, 0xff, (HSD_TypeMask) 0x480);
+                HSD_JObjAnimAll(jobj2);
+                user_data[5] = 1;
+                gmMainLib_8015EEC8();
+                gm_801729EC();
+                lb_8001CE00();
+                break;
+            case 3:
+                user_data = mnDataDel_804D6C68->user_data;
+                lb_80011E24(
+                    (HSD_JObj*) mn_80231634(
+                        *(struct mn_80231634_t**) (user_data + mdata->x48 * 4 +
+                                                   0x10)),
+                    &jobj3, 1, -1);
+                frame = mn_8022F298(jobj3);
+                HSD_JObjReqAnimAll(jobj3, 1.0f);
+                mn_8022F3D8(jobj3, 0xff, (HSD_TypeMask) 0x80);
+                HSD_JObjAnimAll(jobj3);
+                HSD_JObjReqAnimAll(jobj3, frame);
+                mn_8022F3D8(jobj3, 0xff, (HSD_TypeMask) 0x480);
+                HSD_JObjAnimAll(jobj3);
+                user_data[6] = 1;
+                gmMainLib_8015F150();
+                gmMainLib_8015F260();
+                gm_801729EC();
+                lb_8001CE00();
+                break;
+            case 4:
+                user_data = mnDataDel_804D6C68->user_data;
+                lb_80011E24(
+                    (HSD_JObj*) mn_80231634(
+                        *(struct mn_80231634_t**) (user_data + mdata->x4C * 4 +
+                                                   0x10)),
+                    &jobj4, 1, -1);
+                frame = mn_8022F298(jobj4);
+                HSD_JObjReqAnimAll(jobj4, 1.0f);
+                mn_8022F3D8(jobj4, 0xff, (HSD_TypeMask) 0x80);
+                HSD_JObjAnimAll(jobj4);
+                HSD_JObjReqAnimAll(jobj4, frame);
+                mn_8022F3D8(jobj4, 0xff, (HSD_TypeMask) 0x480);
+                HSD_JObjAnimAll(jobj4);
+                user_data[7] = 1;
+                un_80311960();
+                gmMainLib_8015F4BC();
+                gm_80174238();
+                gm_801729EC();
+                lb_8001CE00();
+                break;
+            }
+            lbAudioAx_800237A8(0xBE, 0x7F, 0x40);
+        } else {
+            sfxBack();
+        }
+        data->visible = 0;
+        HSD_GObjProc_8038FE24(HSD_GObj_804D7838);
+        proc = HSD_GObj_SetupProc(gobj, fn_8024F840, 0);
+        proc->flags_3 = HSD_GObj_804D783C;
+        return;
+    }
+    if (input & 0x20) {
+        sfxBack();
+        mn_804D6BC8.cooldown = 5;
+        data->visible = 0;
+        HSD_GObjProc_8038FE24(HSD_GObj_804D7838);
+        proc = HSD_GObj_SetupProc(gobj, fn_8024F840, 0);
+        proc->flags_3 = HSD_GObj_804D783C;
+        return;
+    }
+    if ((input & 8) || (input & 4)) {
+        sfxMove();
+        if (data->cursor_idx != 0) {
+            data->cursor_idx = 0;
+        } else {
+            data->cursor_idx = 1;
+        }
+    }
+}
 
 void fn_8024F840(HSD_GObj* gobj)
 {
