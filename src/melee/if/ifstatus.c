@@ -885,7 +885,54 @@ void ifStatus_802F6E3C(s32 player_num)
     ifStock_802FB6AC(player_num);
 }
 
-/// #ifStatus_802F6EA4
+void ifStatus_802F6EA4(int idx, int sfx_a, int sfx_b, int arg3,
+                       void (*ev_a)(s32), void (*ev_b)(s32))
+{
+    Element_803F9628* entry;
+    HSD_GObj* gobj;
+    HSD_JObj* jobj;
+
+    if (idx == 8) {
+        if (ev_a != NULL) {
+            ev_a(-1);
+        }
+        if (ev_b != NULL) {
+            ev_b(-1);
+        }
+        if (sfx_a >= 0) {
+            lbAudioAx_800237A8(sfx_a, 0x7F, 0x40);
+        }
+        if (sfx_a >= 0) {
+            lbAudioAx_800237A8(sfx_b, 0x7F, 0x40);
+        }
+        return;
+    }
+
+    entry = &ifStatus_803F9628[idx];
+    entry->x20 = sfx_a;
+    entry->x24 = sfx_b;
+    entry->x11 = arg3;
+    if (entry->x0 != NULL) {
+        HSD_GObjPLink_80390228(entry->x0);
+    }
+    gobj = GObj_Create(0xE, 0xE, 0);
+    jobj = HSD_JObjLoadJoint(entry->x14->joint);
+    lb_80011C18(jobj, 0x08000000);
+    HSD_GObjObject_80390A70(gobj, HSD_GObj_804D7849, jobj);
+    GObj_SetupGXLink(gobj, HSD_GObj_JObjCallback, 0xB, 0);
+    if (entry->x8 != NULL) {
+        HSD_GObj_SetupProc(gobj, entry->x8, 0);
+    }
+    lb_8000C0E8(jobj, 0, entry->x14);
+    HSD_JObjReqAnimAll(jobj, 0.0f);
+    HSD_JObjAnimAll(jobj);
+    entry->x12.x0 = 0;
+    entry->x12.x1 = 0;
+    entry->x12.x2 = 0;
+    entry->x0 = gobj;
+    entry->x18 = (IfStatusCb) ev_a;
+    entry->x1C = (IfStatusCb) ev_b;
+}
 
 void ifStatus_802F7034(UNK_T arg0)
 {

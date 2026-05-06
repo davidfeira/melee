@@ -33,7 +33,7 @@
 /* 2F6D10 */ void ifStatus_802F6D10(s32);
 /* 2F6E1C */ void ifStatus_802F6E1C(int slot);
 /* 2F6E3C */ void ifStatus_802F6E3C(s32);
-/* 2F6EA4 */ void ifStatus_802F6EA4(int, int, int, int, Event, Event);
+/* 2F6EA4 */ void ifStatus_802F6EA4(int, int, int, int, void (*)(s32), void (*)(s32));
 /* 2F7034 */ void ifStatus_802F7034(UNK_T);
 /* 2F7134 */ void ifStatus_802F7134(void);
 /* 2F7220 */ void ifStatus_802F7220(void);
