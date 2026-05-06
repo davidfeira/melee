@@ -2920,7 +2920,64 @@ void fn_80165E7C(MatchEnd* arg0)
     }
 }
 
-/// #fn_80165FA4
+s32 fn_80165FA4(MatchEnd* arg0)
+{
+    s32 i;
+    s32 j;
+    s32 max_losers;
+    s32 n_winners;
+
+    max_losers = 0;
+    for (i = 0; i < 5; i++) {
+        if ((u8) arg0->team_standings[i].active != 0) {
+            for (j = 0; j < 5; j++) {
+                if (i != j && (u8) arg0->team_standings[j].active != 0 &&
+                    (s32) arg0->team_standings[i].score < (s32) arg0->team_standings[j].score)
+                {
+                    arg0->team_standings[i].is_big_loser++;
+                }
+            }
+            if (max_losers < (s32) (u8) arg0->team_standings[i].is_big_loser) {
+                max_losers = (s32) (u8) arg0->team_standings[i].is_big_loser;
+            }
+        }
+    }
+
+    n_winners = 0;
+    arg0->loser = (arg0->loser & ~0xF) | (max_losers & 0xF);
+    if ((u8) arg0->team_standings[0].active != 0 &&
+        (u8) arg0->team_standings[0].is_big_loser == 0)
+    {
+        arg0->team_winners[0] = 0;
+        n_winners = 1;
+    }
+    if ((u8) arg0->team_standings[1].active != 0 &&
+        (u8) arg0->team_standings[1].is_big_loser == 0)
+    {
+        arg0->team_winners[n_winners] = 1;
+        n_winners++;
+    }
+    if ((u8) arg0->team_standings[2].active != 0 &&
+        (u8) arg0->team_standings[2].is_big_loser == 0)
+    {
+        arg0->team_winners[n_winners] = 2;
+        n_winners++;
+    }
+    if ((u8) arg0->team_standings[3].active != 0 &&
+        (u8) arg0->team_standings[3].is_big_loser == 0)
+    {
+        arg0->team_winners[n_winners] = 3;
+        n_winners++;
+    }
+    if ((u8) arg0->team_standings[4].active != 0 &&
+        (u8) arg0->team_standings[4].is_big_loser == 0)
+    {
+        arg0->team_winners[n_winners] = 4;
+        n_winners++;
+    }
+    arg0->n_team_winners = n_winners;
+    return (s32) arg0;
+}
 
 s32 fn_801661E0(MatchEnd* arg0)
 {
@@ -4950,7 +5007,30 @@ int gm_8016A998(s8 arg0, s8 arg1)
     return -1;
 }
 
-/// #gm_8016A9E8
+int gm_8016A9E8(u8 arg0, s8 arg1)
+{
+    int i;
+    int found;
+    struct lbl_8046B668_t* ptr = &lbl_8046B668;
+
+    found = -1;
+    for (i = 0; i < 27; i++) {
+        if (ptr->arr2[i] == -2) {
+            found = i;
+            break;
+        }
+    }
+    if (found != -1) {
+        for (i = found; i >= 0; i--) {
+            ptr->arr2[i + 1] = ptr->arr2[i];
+            ptr->arr1[i + 1] = ptr->arr1[i];
+        }
+        ptr->arr2[0] = arg1;
+        ptr->arr1[0] = (u8) arg0;
+        found++;
+    }
+    return found;
+}
 
 int gm_8016AC44(s8 ckind, s8 costume_id)
 {
