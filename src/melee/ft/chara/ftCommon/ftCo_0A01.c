@@ -5357,7 +5357,214 @@ void ftCo_800B2790(Fighter* fp)
 
 void ftCo_800B1DA0(Fighter*); /* static */
 
-/// #ftCo_800B2AFC
+void ftCo_800B2AFC(Fighter* fp)
+{
+    Vec3 hit_pos0;
+    Vec3 hit_normal0;
+    u32 flags0;
+    int line_id0;
+    Vec3 hit_pos1;
+    Vec3 hit_normal1;
+    u32 flags1;
+    int line_id1;
+    Vec3 hit_pos3;
+    Vec3 hit_normal3;
+    u32 flags3;
+    int line_id3;
+    Vec3 hit_pos26;
+    Vec3 hit_normal26;
+    u32 flags26;
+    int line_id26;
+    int ret;
+    int var_r29;
+    float x;
+    float y;
+
+    switch (fp->x1A88.xC) {
+    case 0:
+        fp->x1A88.xF8_b0 = false;
+        fp->x1A88.xF9_b2 = false;
+        fp->x1A88.xF9_b4 = false;
+        fp->x1A88.xF9_b3 = false;
+        fp->x1A88.xF9_b5 = false;
+        fp->x1A88.xF9_b6 = false;
+        fp->x1A88.xF9_b7 = false;
+        fp->x1A88.xF9_b1 = false;
+        if (inlineI1_alt(fp)) {
+            x = fp->cur_pos.x;
+            y = fp->cur_pos.y;
+            var_r29 = 0;
+            line_id0 = -1;
+            ret = mpCheckFloor(x, y + 10.0f, x, y - 1000.0f, 0.0f,
+                               &hit_pos0, &line_id0, &flags0, &hit_normal0,
+                               -1, -1, -1, NULL, NULL);
+            if (!(ret && ftCo_800A1B38(line_id0))) {
+                var_r29 = ret;
+            }
+            if (var_r29) {
+                ftCo_800A1F3C(fp, hit_pos0.x, hit_pos0.y, 5.0f);
+            }
+        }
+        ftCo_800ADE48(fp);
+        break;
+    case 1:
+        fp->x1A88.xF8_b0 = false;
+        fp->x1A88.xF9_b2 = false;
+        fp->x1A88.xF9_b4 = false;
+        fp->x1A88.xF9_b3 = false;
+        fp->x1A88.xF9_b5 = false;
+        fp->x1A88.xF9_b6 = false;
+        fp->x1A88.xF9_b7 = false;
+        fp->x1A88.xF9_b1 = false;
+        if (inlineI1_alt(fp)) {
+            x = fp->x1A88.x98.x;
+            y = fp->x1A88.x98.y;
+            var_r29 = 0;
+            line_id1 = -1;
+            ret = mpCheckFloor(x, y + 10.0f, x, y - 1000.0f, 0.0f,
+                               &hit_pos1, &line_id1, &flags1, &hit_normal1,
+                               -1, -1, -1, NULL, NULL);
+            if (!(ret && ftCo_800A1B38(line_id1))) {
+                var_r29 = ret;
+            }
+            if (var_r29) {
+                ftCo_800A1F3C(fp, hit_pos1.x, hit_pos1.y, 5.0f);
+            } else {
+                ftCo_800A1F3C(fp, fp->cur_pos.x, fp->cur_pos.y, 5.0f);
+            }
+        }
+        ftCo_800ADE48(fp);
+        break;
+    case 2:
+        ftCo_800B04DC(fp);
+        break;
+    case 3:
+        fp->x1A88.xF8_b0 = false;
+        fp->x1A88.xF9_b2 = false;
+        fp->x1A88.xF9_b4 = false;
+        fp->x1A88.xF9_b3 = false;
+        fp->x1A88.xF9_b5 = false;
+        fp->x1A88.xF9_b6 = false;
+        fp->x1A88.xF9_b7 = false;
+        fp->x1A88.xF9_b1 = false;
+        if (inlineI1_alt(fp)) {
+            x = fp->cur_pos.x;
+            y = fp->cur_pos.y;
+            var_r29 = 0;
+            line_id3 = -1;
+            ret = mpCheckFloor(x, y + 10.0f, x, y - 1000.0f, 0.0f,
+                               &hit_pos3, &line_id3, &flags3, &hit_normal3,
+                               -1, -1, -1, NULL, NULL);
+            if (!(ret && ftCo_800A1B38(line_id3))) {
+                var_r29 = ret;
+            }
+            if (var_r29) {
+                ftCo_800A1F3C(fp, hit_pos3.x, hit_pos3.y, 5.0f);
+            }
+        }
+        ftCo_800ADE48(fp);
+        break;
+    case 6:
+        ftCo_800B101C(fp);
+        break;
+    case 4:
+        ftCo_800B24B8(fp);
+        break;
+    case 7:
+        ftCo_800AF290(fp);
+        break;
+    case 8:
+        ftCo_800AECF0(fp);
+        break;
+    case 9:
+        ftCo_800B00F8(fp);
+        break;
+    case 10:
+        ftCo_800AFC40(fp);
+        break;
+    case 11:
+        ftCo_800B24B8(fp);
+        break;
+    case 12:
+        ftCo_800B24B8(fp);
+        break;
+    case 13:
+        ftCo_800B126C(fp);
+        break;
+    case 14:
+        ftCo_800B1478(fp);
+        break;
+    case 15:
+        fp->x1A88.x18 = 0;
+        break;
+    case 17:
+        ftCo_800B17D0(fp);
+        break;
+    case 18:
+        ftCo_800AF78C(fp);
+        break;
+    case 19:
+        ftCo_800AFE3C(fp, 0);
+        break;
+    case 20:
+        ftCo_800AFE3C(fp, 1);
+        break;
+    case 21:
+        ftCo_800AFE3C(fp, 2);
+        break;
+    case 22:
+        ftCo_800AFE3C(fp, 3);
+        break;
+    case 23:
+        inlineI0(fp, &fp->x1A88);
+        if (inlineI1(&fp->x1A88)) {
+            ftCo_800A75DC(fp, fp->x1A88.x44);
+        }
+        ftCo_800ADE48(fp);
+        break;
+    case 24:
+        ftCo_800B1DA0(fp);
+        break;
+    case 25:
+        inlineI0(fp, &fp->x1A88);
+        if (inlineI1(&fp->x1A88)) {
+            ftCo_800A75DC(fp, fp->x1A88.x44);
+        }
+        ftCo_800ADE48(fp);
+        break;
+    case 26:
+        inlineI0(fp, &fp->x1A88);
+        if (inlineI1(&fp->x1A88)) {
+            x = fp->cur_pos.x;
+            y = fp->cur_pos.y;
+            var_r29 = 0;
+            line_id26 = -1;
+            ret = mpCheckFloor(x, y + 10.0f, x, y - 1000.0f, 0.0f,
+                               &hit_pos26, &line_id26, &flags26, &hit_normal26,
+                               -1, -1, -1, NULL, NULL);
+            if (!(ret && ftCo_800A1B38(line_id26))) {
+                var_r29 = ret;
+            }
+            if (var_r29) {
+                ftCo_800A1F3C(fp, hit_pos26.x, hit_pos26.y, 5.0f);
+            }
+        }
+        ftCo_800ADE48(fp);
+        break;
+    case 27:
+        ftCo_800B1EF0(fp);
+        break;
+    case 28:
+        ftCo_800B21C8(fp);
+        break;
+    case 29:
+        ftCo_800B1AB8(fp);
+        break;
+    default:
+        ftCo_800B24B8(fp);
+        break;
+    }
+}
 
 /// #ftCo_800B33B0
 
