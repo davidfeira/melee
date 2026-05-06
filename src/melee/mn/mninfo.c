@@ -11,6 +11,7 @@
 #include "mn/mnmain.h"
 
 extern GXColor mn_804D4B64;
+extern void* mnInfo_804A0958[4];
 
 static AnimLoopSettings mnInfo_803EFC08[0x12] = {
     { 0.0f, 199.0f, 0.0f },
@@ -81,7 +82,44 @@ s32 mnInfo_80251AA4(void)
 }
 #pragma pop
 
-/// #mnInfo_80251AFC
+void mnInfo_80251AFC(void)
+{
+    u8* p = (u8*) &mnInfo_804A0958[0] + 0x10;
+    s32 i;
+    s32 j;
+    u8 a;
+    u32 va;
+    u32 vb;
+
+    for (i = 0; i < 0x42; i++) {
+        p[i] = (u8) i;
+    }
+
+    for (i = 0; i < 0x42; i++) {
+        for (j = i + 1; j < 0x42; j++) {
+            if (mnInfo_80251A08(p[i]) == 0) {
+                a = p[i];
+                p[i] = p[j];
+                p[j] = a;
+            }
+        }
+    }
+
+    for (i = 0; i < 0x42; i++) {
+        for (j = i + 1; j < 0x42; j++) {
+            if (mnInfo_80251A08(p[j]) != 0) {
+                if ((mnInfo_80251A08(p[i]) == 0) ||
+                    ((va = *gmMainLib_8015D804(p[j])),
+                     (vb = *gmMainLib_8015D804(p[i])),
+                     vb > va)) {
+                    a = p[i];
+                    p[i] = p[j];
+                    p[j] = a;
+                }
+            }
+        }
+    }
+}
 
 void mnInfo_80251D58(HSD_GObj* gobj, s32 idx, u8 unused, u32 secs)
 {
@@ -148,7 +186,6 @@ void mnInfo_80251F04(HSD_GObj* gobj, u32 idx, u32 arg2)
 }
 #pragma pop
 
-extern void* mnInfo_804A0958[4];
 extern HSD_GObj* mnInfo_804D6C78;
 extern u8 mnInfo_804A0968[0x48];
 
