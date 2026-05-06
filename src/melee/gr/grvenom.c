@@ -68,7 +68,221 @@ typedef struct grVe_GroundData {
     grVe_Lighting* x2C;
 } grVe_GroundData;
 
-/// #grVenom_8020362C
+/// grVenom_8020362C
+
+void grVenom_8020362C(void)
+{
+    grVe_ExtData* ext = VE_DATA;
+    s32 i;
+    s32 idx;
+    s32 spawn;
+    u32 ground_flags;
+    s32 group_a;
+    s32 group_b;
+    s32 combined;
+    s32 mode;
+    s32 lo;
+    s32 hi;
+    s32 diff;
+    s32 sub;
+    s32 has_active;
+
+    if (grVe_804D6A40 == 0) {
+        if (ext->x20[0] == NULL) {
+            grVe_804D6A38 = grVe_804D6A38 - 1;
+            if (grVe_804D6A38 <= 0) {
+                ground_flags = ((grVe_Lighting*) Ground_801C2BA4(7)->user_data)->xE0;
+                {
+                    s32 b4 = (ground_flags >> 4) & 1;
+                    s32 b3 = (ground_flags >> 3) & 1;
+                    s32 b7 = (ground_flags >> 7) & 1;
+                    s32 b6 = (ground_flags >> 6) & 1;
+                    s32 b2;
+                    s32 b5;
+                    s32 ab;
+                    ab = b4 | b3;
+                    b2 = (ground_flags >> 2) & 1;
+                    group_b = b7 | b6;
+                    if ((ab | b2) != 0) {
+                        group_a = 2;
+                    } else {
+                        group_a = 0;
+                    }
+                    b5 = (ground_flags >> 5) & 1;
+                    if ((group_b | b5) != 0) {
+                        group_b = 1;
+                    } else {
+                        group_b = 0;
+                    }
+                }
+                combined = group_b | group_a;
+                if (combined == 2) {
+                    idx = ext->x2C[0];
+                    do {
+                        if (idx == ext->x2C[0]) {
+                            idx = HSD_Randi(4) + 1;
+                        }
+                    } while (idx == ext->x2C[0]);
+                    if (ext->x38[0] == 4) {
+                        mode = 1;
+                    } else {
+                        mode = (HSD_Randf() > grVe_804D6A30->x10) ? 1 : 4;
+                    }
+                    grVe_804D6A34 = 0;
+                    ext->x2C[0] = idx;
+                    ext->x38[0] = mode;
+                    ext->x20[grVe_804D6A34] =
+                        grVenom_80203EAC(2);
+                } else if (combined < 2) {
+                    if (combined == 0) {
+                        idx = ext->x2C[0];
+                        do {
+                            if (idx == ext->x2C[0]) {
+                                idx = HSD_Randi(0xB) + 1;
+                            }
+                        } while (idx == ext->x2C[0]);
+                        if (ext->x38[0] == 4) {
+                            mode = 1;
+                        } else {
+                            mode =
+                                (HSD_Randf() > grVe_804D6A30->x10) ? 1 : 4;
+                        }
+                        grVe_804D6A34 = 0;
+                        ext->x2C[0] = idx;
+                        ext->x38[0] = mode;
+                        ext->x20[grVe_804D6A34] =
+                            grVenom_80203EAC(2);
+                    }
+                }
+            }
+        } else {
+            lo = (s32) grVe_804D6A30->x8;
+            hi = (s32) grVe_804D6A30->xC;
+            spawn = hi;
+            if (hi > lo) {
+                diff = hi - lo;
+                spawn = (diff != 0) ? HSD_Randi(diff) : 0;
+                spawn = lo + spawn;
+            } else if (hi < lo) {
+                sub = lo - hi;
+                spawn = (sub != 0) ? HSD_Randi(sub) : 0;
+                spawn = hi + spawn;
+            }
+            grVe_804D6A38 = spawn;
+        }
+    } else {
+        i = 0;
+        if (ext->x20[0] != NULL) {
+            i = 1;
+            if (ext->x20[1] != NULL) {
+                i = 2;
+                if (ext->x20[2] != NULL) {
+                    i = 3;
+                }
+            }
+        }
+        if (i < 3) {
+            grVe_804D6A38 = grVe_804D6A38 - 1;
+            if (grVe_804D6A38 <= 0) {
+                has_active = 0;
+                if (i != 0 && ext->x2C[0] < 8) {
+                    if (ext->x2C[0] >= 1) {
+                        if (ext->x20[0] != NULL) {
+                            has_active = 1;
+                        }
+                    }
+                }
+                if (i != 1 && ext->x2C[1] < 8) {
+                    if (ext->x2C[1] >= 1) {
+                        if (ext->x20[1] != NULL) {
+                            has_active = 1;
+                        }
+                    }
+                }
+                if (i != 2 && ext->x2C[2] < 8) {
+                    if (ext->x2C[2] >= 1) {
+                        if (ext->x20[2] != NULL) {
+                            has_active = 1;
+                        }
+                    }
+                }
+                if (has_active == 0) {
+                    idx = ext->x2C[i];
+                    do {
+                        if (idx == ext->x2C[0]) {
+                            idx = HSD_Randi(0xB) + 1;
+                            continue;
+                        }
+                        if (idx == ext->x2C[1]) {
+                            idx = HSD_Randi(0xB) + 1;
+                            continue;
+                        }
+                        if (idx == ext->x2C[2]) {
+                            idx = HSD_Randi(0xB) + 1;
+                            continue;
+                        }
+                        break;
+                    } while (1);
+                    grVe_804D6A34 = i;
+                    ext->x2C[i] = idx;
+                    ext->x38[i] = i + 1;
+                    ext->x20[grVe_804D6A34] =
+                        grVenom_80203EAC(2);
+                } else {
+                    ground_flags = ((grVe_Lighting*) Ground_801C2BA4(7)->user_data)->xE0;
+                    {
+                        s32 b4 = (ground_flags >> 4) & 1;
+                        s32 b3 = (ground_flags >> 3) & 1;
+                        s32 b7 = (ground_flags >> 7) & 1;
+                        s32 b6 = (ground_flags >> 6) & 1;
+                        s32 b2;
+                        s32 b5;
+                        s32 ab;
+                        ab = b4 | b3;
+                        b2 = (ground_flags >> 2) & 1;
+                        group_b = b7 | b6;
+                        if ((ab | b2) != 0) {
+                            group_a = 2;
+                        } else {
+                            group_a = 0;
+                        }
+                        b5 = (ground_flags >> 5) & 1;
+                        if ((group_b | b5) != 0) {
+                            group_b = 1;
+                        } else {
+                            group_b = 0;
+                        }
+                    }
+                    if ((group_b | group_a) == 0) {
+                        idx = ext->x2C[i];
+                        do {
+                            if (idx == ext->x2C[0]) {
+                                idx = HSD_Randi(4) + 8;
+                                continue;
+                            }
+                            if (idx == ext->x2C[1]) {
+                                idx = HSD_Randi(4) + 8;
+                                continue;
+                            }
+                            if (idx == ext->x2C[2]) {
+                                idx = HSD_Randi(4) + 8;
+                                continue;
+                            }
+                            break;
+                        } while (1);
+                        grVe_804D6A34 = i;
+                        ext->x2C[i] = idx;
+                        ext->x38[i] = i + 1;
+                        ext->x20[grVe_804D6A34] =
+                            grVenom_80203EAC(2);
+                    }
+                }
+            }
+        } else {
+            grVe_804D6A38 = 0xA;
+        }
+    }
+}
 
 void grVenom_80203B14(bool arg) {}
 
