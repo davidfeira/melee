@@ -324,7 +324,44 @@ void fn_802190A0(Ground* gp, s32 joint_id, CollData* coll, s32 unk,
     }
 }
 
-/// #grPushOn_802190D0
+struct grPushOn_LightConfig {
+    /* 0x00 */ GXColor x0;
+    /* 0x04 */ Vec3 x4;
+    /* 0x10 */ f32 x10;
+    /* 0x14 */ f32 x14;
+    /* 0x18 */ s32 x18;
+};
+
+void grPushOn_802190D0(HSD_GObj* gobj)
+{
+    struct grPushOn_LightConfig* cfg =
+        (struct grPushOn_LightConfig*) ((u8*) &grPushOn_803E7B90 + 0x1C);
+    HSD_LObj* lobj = gobj->hsd_obj;
+    f32 scale = Ground_801C0498();
+    s32 i;
+
+    lobj = lobj == NULL ? NULL : lobj->next;
+    for (i = 0; i < 9 && lobj != NULL; i++) {
+        GXColor color;
+        Vec3 pos;
+
+        if ((u32) (lobj->flags & 3) != LOBJ_POINT) {
+            __assert("grpushon.c", 0x2BAU,
+                     "HSD_LObjGetType(lobj)==LOBJ_POINT");
+        }
+        lobj->flags = 6;
+        color = cfg->x0;
+        HSD_LObjSetColor(lobj, color);
+        pos = cfg->x4;
+        pos.x *= scale;
+        pos.y *= scale;
+        pos.z *= scale;
+        HSD_LObjSetPosition(lobj, &pos);
+        HSD_LObjSetDistAttn(lobj, scale * cfg->x14, cfg->x10, cfg->x18);
+        cfg++;
+        lobj = lobj == NULL ? NULL : lobj->next;
+    }
+}
 
 void grPushOn_80219204(int arg0, int* out1, int* out2)
 {

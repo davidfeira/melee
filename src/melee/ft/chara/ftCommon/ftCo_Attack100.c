@@ -1572,6 +1572,63 @@ void fn_800DA004(Fighter_GObj* gobj)
     ftCo_Fall_Enter(victim);
 }
 
+void fn_800DA054(Fighter_GObj* gobj)
+{
+    Fighter* fp;
+    Fighter* victim_fp;
+    Vec3 sp_victim;
+    Vec3 sp_attacker;
+    f32 dx;
+    f32 dy;
+    f32 facing;
+    f32 abs_dx;
+    f32 clamped;
+
+    PAD_STACK(0x40);
+
+    fp = gobj->user_data;
+    victim_fp = fp->victim_gobj->user_data;
+    if (victim_fp->x2226_b2) {
+        return;
+    }
+
+    lb_8000B1CC(fp->mv.co.capturedamage.x18, NULL, &sp_attacker);
+    lb_8000B1CC(victim_fp->parts[ftParts_GetBoneIndex(victim_fp, FtPart_XRotN)].joint,
+                NULL, &sp_victim);
+
+    facing = fp->facing_dir;
+    dx = sp_victim.x - sp_attacker.x;
+    dy = (sp_victim.y - sp_attacker.y) + fp->x2170;
+
+    if (dx * facing > p_ftCommonData->x34C) {
+        ftCo_800DA698(gobj, 1);
+        return;
+    }
+    if (dy < 0.0f) {
+        dy = -dy;
+    }
+    if (dy > p_ftCommonData->x350) {
+        ftCo_800DA698(gobj, 1);
+        return;
+    }
+    if (dx * facing < 0.0f) {
+        if (dx < 0.0f) {
+            abs_dx = -dx;
+        } else {
+            abs_dx = dx;
+        }
+        clamped = abs_dx;
+        if (abs_dx > fp->co_attrs.walk_max_vel) {
+            clamped = fp->co_attrs.walk_max_vel;
+        }
+        if (dx > 0.0f) {
+            fp->gr_vel = clamped;
+        } else {
+            fp->gr_vel = -clamped;
+        }
+    }
+}
+
 void fn_800DA190(Fighter_GObj* gobj)
 {
     Fighter* fp = GET_FIGHTER(gobj);
