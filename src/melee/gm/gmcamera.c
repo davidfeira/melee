@@ -178,6 +178,7 @@ HSD_Text* gmCamera_801A2334(s32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4)
     return text;
 }
 
+#pragma dont_inline on
 void gmCamera_801A253C(s32* arg0, s32* arg1)
 {
     gmCameraUnkStruct* gcus = &gmCamera_80479BC8.gcus;
@@ -214,6 +215,7 @@ s32 gmCamera_801A2640(void)
 {
     return M2C_FIELD(&gmCamera_80479BC8, s32*, 0x54);
 }
+#pragma dont_inline reset
 
 #pragma dont_inline on
 void gmCamera_801A2650(void)
@@ -419,14 +421,56 @@ void fn_801A31D8(HSD_GObj* gobj)
 
 /// #gmCamera_801A31FC
 
-static void gmCamera_801A25C8_no_inline(void)
+void gmCamera_801A33BC(void)
 {
-    gmCamera_801A25C8();
-}
+    HSD_Text* text;
+    s32 sp10;
+    s32 spC;
 
-static void gmCamera_801A253C_no_inline(s32* arg0, s32* arg1)
-{
-    gmCamera_801A253C(arg0, arg1);
+    gmCamera_801A25C8();
+    gmCamera_80479C20.slot_a = gmCamera_801A2334(0, gmCamera_803DA758[2],
+                                                 gmCamera_803DA758[3],
+                                                 gmCamera_803DA758[0],
+                                                 gmCamera_803DA758[1]);
+    gmCamera_80479C20.slot_b = gmCamera_801A2334(1, gmCamera_803DA758[6],
+                                                 gmCamera_803DA758[7],
+                                                 gmCamera_803DA758[4],
+                                                 gmCamera_803DA758[5]);
+    gmCamera_801A253C(&sp10, &spC);
+    text = HSD_SisLib_803A5ACC(3, gmCamera_801A2640(),
+                               gmCamera_803DA758[10], gmCamera_803DA758[11],
+                               0.0f, 914.2857f, 64.0f);
+    gmCamera_80479C20.bottom_text = text;
+    text->default_alignment = 1;
+    text->default_kerning = 1;
+    text->default_fitting = 1;
+    {
+        f32 fy = gmCamera_803DA758[9];
+        f32 fx = gmCamera_803DA758[8];
+        text->font_size.x = fx;
+        text->font_size.y = fy;
+    }
+    HSD_SisLib_803A6368(text, 0x15);
+    if (sp10 == 2) {
+        goto label_13;
+    }
+    if (sp10 >= 2) {
+        goto label_14;
+    }
+    if (sp10 >= 0) {
+        goto label_11;
+    }
+    goto label_14;
+label_11:
+    HSD_SisLib_803A6530(3, 0x15, 0x11);
+    gmCamera_801A2224((u8*) spC, spC);
+    HSD_SisLib_803A660C(3, 0x15, 0x12);
+    return;
+label_13:
+    HSD_SisLib_803A6530(3, 0x15, 0x13);
+    return;
+label_14:
+    HSD_SisLib_803A6530(3, 0x15, 0x14);
 }
 
 void gmCamera_801A34FC_OnFrame(void)
