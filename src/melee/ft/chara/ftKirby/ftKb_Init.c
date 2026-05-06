@@ -72,6 +72,7 @@
 #include "lb/lb_00B0.h"
 #include "lb/lbanim.h"
 #include "lb/lbarchive.h"
+#include "lb/lbdvd.h"
 #include "lb/lbvector.h"
 #include "mp/mpcoll.h"
 #include "mp/mplib.h"
@@ -3270,7 +3271,33 @@ char* ftKb_Init_GetMotionFileString(enum_t arg0)
     return ftKb_Init_803CA5A4[offset - 14];
 }
 
-/// #ftKb_SpecialN_800EEC34
+void ftKb_SpecialN_800EEC34(int arg0, int arg1, int arg2)
+{
+    int i;
+    int lo;
+
+    if (ftKb_Init_803CA9D0[arg0].filename != NULL) {
+        lbDvd_800178E8(2, ftKb_Init_803CA9D0[arg0].filename, 4, 4, 0, 1, 3, 1,
+                       0);
+    }
+    if (ftKb_Init_803CB3E8[arg0] != NULL) {
+        if (arg1 == 0xFF) {
+            lo = 0;
+        } else {
+            lo = arg1;
+            arg2 = arg1 + 1;
+        }
+        for (i = lo; i < arg2; i++) {
+            if (ftKb_Init_803CB3E8[arg0][i].dat_filename != NULL) {
+                lbDvd_800178E8(2, ftKb_Init_803CB3E8[arg0][i].dat_filename, 4,
+                               4, 0, 1, 3, 1, 0);
+            }
+        }
+    }
+    if (ftKb_Init_803CB46C[arg0] != -1) {
+        efAsync_LoadAsync(ftKb_Init_803CB46C[arg0]);
+    }
+}
 
 void ftKb_SpecialN_800EED50(s32 arg0, s32 arg1)
 {
@@ -4030,7 +4057,32 @@ void ftKb_SpecialN_800F11AC(Fighter_GObj* gobj)
     ftCo_UnloadDynamicBones(fp);
 }
 
-/// #ftKb_SpecialN_800F11F0
+#pragma push
+#pragma dont_inline on
+void ftKb_SpecialN_800F11F0(Fighter_GObj* gobj)
+{
+    u8 sp14[0x90];
+    Fighter* fp = fp = gobj->user_data;
+    KirbyHatStruct* temp_r28;
+    PAD_STACK(8);
+    if (fp->fv.kb.hat.x14.data != NULL) {
+        return;
+    }
+    temp_r28 = ft_80459B88.hats[15];
+    ftKb_SpecialN_800EF040(gobj, 0x10, temp_r28);
+    fp->fv.kb.hat.x14.data = HSD_ObjAlloc(&fighter_x2040_alloc_data);
+    fp->fv.kb.hat.x1C.data = HSD_ObjAlloc(&fighter_x2040_alloc_data);
+    ftKb_SpecialN_800EF0E4(gobj, 0x10, sp14);
+    ftKb_SpecialN_800EF35C(gobj, 0x10, sp14);
+    ftKb_SpecialN_800EF438(gobj, temp_r28);
+    ftParts_8007487C((FtPartsDesc*) temp_r28, &fp->fv.kb.hat.x24,
+                     fp->x619_costume_id, &fp->fv.kb.hat.x14,
+                     &fp->fv.kb.hat.x1C);
+    ftAnim_80070200(fp, (ftData_x8_x8*) &temp_r28->desc.vis_table,
+                    &fp->fv.kb.x44, &fp->fv.kb.hat.x14);
+    ftCo_8009DB50(fp);
+}
+#pragma pop
 
 void ftKb_SpecialN_800F12C8(Fighter_GObj* gobj)
 {
