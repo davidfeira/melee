@@ -67,10 +67,27 @@ git commit -m "..."
 # 4. Push to the fork (NOT origin)
 git push fork claude/<topic>
 
-# 5. Open the PR (gh CLI auto-detects the fork relationship)
+# 5. PREVIEW PR on the fork itself, against fork's master
+#    Sync fork/master to upstream first so the diff is clean:
+git push fork upstream/master:master
+gh pr create --repo davidfeira/melee --base master \
+    --head claude/<topic> --title "..." --body-file tmp_pr_body.md
+
+# 6. Iterate on the fork preview if needed.
+#    All review/CI-style fixes happen here so we don't spam upstream
+#    with iteration noise. Push more commits to claude/<topic>; the
+#    preview PR auto-updates.
+
+# 7. When ready, close the preview and file the real PR upstream:
+gh pr close <preview-num> --repo davidfeira/melee \
+    --comment "Preview only — superseded by upstream PR."
 gh pr create --repo doldecomp/melee --base master \
-    --head davidfeira:claude/<topic> --title "..." --body "..."
+    --head davidfeira:claude/<topic> --title "..." --body-file tmp_pr_body.md
 ```
+
+**Why preview on the fork first:** upstream's CI runs on every push to a PR branch. Iterating fixes (CI green-keeping, regression chasing, body edits) directly on an upstream PR creates noise in `doldecomp/melee`'s notification feed and bloats its action-runner usage. The fork has its own CI that runs the same jobs against the same branch — use that for iteration, then file the real PR only once it's clean.
+
+**Sync `fork/master` to `upstream/master` only via fast-forward:** `git push fork upstream/master:master` is the only safe way to update the fork's master. Never push our `origin/master` (which has private tooling) to `fork/master` — that's the leak this whole topology is designed to prevent.
 
 ## What NOT to do
 
