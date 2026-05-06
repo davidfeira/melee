@@ -185,7 +185,63 @@ void grHeal_8021F178(Ground_GObj* gobj) {}
 
 void grHeal_8021F17C(Ground_GObj* gobj) {}
 
-/// #grHeal_8021F180
+extern Vec3 grHeal_803B84A8;
+
+void grHeal_8021F180(Ground_GObj* gobj)
+{
+    Ground* gp;
+    Vec3 sp94;
+    u8 sp90[8];
+    HSD_JObj* sp84;
+    HSD_JObj* sp88;
+    HSD_JObj* sp8C;
+    HSD_JObj* sp18[0x1A];
+    s32 i;
+    s32 count;
+    s32 tmp;
+
+    gp = gobj->user_data;
+    grAnime_801C8138(gobj, gp->map_id, 0);
+
+    if ((gm_80473A18._94[0] % ((s32*) grHeal_804D6AF0)[1]) == 0) {
+        sp94 = grHeal_803B84A8;
+        Ground_801C2D24(0xDC, &sp94);
+        tmp = Ground_801C5840();
+        if (tmp != -1) {
+            it_802F2094(NULL, &sp94, tmp, 0);
+            un_80304A58(tmp);
+        }
+    }
+
+    count = 0;
+    if ((s32) gm_80473A18._94[1] > 0) {
+        for (; count < (s32) gm_80473A18._94[1]; count++) {
+            sp90[count] = ((u8*) &gm_80473A18._94[2])[count];
+        }
+    }
+
+    sp84 = Ground_801C3FA4(gobj, 0x3A);
+    sp88 = Ground_801C3FA4(gobj, 0x3B);
+    sp8C = Ground_801C3FA4(gobj, 0x3C);
+    for (i = 0; i < count; i++) {
+        grHeal_8021F4E8(grHeal_8021F70C(sp90[i]), (&sp84)[i]);
+    }
+
+    for (i = 0; i < 0x1A; i++) {
+        sp18[i] = Ground_801C3FA4(gobj, ((s16*) grHeal_803E83B8)[i * 2]);
+    }
+
+    for (i = 0; i < 0x1A; i++) {
+        u8 c = gm_80473A18.x76[i];
+        if (c != 0x21) {
+            grHeal_8021F628(grHeal_8021F70C(c), sp18[i]);
+        }
+    }
+
+    mpJointSetCb1(0, gp,
+                  (mpLib_Callback) fn_8021F4C0);
+    gp->gv.unk.xC4 = 0;
+}
 
 bool grHeal_8021F41C(Ground_GObj* gobj)
 {
