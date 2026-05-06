@@ -2123,7 +2123,65 @@ bool gm_80164ABC(void)
     return true;
 }
 
-/// #fn_80164B48
+bool fn_80164B48(void)
+{
+    u16* p;
+    u8 var_r0;
+    bool ok;
+
+    p = gmMainLib_8015ED8C();
+    var_r0 = fn_801605EC(lbl_803B78A4[22]);
+    ok = (var_r0 == NUM_UNLOCKABLE_CHARACTERS) || (*p & (1LL << var_r0));
+    if (!ok) {
+        return 0;
+    }
+    p = gmMainLib_8015ED8C();
+    var_r0 = fn_801605EC(lbl_803B78A4[25]);
+    ok = false;
+    if (var_r0 == NUM_UNLOCKABLE_CHARACTERS || (*p & (1LL << var_r0))) {
+        ok = true;
+    }
+    if (!ok) {
+        return 0;
+    }
+    p = gmMainLib_8015ED8C();
+    var_r0 = fn_801605EC(lbl_803B78A4[21]);
+    ok = false;
+    if (var_r0 == NUM_UNLOCKABLE_CHARACTERS || (*p & (1LL << var_r0))) {
+        ok = true;
+    }
+    if (!ok) {
+        return 0;
+    }
+    p = gmMainLib_8015ED8C();
+    var_r0 = fn_801605EC(lbl_803B78A4[20]);
+    ok = false;
+    if (var_r0 == NUM_UNLOCKABLE_CHARACTERS || (*p & (1LL << var_r0))) {
+        ok = true;
+    }
+    if (!ok) {
+        return 0;
+    }
+    p = gmMainLib_8015ED8C();
+    var_r0 = fn_801605EC(lbl_803B78A4[24]);
+    ok = false;
+    if (var_r0 == NUM_UNLOCKABLE_CHARACTERS || (*p & (1LL << var_r0))) {
+        ok = true;
+    }
+    if (!ok) {
+        return 0;
+    }
+    p = gmMainLib_8015ED8C();
+    var_r0 = fn_801605EC(lbl_803B78A4[23]);
+    ok = false;
+    if (var_r0 == NUM_UNLOCKABLE_CHARACTERS || (*p & (1LL << var_r0))) {
+        ok = true;
+    }
+    if (!ok) {
+        return 0;
+    }
+    return 1;
+}
 
 void gm_80164F18(void)
 {
