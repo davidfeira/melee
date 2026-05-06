@@ -14,6 +14,7 @@
 
 #include "ft/ft_081B.h"
 #include "ft/ft_0892.h"
+#include "ft/ft_0D27.h"
 #include "ft/ftcommon.h"
 #include "ft/inlines.h"
 #include "ft/types.h"
@@ -21,6 +22,7 @@
 #include "ftCommon/forward.h"
 
 #include "ftCommon/ftCo_CaptureCut.h"
+#include "ftCommon/ftCo_ItemScrew.h"
 #include "ftCommon/ftCo_ItemThrow.h"
 #include "ftCommon/ftCo_Throw.h"
 #include "ftCommon/types.h"
@@ -452,6 +454,59 @@ bool ftCo_800D72A0(Fighter* fp)
             fp->motion_id < fp->x2D0->x30 + fp->x2D0->x28) {
             return true;
         }
+    }
+    return false;
+}
+
+bool ftCo_800D730C(Fighter_GObj* gobj, bool arg1)
+{
+    extern f32 ftCo_804D9018;
+    Vec3 vel;
+    Fighter* fp;
+    struct Fighter_x2D0_t* p;
+    int can_jump;
+    int allow;
+    int input_ok;
+    PAD_STACK(0x14);
+
+    fp = gobj->user_data;
+    p = fp->x2D0;
+    if (fp->motion_id == 0x9B) {
+        if (ft_did_jump(fp, arg1)) {
+            ftCo_800D74A4(gobj);
+            return true;
+        }
+        return false;
+    }
+    if (fp->x1968_jumpsUsed == 1) {
+        if (ft_did_jump(fp, arg1)) {
+            if (ft_800D2D0C(gobj)) {
+                vel.x = fp->input.lstick.x * p->x8;
+                vel.y = p->x14[0];
+                vel.z = ftCo_804D9018;
+                ft_800D2E7C(gobj, &vel);
+            } else {
+                ftCommon_8007D5D4(fp);
+                ftCo_800D74A4(gobj);
+            }
+            return true;
+        }
+        return false;
+    }
+    allow = 1;
+    can_jump = fp->x1968_jumpsUsed < fp->co_attrs.max_jumps;
+    if (ftCo_800D72A0(fp) && fp->cmd_vars[0] == 0) {
+        allow = 0;
+    }
+    input_ok = 1;
+    if (!(fp->input.lstick.y >= p_ftCommonData->tap_jump_threshold) &&
+        !(fp->input.held_inputs & HSD_PAD_XY))
+    {
+        input_ok = 0;
+    }
+    if (can_jump && allow && input_ok) {
+        ftCo_800D74A4(gobj);
+        return true;
     }
     return false;
 }
