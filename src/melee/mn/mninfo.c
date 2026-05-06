@@ -8,10 +8,13 @@
 #include "lb/lblanguage.h"
 #include "mn/mnmain.h"
 
+#include <sysdolphin/baselib/debug.h>
 #include <sysdolphin/baselib/gobj.h>
 #include <sysdolphin/baselib/gobjplink.h>
 #include <sysdolphin/baselib/gobjproc.h>
+#include <sysdolphin/baselib/gobjuserdata.h>
 #include <sysdolphin/baselib/jobj.h>
+#include <sysdolphin/baselib/memory.h>
 #include <sysdolphin/baselib/sislib.h>
 
 s32 mnInfo_80251A08(s32 arg0)
@@ -75,6 +78,9 @@ void mnInfo_80251F04(HSD_GObj* gobj, u32 idx, u32 arg2)
 }
 
 /// #fn_80251FE4
+
+extern void* mnInfo_804A0958[4];
+extern HSD_GObj* mnInfo_804D6C78;
 
 static AnimLoopSettings mnInfo_803EFC08[0x12] = {
     { 0.0f, 199.0f, 0.0f },
@@ -204,4 +210,48 @@ void mnInfo_80252720(MnInfoData* data)
     data->right_column[3] = NULL;
 }
 
-/// #mnInfo_80252758
+void mnInfo_80252758(void)
+{
+    HSD_GObj* gobj;
+    MnInfoData* data;
+    HSD_GObjProc* proc;
+    HSD_Text* text;
+
+    mn_804D6BC8.cooldown = 5;
+    mn_804A04F0.prev_menu = mn_804A04F0.cur_menu;
+    mn_804A04F0.cur_menu = 0x1D;
+    mn_804A04F0.hovered_selection = 0;
+
+    lbArchive_LoadSections(
+        mn_804D6BB8, &mnInfo_804A0958[0], "MenMainConCo_Top_joint",
+        &mnInfo_804A0958[1], "MenMainConCo_Top_animjoint",
+        &mnInfo_804A0958[2], "MenMainConCo_Top_matanim_joint",
+        &mnInfo_804A0958[3], "MenMainConCo_Top_shapeanim_joint", 0);
+
+    mnInfo_80251AFC();
+
+    gobj = GObj_Create(6, 7, 0x80);
+    mnInfo_804D6C78 = gobj;
+
+    data = HSD_MemAlloc(sizeof(MnInfoData));
+    HSD_ASSERTREPORT(0x267, data, "Can't get user_data.\n");
+    mnInfo_80252720(data);
+    GObj_InitUserData(gobj, 0, HSD_Free, data);
+
+    proc = HSD_GObj_SetupProc(gobj, (HSD_GObjEvent) fn_80252548, 0);
+    proc->flags_3 = HSD_GObj_804D783C;
+
+    data = gobj->user_data;
+    if (data->description != NULL) {
+        HSD_SisLib_803A5CC4(data->description);
+    }
+    text = HSD_SisLib_803A5ACC(0, 1, -9.5f, 9.1f, 17.0f, 364.68332f, 38.38772f);
+    data->description = text;
+    text->font_size.x = 0.0521f;
+    text->font_size.y = 0.0521f;
+    HSD_SisLib_803A6368(text, 0xA3);
+
+    proc = HSD_GObj_SetupProc(GObj_Create(0, 1, 0x80),
+                              (HSD_GObjEvent) fn_80251FE4, 0);
+    proc->flags_3 = HSD_GObj_804D783C;
+}
