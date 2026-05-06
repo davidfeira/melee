@@ -4781,7 +4781,79 @@ static void ftCo_800AE7AC(Fighter* fp, Vec3* arg1, int arg2)
     ftCo_800ADE48(fp);
 }
 
-/// #ftCo_800AEA8C
+static void ftCo_800AEA8C(Fighter* fp)
+{
+    struct Fighter_x1A88_t* data = &fp->x1A88;
+    Vec3 sp28;
+    Vec3 sp34;
+    int sp40;
+    u32 sp44;
+    Item* item;
+    s32 var_r28;
+    s32 var_r29;
+    s32 ret;
+    f32 cur_x;
+    f32 cur_y;
+
+    var_r29 = 0;
+    var_r28 = 1;
+
+    data->xF8_b0 = false;
+    data->xF9_b2 = true;
+    data->xF9_b4 = true;
+    data->xF9_b3 = false;
+    data->xF9_b5 = true;
+    data->xF9_b6 = true;
+    data->xF9_b7 = true;
+    data->xF9_b1 = false;
+
+    fp->x1A88.x44 = ftCo_800A4BEC(fp);
+
+    if (fp->item_gobj != NULL) {
+        item = GET_ITEM(fp->item_gobj);
+        if (item->kind == It_Kind_Heart) {
+        } else if (item->kind == It_Kind_Tomato) {
+        } else if (item->kind == It_Kind_Foods) {
+        } else {
+            var_r28 = var_r29;
+        }
+        if (var_r28 == 0) {
+            data->x4C = NULL;
+        } else {
+            goto block_check_held;
+        }
+    } else {
+    block_check_held:
+        if (fp->x2168 != 0) {
+            data->x4C = NULL;
+        } else {
+            data->x4C = ftCo_800A5F4C(fp, It_Kind_L_Gun_Ray);
+        }
+    }
+
+    fp->x1A88.x50 = ftCo_800A648C(fp);
+
+    if (inlineI1(data)) {
+        cur_x = fp->cur_pos.x;
+        cur_y = fp->cur_pos.y;
+        var_r28 = 0;
+        sp40 = -1;
+        ret = mpCheckFloor(cur_x, cur_y + 10.0f, cur_x, cur_y - 1000.0f, 0.0f,
+                           &sp28, &sp40, &sp44, &sp34, -1, -1, -1, NULL, NULL);
+        if (ret != 0 && ftCo_800A1B38(sp40) != 0) {
+        } else {
+            var_r28 = ret;
+        }
+        if (var_r28 != 0 && data->x60 == 0) {
+            data->x54.x = sp28.x;
+            data->x54.y = sp28.y;
+            data->x38 = 5.0f;
+            ftCo_800A1CC4(fp, ftCo_803C6594[stage_info.internal_stage_id]);
+        }
+    }
+
+    ftCo_800ADE48(fp);
+}
 
 /// #ftCo_800AECF0
 
