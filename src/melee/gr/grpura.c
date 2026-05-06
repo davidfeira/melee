@@ -386,7 +386,23 @@ void grPura_80212EF4(HSD_GObj* arg0)
     } while (i < 25);
 }
 
-/// #grPura_80212FC0
+void grPura_80212FC0(Ground_GObj* arg0)
+{
+    u16* var_r31 = &grPu_803E6C0C[0];
+    u32 var_r30 = 0;
+    HSD_GObj* temp_r3;
+
+    do {
+        if (M2C_FIELD(var_r31, s16*, 0) != -1) {
+            temp_r3 = Ground_801C2BA4(M2C_FIELD(var_r31, s16*, 2));
+            if (temp_r3 != NULL) {
+                M2C_FIELD(var_r31, HSD_JObj**, 8) = Ground_801C3FA4(temp_r3, M2C_FIELD(var_r31, s16*, 4));
+            }
+        }
+        var_r30 += 1;
+        var_r31 += 6;
+    } while (var_r30 < 0x2A);
+}
 
 void grPura_80213030(Ground_GObj* arg0)
 {
