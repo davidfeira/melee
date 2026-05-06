@@ -3,6 +3,8 @@
 #include "gm_unsplit.h"
 #include "gmtitle.h"
 
+#include <sysdolphin/baselib/cobj.h>
+#include <sysdolphin/baselib/gobj.h>
 #include <sysdolphin/baselib/gobjgxlink.h>
 #include <sysdolphin/baselib/gobjobject.h>
 #include <sysdolphin/baselib/gobjplink.h>
@@ -27,7 +29,53 @@ static struct {
 
 static PerfLabelLine gm_80480B38[4];
 
-/// #gm_801A9DD0
+static const Vec3 gm_803B7D68 = { 0.0f, 1600.0f, 400.0f };
+static const Vec3 gm_803B7D74 = { 0.0f, 1330.0f, 130.0f };
+
+void gm_801A9DD0(HSD_GObj* gobj, u16 width, int height, int prio, int use_offset)
+{
+    Vec3 eye;
+    Vec3 interest;
+    HSD_RectS16 viewport;
+    Scissor scissor;
+    HSD_CObj* cobj;
+    f32 zero = 0.0f;
+    f32 two = 2.0f;
+    f32 neg_h = (f32) -(s32) (u16) height;
+    f32 left = zero;
+    f32 right = (f32) (u32) width;
+
+    eye = gm_803B7D68;
+    interest = gm_803B7D74;
+
+    if (use_offset != 0) {
+        s32 half = (s32) ((s32) ((u16) width - 0x248) / 2);
+        left = (f32) half;
+        right = (f32) (half + 0x248);
+    }
+
+    viewport.xmin = 0;
+    scissor.left = 0;
+    viewport.xmax = width;
+    scissor.right = width;
+    viewport.ymin = 0;
+    scissor.top = 0;
+    viewport.ymax = height;
+    scissor.bottom = height;
+
+    cobj = HSD_CObjAlloc();
+    HSD_CObjSetProjectionType(cobj, PROJ_ORTHO);
+    HSD_CObjSetViewport(cobj, &viewport);
+    HSD_CObjSetScissor(cobj, &scissor);
+    HSD_CObjSetEyePosition(cobj, &eye);
+    HSD_CObjSetInterest(cobj, &interest);
+    HSD_CObjSetRoll(cobj, zero);
+    HSD_CObjSetNear(cobj, zero);
+    HSD_CObjSetFar(cobj, two);
+    HSD_CObjSetOrtho(cobj, zero, neg_h, left, right);
+    HSD_GObjObject_80390A70(gobj, HSD_GObj_804D784B, cobj);
+    GObj_SetupGXLinkMax(gobj, HSD_SObjLib_803A54EC, prio);
+}
 
 void* fn_801A9FCC(void)
 {

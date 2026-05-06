@@ -33,7 +33,7 @@ typedef struct {
     f32 x18;
     f32 x1C;
     f32 x20;
-    u8 pad_24[4];
+    f32 x24;
     void* x28;
 } RouteEntry;
 
