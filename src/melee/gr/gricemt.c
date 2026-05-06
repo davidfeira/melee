@@ -459,13 +459,24 @@ void grIceMt_801F7728(Ground_GObj* gobj)
 
 void grIceMt_801F77AC(Ground_GObj* arg0) {}
 
+extern s16 grIm_803E4544[218];
+
 /// #fn_801F77B0
 void fn_801F77B0(HSD_GObj* arg0)
 {
     Ground* gp = GET_GROUND(arg0);
-    // 803E4544
-    // mpJointGetCb1();
-    mpJointSetCb1(4, gp, grIceMt_801FA7F0);
+    u32 i;
+    mpLib_Callback cb;
+    Ground* gp_out;
+
+    ((UnkFlagStruct*) &gp->gv.icemt.xD8)->b0 = 0;
+
+    for (i = 0; i < 0xD9; i++) {
+        mpJointGetCb1(grIm_803E4544[i], &cb, &gp_out);
+        if (cb == NULL) {
+            mpJointSetCb1(grIm_803E4544[i], gp, grIceMt_801FA7F0);
+        }
+    }
 }
 
 /// #grIceMt_801F785C
@@ -996,9 +1007,19 @@ void grIceMt_801F91EC(HSD_GObj* param_1, s16* param_2, int param_3,
 /// #grIceMt_801F929C
 void grIceMt_801F929C(HSD_GObj* arg0, void* arg1)
 {
-    mpLib_80057BC0(2);
-    mpJointListAdd(2);
-    grAnime_801C83D0(arg0, 2, 7);
+    s16* p = arg1;
+
+    if (p[0] != 0) {
+        p[1] += 1;
+        if (p[1] == p[5]) {
+            mpLib_80057BC0(p[4]);
+        } else if (p[1] == p[6]) {
+            mpJointListAdd(p[4]);
+        }
+        if (grAnime_801C83D0(arg0, p[2], 7)) {
+            p[0] = 0;
+        }
+    }
 }
 
 /// #fn_801F9338
