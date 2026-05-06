@@ -4750,4 +4750,28 @@ int gm_8016A998(s8 arg0, s8 arg1)
 
 /// #gm_8016A9E8
 
-/// #gm_8016AC44
+int gm_8016AC44(s8 ckind, s8 costume_id)
+{
+    int i;
+    int found;
+    struct lbl_8046B668_t* ptr = &lbl_8046B668;
+
+    if (gm_8016AE50()->x58 != NULL) {
+        found = -1;
+        for (i = 0; i < 27; i++) {
+            if (ptr->arr2[i] == -2) {
+                found = i;
+                break;
+            }
+        }
+        if (found != -1) {
+            for (i = found; i >= 0; i--) {
+                if (ptr->arr2[i] == costume_id && ptr->arr1[i] == ckind) {
+                    ptr->arr2[i] = -1;
+                    return 1;
+                }
+            }
+        }
+    }
+    return 0;
+}
