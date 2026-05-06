@@ -1,9 +1,15 @@
 #include "mnmainrule.h"
 
+#include "inlines.h"
 #include "mnmain.h"
+#include "mncharsel.h"
+#include "mnitemsw.h"
+#include "mnruleplus.h"
 
 #include "mn/types.h"
 
+#include "gm/gm_18A5.h"
+#include "gm/gm_1A36.h"
 #include "gm/gm_1A3F.h"
 
 #include <sysdolphin/baselib/gobj.h>
@@ -41,7 +47,242 @@ extern StaticModelDesc MenMainCursorIs_Top;
 extern StaticModelDesc MenMainConSs_Top;
 extern StaticModelDesc MenMainCursorSs_Top;
 
-/// #fn_8022F538
+struct mn_8022F538_panel_t {
+    /* 0x00 */ u8 pad0[0x2];
+    /* 0x02 */ u8 unk2;
+    /* 0x03 */ u8 unk3;
+    /* 0x04 */ u8 unk4;
+    /* 0x05 */ u8 unk5;
+    /* 0x06 */ u8 unk6;
+    /* 0x07 */ u8 pad7[2];
+    /* 0x09 */ u8 unk9;
+};
+
+struct mn_803EC600_t {
+    /* 0x000 */ u8 pad0[0x134];
+    /* 0x134 */ AnimLoopSettings array_134[5];
+    /* 0x170 */ AnimLoopSettings array_170[9];
+    /* 0x1DC */ u8 array_1DC[0x3C];
+};
+
+extern u8 mn_804D4B94[2];
+extern HSD_GObj* mn_804D6BD0;
+extern s32 mn_804D6BD4;
+extern struct mn_803EC600_t mn_803EC600;
+
+static inline void fn_8022F538_copy_rules(void)
+{
+    struct mn_8022F538_panel_t* p =
+        (struct mn_8022F538_panel_t*) ((MainMenuPanelData*) mn_804D6BD0
+                                           ->user_data);
+    GameRules* rules = gmMainLib_8015CC34();
+    rules->mode = p->unk2;
+    rules->time_limit = p->unk3;
+    rules->handicap = p->unk4;
+    rules->damage_ratio = p->unk5;
+    rules->unk_x7 = p->unk6;
+    rules->stock_count = p->unk9;
+}
+
+void fn_8022F538(HSD_GObj* gobj)
+{
+    struct mn_8022F538_panel_t* panel =
+        (struct mn_8022F538_panel_t*) ((MainMenuPanelData*) mn_804D6BD0
+                                           ->user_data);
+    u32 buttons;
+    u8* limits;
+    u8 sel;
+    s32 done;
+
+    buttons = Menu_GetAllInputs();
+
+    if (buttons & MenuInput_AButton) {
+        if (mn_804A04F0.hovered_selection == 5 ||
+            mn_804A04F0.hovered_selection == 6)
+        {
+            sfxForward();
+            mn_804A04F0.entering_menu = 1;
+            mn_804D6BC8.cooldown = 5;
+            switch (mn_804A04F0.hovered_selection) {
+            case 5:
+                mnItemSw_802358C0();
+                HSD_GObjPLink_80390228(gobj);
+                break;
+            case 6:
+                mn_802339FC();
+                HSD_GObjPLink_80390228(gobj);
+                break;
+            }
+            fn_8022F538_copy_rules();
+            return;
+        }
+    } else if (buttons & MenuInput_StartButton) {
+        sfxForward();
+        if (gm_801A4310() == 1) {
+            fn_8022F538_copy_rules();
+            mn_80229860(2);
+            return;
+        }
+        fn_8022F538_copy_rules();
+        if ((u8) gm_801A4310() == 0x1B) {
+            HSD_SisLib_803A5E70();
+            mn_8022EBDC();
+            gm_80190EA4();
+            return;
+        }
+        if ((u8) gm_801A4310() == 1) {
+            mn_80229894(2, 3, 3);
+            return;
+        }
+        HSD_SisLib_803A5E70();
+        mn_8022EBDC();
+        mnCharSel_802640A0();
+        return;
+    }
+
+    if (buttons & MenuInput_Back) {
+        sfxBack();
+        mn_804A04F0.entering_menu = 0;
+        fn_8022F538_copy_rules();
+        if ((u8) gm_801A4310() == 0x1B) {
+            HSD_SisLib_803A5E70();
+            mn_8022EBDC();
+            gm_80190EA4();
+            return;
+        }
+        if ((u8) gm_801A4310() == 1) {
+            mn_80229894(2, 3, 3);
+            return;
+        }
+        HSD_SisLib_803A5E70();
+        mn_8022EBDC();
+        mnCharSel_802640A0();
+        return;
+    }
+
+    if (buttons & MenuInput_Up) {
+        sfxMove();
+        do {
+            if ((s32) mn_804A04F0.hovered_selection == 0) {
+                mn_804A04F0.hovered_selection = 6;
+            } else {
+                mn_804A04F0.hovered_selection -= 1;
+            }
+            sel = mn_804A04F0.hovered_selection;
+            if ((u8) gm_801A4310() == 0x1B && sel == 4) {
+                done = 0;
+            } else {
+                done = 1;
+            }
+        } while (done == 0);
+        if (mn_804A04F0.hovered_selection == 1 && panel->unk2 == 1) {
+            mn_804A04F0.confirmed_selection = panel->unk9;
+            return;
+        }
+        mn_804A04F0.confirmed_selection =
+            ((u8*) panel)[mn_804A04F0.hovered_selection + 2];
+        return;
+    }
+
+    if (buttons & MenuInput_Down) {
+        sfxMove();
+        do {
+            if ((s32) mn_804A04F0.hovered_selection == 6) {
+                mn_804A04F0.hovered_selection = 0;
+            } else {
+                mn_804A04F0.hovered_selection += 1;
+            }
+            sel = mn_804A04F0.hovered_selection;
+            if ((u8) gm_801A4310() == 0x1B && sel == 4) {
+                done = 0;
+            } else {
+                done = 1;
+            }
+        } while (done == 0);
+        if (mn_804A04F0.hovered_selection == 1 && panel->unk2 == 1) {
+            mn_804A04F0.confirmed_selection = panel->unk9;
+            return;
+        }
+        mn_804A04F0.confirmed_selection =
+            ((u8*) panel)[mn_804A04F0.hovered_selection + 2];
+        return;
+    }
+
+    switch (mn_804A04F0.hovered_selection) {
+    case 5:
+    case 6:
+        return;
+    case 1:
+        if (panel->unk2 == 1) {
+            limits = mn_804D4B94;
+            break;
+        }
+        /* fallthrough */
+    default:
+        limits =
+            &mn_803EC600.array_1DC[mn_804A04F0.hovered_selection * 2];
+        break;
+    }
+
+    if (buttons & MenuInput_Left) {
+        sfxMove();
+        if (mn_804A04F0.confirmed_selection > limits[0]) {
+            mn_804A04F0.confirmed_selection -= 1;
+            if (mn_804A04F0.confirmed_selection == limits[0] &&
+                mn_804A04F0.hovered_selection == 1)
+            {
+                gm_801A36E0(4, 0x19);
+            }
+        } else {
+            mn_804A04F0.confirmed_selection = limits[1];
+        }
+        if (mn_804D6BD4 == 0 && mn_804A04F0.hovered_selection == 2 &&
+            mn_804A04F0.confirmed_selection == 1)
+        {
+            mn_804A04F0.confirmed_selection = 0;
+        }
+        if ((u8) gm_801A4310() == 0x1B && mn_804A04F0.hovered_selection == 1 &&
+            panel->unk2 != 1 && mn_804A04F0.confirmed_selection == limits[0])
+        {
+            mn_804A04F0.confirmed_selection = limits[1];
+        }
+        if (mn_804A04F0.hovered_selection == 2) {
+            gmMainLib_8015EA80();
+            mnCharSel_80264070();
+        }
+        return;
+    }
+
+    if (buttons & MenuInput_Right) {
+        sfxMove();
+        if (mn_804A04F0.confirmed_selection < limits[1]) {
+            mn_804A04F0.confirmed_selection += 1;
+            if (mn_804A04F0.confirmed_selection == limits[1] &&
+                mn_804A04F0.hovered_selection == 1)
+            {
+                gm_801A36E0(4, 0x19);
+            }
+        } else {
+            mn_804A04F0.confirmed_selection = limits[0];
+        }
+        if (mn_804D6BD4 == 0 && mn_804A04F0.hovered_selection == 2 &&
+            mn_804A04F0.confirmed_selection == 1)
+        {
+            mn_804A04F0.confirmed_selection = 2;
+        }
+        if ((u8) gm_801A4310() == 0x1B && mn_804A04F0.hovered_selection == 1 &&
+            panel->unk2 != 1 &&
+            mn_804A04F0.confirmed_selection == limits[0])
+        {
+            mn_804A04F0.confirmed_selection = limits[0] + 1;
+        }
+        if (mn_804A04F0.hovered_selection == 2) {
+            gmMainLib_8015EA80();
+            mnCharSel_80264070();
+        }
+        return;
+    }
+}
 
 struct mn_8022FB88_t {
     /* 0x000 */ u8 pad0[0x58];
@@ -55,15 +296,6 @@ extern u32 mn_804DBDFC;
 extern f32 mn_804D4B90;
 extern f32 mn_804D6BD8;
 extern f32 mn_804DBE00;
-extern HSD_GObj* mn_804D6BD0;
-
-struct mn_803EC600_t {
-    /* 0x000 */ u8 pad0[0x134];
-    /* 0x134 */ AnimLoopSettings array_134[5];
-    /* 0x170 */ AnimLoopSettings array_170[9];
-    /* 0x1DC */ u8 array_1DC[0x3C];
-};
-extern struct mn_803EC600_t mn_803EC600;
 
 void mn_8022FB88(u8 arg0, struct mn_8022FB88_t* arg1)
 {
