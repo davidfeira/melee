@@ -455,7 +455,8 @@ void grIceMt_801F7728(Ground_GObj* gobj)
     u32 unused2;
     Ground* gp = gobj->user_data;
     if (gp->gv.icemt.xD8 == 0) {
-        grIceMt_801FA364(&gp->gv.corneria.xC8, &y, fn_801F8E58, gobj);
+        grIceMt_801FA364(&gp->gv.corneria.xC8, &y, (HSD_GObjEvent) fn_801F8E58,
+                         gobj);
         grIceMt_801F9ACC((HSD_GObj*) &gp->gv.corneria.xC4,
                          grIceMt_801F96E0((HSD_GObj*) &gp->gv.corneria.xC4, -y),
                          (HSD_GObjEvent) fn_801F9038, gobj);
@@ -1014,6 +1015,55 @@ void grIceMt_801F8CDC(Ground_GObj* gobj, s16* joint_indices, int count,
 }
 
 /// #fn_801F8E58
+s32 fn_801F8E58(Ground_GObj* gobj, s32* out_delay)
+{
+    Ground* gp;
+    s16* slots;
+    s32 candidates[12];
+    s32* dst = candidates;
+    s32 num_candidates = 0;
+    s32 i;
+    s32 j;
+    s32 chosen;
+    s16 lo;
+    s16 hi;
+    s16 result;
+
+    gp = gobj->user_data;
+    slots = (s16*) &gp->gv.icemt.xDC;
+
+    for (i = 0; i < 12; i++) {
+        if (slots[i] == 0 && (Stage_80225194() != 0xD4 || i >= 4)) {
+            *dst++ = i;
+            num_candidates++;
+        }
+    }
+    if (num_candidates == 0) {
+        __assert("gricemt.c", 0x81D, "max");
+    }
+    chosen = candidates[num_candidates != 0 ? HSD_Randi(num_candidates) : 0];
+
+    for (i = 0; i < 2; i++) {
+        for (j = 0; j < 6; j++) {
+            if (slots[i * 6 + j] > 0) {
+                slots[i * 6 + j]--;
+            }
+        }
+    }
+
+    slots[chosen] = ((s16*) grIm_804D69F4)[1];
+    hi = ((s16*) grIm_804D69F4)[0x36 / 2];
+    lo = ((s16*) grIm_804D69F4)[0x38 / 2];
+    if (hi > lo) {
+        result = lo + (hi - lo != 0 ? HSD_Randi(hi - lo) : 0);
+    } else if (hi < lo) {
+        result = hi + (lo - hi != 0 ? HSD_Randi(lo - hi) : 0);
+    } else {
+        result = hi;
+    }
+    *out_delay = result;
+    return chosen;
+}
 
 s32 fn_801F9038(Ground_GObj* arg0)
 {
