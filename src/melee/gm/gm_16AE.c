@@ -481,9 +481,9 @@ void fn_8016B7F8(void)
     Stage_802252E4((InternalStageId) tmp->x24C8.xE, NULL);
     grStadium_801D4040();
     if (!tmp->x24C8.x1_3) {
-        ifStatus_802F6EA4(4, -1, -1, 0, NULL, fn_8016B784);
+        ifStatus_802F6EA4(4, -1, -1, 0, NULL, (void (*)(s32)) fn_8016B784);
     } else {
-        ifStatus_802F6EA4(8, -1, -1, 0, NULL, fn_8016B784);
+        ifStatus_802F6EA4(8, -1, -1, 0, NULL, (void (*)(s32)) fn_8016B784);
     }
     un_802FD428();
 }
@@ -1972,9 +1972,9 @@ void gm_8016E934_OnEnter(void* arg0)
     StartMeleeData* tmp = arg0;
     fn_8016E730(tmp);
     if (tmp->rules.x1_2) {
-        ifStatus_802F6EA4(8, -1, -1, 0, (void*) fn_8016B7B4, fn_8016B7F8);
+        ifStatus_802F6EA4(8, -1, -1, 0, (void (*)(s32)) fn_8016B7B4, (void (*)(s32)) fn_8016B7F8);
     } else {
-        ifStatus_802F6EA4(3, -1, -1, 0, (void*) fn_8016B7B4, fn_8016B7F8);
+        ifStatus_802F6EA4(3, -1, -1, 0, (void (*)(s32)) fn_8016B7B4, (void (*)(s32)) fn_8016B7F8);
     }
     ifTime_CreateTimers();
     ifStatus_802F665C(tmp->rules.x0_3);
@@ -2049,7 +2049,7 @@ void gm_8016EBC0_OnEnter(void* arg0)
     StartMeleeData* tmp = arg0;
     tmp->rules.x6 = true;
     fn_8016E730(tmp);
-    ifStatus_802F6EA4(1, -1, -1, 0, (void*) fn_8016B7B4, fn_8016B7F8);
+    ifStatus_802F6EA4(1, -1, -1, 0, (void (*)(s32)) fn_8016B7B4, (void (*)(s32)) fn_8016B7F8);
     ifTime_CreateTimers();
     ifStatus_802F665C(tmp->rules.x0_3);
 }
@@ -2068,9 +2068,9 @@ void gm_8016EC28_OnEnter(void* arg0)
     Stage_802252E4((InternalStageId) tmp2->x24C8.xE, NULL);
     grStadium_801D4040();
     if (!lbl_8046B6A0.x24C8.x1_3) {
-        ifStatus_802F6EA4(4, -1, -1, 0, 0, fn_8016B784);
+        ifStatus_802F6EA4(4, -1, -1, 0, 0, (void (*)(s32)) fn_8016B784);
     } else {
-        ifStatus_802F6EA4(8, -1, -1, 0, 0, fn_8016B784);
+        ifStatus_802F6EA4(8, -1, -1, 0, 0, (void (*)(s32)) fn_8016B784);
     }
     un_802FD428();
     ifStatus_802F665C(tmp->rules.x0_3);
