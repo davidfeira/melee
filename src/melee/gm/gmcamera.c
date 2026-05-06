@@ -45,6 +45,12 @@ typedef struct _SisLibUnkStruct {
 /// @todo #HSD_SisLib_804D1124 is of type #SIS.
 /// extern SisLibUnkStruct HSD_SisLib_804D1124;
 
+f32 gmCamera_803DA630[12] = {
+    0.6f, 0.6f, 40.0f,  416.0f,
+    0.6f, 0.6f, 340.0f, 416.0f,
+    0.6f, 0.6f, 40.0f,  44.0f,
+};
+
 gmCameraUnkFuncTable gmCamera_803DA6B4[9] = {
     { { 1, 0, 0 }, gmCamera_801A26C0, gmCamera_801A2798 },
     { { 0, 0, 4 }, gmCamera_801A2800, gmCamera_801A28AC },
@@ -308,7 +314,55 @@ void gmCamera_801A28AC(void)
     }
 }
 
-/// #gmCamera_801A292C
+void gmCamera_801A292C(void)
+{
+    HSD_Text* text;
+    s32 i;
+    HSD_Text** texts = &gmCamera_80479BC8.gcus.x48[0];
+    gmCameraUnkStruct2* p;
+    s32 x44;
+
+    if (gmCamera_80479BC8.gcus.x48[0] != NULL) {
+        i = 0;
+        do {
+            HSD_SisLib_803A5CC4(gmCamera_80479BC8.gcus.x48[i]);
+            i++;
+            gmCamera_80479BC8.gcus.x48[i - 1] = NULL;
+        } while (i < 3);
+    }
+    i = 0;
+    p = (gmCameraUnkStruct2*) &gmCamera_80479BC8;
+    do {
+        p->x24 = lbSnap_8001D40C(i);
+        if ((s32) p->x24 == 0) {
+            p->x28 = lbSnap_8001D3B0(i);
+            p->x2C = lbSnap_8001D3CC(i);
+        }
+        i++;
+        p = (gmCameraUnkStruct2*) ((u8*) p + 0x10);
+    } while (i < 2);
+    text = HSD_SisLib_803A5ACC(3, (s32) gmCamera_80479BC8.gcus.x54,
+                               gmCamera_803DA630[10], gmCamera_803DA630[11],
+                               0.0f, 640.0f, 32.0f);
+    text->font_size.x = gmCamera_803DA630[8];
+    text->font_size.y = gmCamera_803DA630[9];
+    text->default_kerning = 1;
+    HSD_SisLib_803A6530(3, 3, 4);
+    gmCamera_801A2224((u8*) text, gmCamera_80479BC8.gcus.x20);
+    HSD_SisLib_803A660C(3, 3, 5);
+    HSD_SisLib_803A6368(text, 3);
+    texts[2] = text;
+    texts[0] = gmCamera_801A2334(0, gmCamera_803DA630[2], gmCamera_803DA630[3],
+                                 gmCamera_803DA630[0], gmCamera_803DA630[1]);
+    gmCamera_80479BC8.gcus.x48[1] =
+        gmCamera_801A2334(1, gmCamera_803DA630[6], gmCamera_803DA630[7],
+                          gmCamera_803DA630[4], gmCamera_803DA630[5]);
+    x44 = gmCamera_80479BC8.gcus.x30;
+    if (x44 >= (s32) gmCamera_80479BC8.gcus.x40) {
+        x44 = gmCamera_80479BC8.gcus.x40;
+    }
+    gmCamera_80479BC8.gcus.x44 = x44;
+}
 
 void gmCamera_801A2AAC(void)
 {
