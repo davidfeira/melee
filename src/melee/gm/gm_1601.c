@@ -2760,7 +2760,7 @@ MatchEnd* fn_80165D60(MatchEnd* arg0)
                     arg0->player_standings[i].x30 <
                         arg0->player_standings[j].x30)
                 {
-                    arg0->player_standings[i].is_small_loser++;
+                    arg0->player_standings[i].is_big_loser++;
                 }
             }
         }
@@ -2826,7 +2826,7 @@ s32 fn_801661E0(MatchEnd* arg0)
                     (u32) arg0->team_standings[i].subscore <
                         (u32) arg0->team_standings[j].subscore)
                 {
-                    arg0->team_standings[i].is_small_loser++;
+                    arg0->team_standings[i].is_big_loser++;
                 }
             }
         }
@@ -3764,7 +3764,65 @@ void gm_80168FC4(void)
     lbAudioAx_80027648();
 }
 
-/// #fn_80169000
+void fn_80169000(MatchEnd* arg0, u8* arg1)
+{
+    u8 ranks[4];
+    u8 vals[4];
+    u8* vp;
+    s32 count;
+    s32 i;
+    u8 v;
+    u8* p;
+    u8* q;
+
+    count = 0;
+    vp = vals;
+    if (arg0->player_standings[0].slot_type != 3) {
+        ranks[arg0->player_standings[0].is_small_loser] = 0;
+        count = 1;
+    }
+    *vp++ = *arg1++;
+    for (i = 1; i < 4; i++) {
+        if (arg0->player_standings[i].slot_type != 3) {
+            ranks[arg0->player_standings[i].is_small_loser] = i;
+            count++;
+        }
+        *vp++ = *arg1++;
+    }
+    /* arg1 now points past end; reset for write-back below by using vals array */
+    arg1 -= 4;
+
+    p = &vals[ranks[0]];
+    v = *p;
+    if (v >= 2 && (q = &vals[ranks[count - 1]], *q <= 8)) {
+        *p = v - 1;
+        *q = *q + 1;
+    } else if (v == 1 && (q = &vals[ranks[count - 1]], *q <= 7)) {
+        *q = *q + 2;
+    } else if (v >= 3 && vals[ranks[count - 1]] == 9) {
+        *p -= 2;
+    } else if (count >= 3) {
+        if (v == 1 && (q = &vals[ranks[count - 1]], *q == 8)) {
+            *q = *q + 1;
+            p = &vals[ranks[1]];
+            if (*p >= 2) {
+                *p = *p - 1;
+            }
+        } else if (v == 2 && vals[ranks[count - 1]] == 9) {
+            *p -= 1;
+            p = &vals[ranks[1]];
+            if (*p >= 2) {
+                *p = *p - 1;
+            }
+        }
+    }
+
+    arg1[0] = vals[0];
+    arg1[1] = vals[1];
+    arg1[2] = vals[2];
+    arg1[3] = vals[3];
+}
+
 #pragma dont_inline on
 u8 gm_80169238(u8 ckind)
 {
