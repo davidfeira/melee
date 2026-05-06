@@ -684,7 +684,50 @@ void gm_801BCF40(HSD_GObj* gobj)
     }
 }
 
-/// #gm_801BD028
+void gm_801BD028(HSD_GObj* gobj)
+{
+    Vec3 sp28;
+    lbl_8046B6A0_t* temp_r3;
+    bool var_r0;
+    struct EventData* temp_r30;
+    struct gm_804D6900_x4_t* temp_r4;
+    PAD_STACK(0x18);
+
+    temp_r30 = &gmMainLib_804D3EE0->unk_530;
+    if (gmMainLib_804D3EE0->unk_530.x10 == 0) {
+        temp_r4 = gm_804D6900[gmMainLib_804D3EE0->unk_530.unk_535]->x4;
+        sp28.x = ((f32*) temp_r4->x4)[0];
+        sp28.y = ((f32*) temp_r4->x4)[1];
+        sp28.z = ((f32*) temp_r4->x4)[2];
+        itEvYoshiEgg_Spawn(&sp28);
+        temp_r30->x10 += 1;
+    }
+    if (temp_r30->x18 != 0) {
+        gmMainLib_804D3EE0->unk_530.xB_1 = false;
+        lbAudioAx_80028B90();
+        gm_SetGameSpeed(1.0F);
+        gm_8016B33C(6);
+        gm_8016B364(0x148);
+        gm_8016B378(0x28);
+        gm_8016B328();
+        HSD_GObjPLink_80390228(gobj);
+        return;
+    }
+    temp_r30 = &gmMainLib_804D3EE0->unk_530;
+    temp_r3 = gm_8016AE38();
+    if (temp_r30->xB_0) {
+        var_r0 = false;
+    } else if (temp_r3->x24C8.x0_6 && gm_8016AEEC() == 0 &&
+               gm_8016AEFC() == 0x3B)
+    {
+        var_r0 = true;
+    } else {
+        var_r0 = false;
+    }
+    if (var_r0) {
+        gm_801BC4F4(gobj);
+    }
+}
 
 void gm_801BD164(HSD_GObj* gobj)
 {
