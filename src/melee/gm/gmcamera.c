@@ -405,7 +405,33 @@ void gmCamera_801A2BB0(void)
     }
 }
 
-/// #gmCamera_801A2BF0
+void gmCamera_801A2BF0(void)
+{
+    HSD_JObj* jobj_a;
+    HSD_JObj* jobj_b;
+    f32 var_f1;
+    f32 var_f31;
+    gmCameraUnkStruct* gcus = &gmCamera_80479BC8.gcus;
+
+    lb_80011E24(gcus->x8, &jobj_a, 9, -1);
+    if ((s32) gcus->x44 == 1) {
+        var_f1 = 1.0f;
+    } else {
+        var_f1 = 2.0f;
+    }
+    HSD_JObjReqAnimAll(jobj_a, var_f1);
+    HSD_JObjAnimAll(jobj_a);
+    HSD_ForeachAnim(jobj_a, JOBJ_TYPE, TOBJ_MASK, HSD_AObjStopAnim,
+                    AOBJ_ARG_AOV, 0, 0);
+    gcus->x18 = 0;
+    lb_80011E24(gcus->x8, &jobj_b, 0xC, -1);
+    if ((s32) gcus->x18 != 0) {
+        var_f31 = 5.0f;
+    } else {
+        var_f31 = -5.0f;
+    }
+    HSD_JObjSetTranslateX(jobj_b, var_f31);
+}
 
 void gmCamera_801A2D44(void)
 {
