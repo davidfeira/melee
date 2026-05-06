@@ -2663,7 +2663,136 @@ void ftKb_SpecialAirNLoop_IASA(Fighter_GObj* gobj)
     }
 }
 
-/// #ftKb_EatWait_IASA
+void ftKb_EatWait_IASA(Fighter_GObj* gobj)
+{
+    Fighter* fp = GET_FIGHTER(gobj);
+    ftKb_DatAttrs* da;
+    s32 var;
+    s32 var2;
+    f32 stick_x;
+    f32 abs_stick_x;
+    ftCo_JumpInput jump_input;
+    PAD_STACK(0x70);
+
+    if (fp->fv.kb.xF4_b0) {
+        da = fp->dat_attrs;
+        if (((fp->input.x668 & 0x200) && fp->target_item_gobj != NULL) ||
+            ((fp->input.lstick.y < -da->specialn_y_axis_range_jump) &&
+             fp->target_item_gobj != NULL))
+        {
+            Fighter_ChangeMotionState(gobj, ftKb_MS_SpecialNDrink1, Ft_MF_KeepGfx,
+                                      0.0f, 1.0f, 0.0f, NULL);
+            var = 1;
+            fp->x2222_b2 = 1;
+            ftKb_SpecialN_800F9070(gobj);
+            ftAnim_8006EBA4(gobj);
+            ftCommon_8007E2F4(fp, 0x1FF);
+        } else {
+            var = 0;
+        }
+        if (var != 0) {
+            return;
+        }
+        fp = GET_FIGHTER(gobj);
+        if ((fp->input.x668 & 0x100) && fp->target_item_gobj != NULL) {
+            Fighter_ChangeMotionState(gobj, ftKb_MS_SpecialNSpit1,
+                                      Ft_MF_SkipMatAnim | Ft_MF_KeepGfx,
+                                      0.0f, 1.0f, 0.0f, NULL);
+            var2 = 1;
+            fp->x2222_b2 = 1;
+            ftKb_SpecialN_800F9070(gobj);
+            ftAnim_8006EBA4(gobj);
+            ftCommon_8007E2F4(fp, 0x1FF);
+        } else {
+            var2 = 0;
+        }
+        if (var2 != 0) {
+            return;
+        }
+    } else {
+        da = fp->dat_attrs;
+        if (((fp->input.x668 & 0x200) && fp->victim_gobj != NULL) ||
+            ((fp->input.lstick.y < -da->specialn_y_axis_range_jump) &&
+             fp->victim_gobj != NULL))
+        {
+            Fighter_ChangeMotionState(gobj, ftKb_MS_SpecialNDrink0, Ft_MF_KeepGfx,
+                                      0.0f, 1.0f, 0.0f, NULL);
+            var = 1;
+            fp->x2222_b2 = 1;
+            ftKb_SpecialN_800F9070(gobj);
+            ftAnim_8006EBA4(gobj);
+            ftCommon_8007E2F4(fp, 0x1FF);
+        } else {
+            var = 0;
+        }
+        if (var != 0) {
+            return;
+        }
+        fp = GET_FIGHTER(gobj);
+        if ((fp->input.x668 & 0x100) && fp->victim_gobj != NULL) {
+            Fighter_ChangeMotionState(gobj, ftKb_MS_SpecialNSpit0,
+                                      Ft_MF_SkipMatAnim | Ft_MF_KeepGfx,
+                                      0.0f, 1.0f, 0.0f, NULL);
+            var2 = 1;
+            fp->x2222_b2 = 1;
+            ftKb_SpecialN_800F9070(gobj);
+            ftAnim_8006EBA4(gobj);
+            ftCommon_8007E2F4(fp, 0x1FF);
+        } else {
+            var2 = 0;
+        }
+        if (var2 != 0) {
+            return;
+        }
+    }
+    fp = GET_FIGHTER(gobj);
+    da = fp->dat_attrs;
+    stick_x = fp->input.lstick.x;
+    if (stick_x < 0.0f) {
+        abs_stick_x = -stick_x;
+    } else {
+        abs_stick_x = stick_x;
+    }
+    if (abs_stick_x < da->specialn_x_axis_range_walk) {
+        stick_x = 0.0f;
+    }
+    if (((stick_x < 0.0f) && (fp->facing_dir == 1.0f)) ||
+        ((stick_x > 0.0f) && (fp->facing_dir == -1.0f)))
+    {
+        Fighter_ChangeMotionState(gobj, ftKb_MS_EatTurn,
+                                  Ft_MF_SkipMatAnim | Ft_MF_SkipModel | Ft_MF_KeepGfx,
+                                  0.0f, 1.0f, 0.0f, NULL);
+        ftKb_SpecialN_800F9070(gobj);
+        ftAnim_8006EBA4(gobj);
+        ftCommon_8007E2F4(fp, 0x1FF);
+        return;
+    }
+    jump_input = ftCo_Jump_GetInput(gobj);
+    if (jump_input != JumpInput_None) {
+        fp = GET_FIGHTER(gobj);
+        fp->mv.kb.specialhi.x4 = jump_input;
+        fp->mv.kb.specialhi.x0 = 0;
+        Fighter_ChangeMotionState(gobj, ftKb_MS_EatJump1,
+                                  Ft_MF_SkipMatAnim | Ft_MF_SkipModel | Ft_MF_KeepGfx,
+                                  0.0f, 1.0f, 0.0f, NULL);
+        ftKb_SpecialN_800F9070(gobj);
+        ftAnim_8006EBA4(gobj);
+        ftCommon_8007E2F4(fp, 0x1FF);
+        return;
+    }
+    if (ftWalkCommon_800DFC70(gobj)) {
+        fp = GET_FIGHTER(gobj);
+        da = fp->dat_attrs;
+        ftWalkCommon_800DFCA4(gobj, ftKb_MS_EatWalkSlow,
+                              Ft_MF_SkipModel, 0.0f,
+                              fp->fv.kb.xE8, fp->fv.kb.xEC, fp->fv.kb.xF0,
+                              fp->co_attrs.slow_walk_max,
+                              fp->co_attrs.mid_walk_point,
+                              fp->co_attrs.fast_walk_min,
+                              da->specialn_walk_speed);
+        ftCommon_8007E2F4(fp, 0x1FF);
+    }
+}
 
 /// #ftKb_SpecialAirNCaptureWait_IASA
 
