@@ -685,7 +685,51 @@ void gm_801B0CF0(MinorScene* arg0)
     }
 }
 
-/// #gm_801B0DD0
+struct SoundTestResults {
+    /* 0x00 */ u8 x0_0 : 1;
+    /* 0x00 */ u8 x0_1 : 1;
+    /* 0x00 */ u8 x0_pad : 6;
+    /* 0x01 */ u8 x1;
+    /* 0x02 */ u8 x2;
+    /* 0x03 */ u8 x3;
+    /* 0x04 */ u8 x4;
+    /* 0x05 */ u8 _pad5[3];
+    /* 0x08 */ MatchEnd match_end;
+};
+
+void gm_801B0DD0(MinorScene* arg0)
+{
+    u64 accum = 0;
+    int i;
+    struct SoundTestResults* data = gm_801A427C(arg0);
+    MatchEnd* me = &data->match_end;
+
+    data->x0_0 = un_803FA258[0x178 / 4];
+    data->x0_1 = un_803FA258[0x17C / 4];
+    data->x1 = un_803FA258[0x168 / 4];
+    data->x2 = un_803FA258[0x16C / 4];
+    data->x3 = un_803FA258[0x170 / 4];
+    data->x4 = un_803FA258[0x174 / 4];
+
+    gm_80166A98(me, (u8) un_803FA258[0x180 / 4],
+                (s8) un_803FA258[0x144 / 4], un_803FA258[0x158 / 4] - 1,
+                (s8) un_803FA258[0x148 / 4], un_803FA258[0x15C / 4] - 1,
+                (s8) un_803FA258[0x14C / 4], un_803FA258[0x160 / 4] - 1,
+                (s8) un_803FA258[0x150 / 4], un_803FA258[0x164 / 4] - 1);
+
+    for (i = 0; i < 4; i++) {
+        if (me->player_standings[i].slot_type != 3 &&
+            me->player_standings[i].is_big_loser == 0)
+        {
+            accum |= lbAudioAx_80026E84(
+                (s8) me->player_standings[i].character_kind);
+        }
+    }
+    lbAudioAx_80026F2C(0x14);
+    lbAudioAx_8002702C(4, accum);
+    gm_80168FC4();
+    gm_801701A0();
+}
 
 void gm_801B0F1C(MinorScene* arg0)
 {
