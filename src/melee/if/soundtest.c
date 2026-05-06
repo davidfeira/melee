@@ -268,11 +268,14 @@ int un_802FF99C(int arg0)
 int un_802FF9DC(void)
 {
     int count = un_804D6DB0;
-    int i;
+    int i = 0;
 
     un_804D6DB4 = 0;
-    for (i = 0; i < count; i++) {
-        un_804D6DB4 += ((int**) un_804D6DA8)[6][i];
+    if (count > 0) {
+        do {
+            un_804D6DB4 += ((int**) un_804D6DA8)[6][i];
+            i++;
+        } while (i < count);
     }
     un_803FA098 = (f32) un_804D6DB4;
     un_803FA09C = (f32) (un_804D6DB4 + ((int**) un_804D6DA8)[6][count]);
