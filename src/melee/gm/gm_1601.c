@@ -3733,7 +3733,71 @@ void fn_80169900(u8 arg0, struct lbl_8046B488_t* arg1, s8* arg2, s8* arg3)
 }
 #pragma pop
 
-/// #fn_80169A84
+#pragma push
+#pragma dont_inline on
+long fn_80169A84(u8 mode, s8* dst, s8* src)
+{
+    struct lbl_8046B488_t* gp = &lbl_8046B488;
+    s8* pool = ((s8*) gp) + 0x1C0;
+    s32 i;
+    s32 j;
+    s32 ctr;
+    s32 count;
+    s8 tmp;
+    s8 idx;
+
+    if ((s32) mode == 1) {
+        for (i = 0; i < 0x1A; i++) {
+            if (i != 4 && gm_80164840((u8) i)) {
+                pool[i] = (s8) i;
+            } else {
+                pool[i] = -1;
+            }
+        }
+        for (i = 0; i < 0x1A; i++) {
+            j = HSD_Randi(0x1B);
+            tmp = pool[i];
+            pool[i] = ((s8*) gp)[0x1C0 + j];
+            ((s8*) gp)[0x1C0 + j] = tmp;
+        }
+        count = 0;
+        for (ctr = 0; ctr < 13; ctr++) {
+            if (pool[0] != -1) {
+                count++;
+                if (count > 0x10) {
+                    pool[0] = -1;
+                }
+            }
+            pool++;
+            if (*pool != -1) {
+                count++;
+                if (count > 0x10) {
+                    *pool = -1;
+                }
+            }
+            pool++;
+        }
+        i = 0;
+        while (*src != -2) {
+            idx = ((s8*) gp)[0x1C0 + i];
+            if (idx == -1) {
+                i = (i + 1) % 27;
+                continue;
+            }
+            *dst = Player_800325C8((s8) idx, 0);
+            i++;
+            src++;
+            dst++;
+        }
+    } else if ((s32) mode == 0) {
+        while (*src != -2) {
+            *dst = -1;
+            src++;
+            dst++;
+        }
+    }
+}
+#pragma pop
 
 /// #fn_80169C54
 
