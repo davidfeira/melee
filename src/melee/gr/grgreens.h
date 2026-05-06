@@ -62,7 +62,7 @@
 /* 215B84 */ void fn_80215B84(Item_GObj*, Ground*, Vec*, HSD_GObj*, float);
 /* 215D50 */ void fn_80215D50(Item_GObj*, Ground*, HSD_GObj*);
 /* 215D54 */ void grGreens_80215D54(Ground_GObj*, int);
-/* 215ED8 */ UNK_RET grGreens_80215ED8(UNK_PARAMS);
+/* 215ED8 */ void grGreens_80215ED8(Ground_GObj*, int, int);
 /* 2166C4 */ void grGreens_802166C4(Ground_GObj*);
 /* 216C20 */ void grGreens_80216C20(Ground_GObj*);
 /* 216DE4 */ void fn_80216DE4(Ground*, s32, CollData*, s32, mpLib_GroundEnum,

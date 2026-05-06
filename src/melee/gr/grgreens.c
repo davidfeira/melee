@@ -30,15 +30,20 @@
 
 #define Gr_Greens_Block_Status_None 0
 #define Gr_Greens_Block_Max 30
+#define Gr_Greens_Block_Column 3
 
 static u8 grGr_804D6AAC;
 static s8 grGr_804D6AAD;
 static struct {
     int x0_blockTimerMin;
     int x4_blockTimerMax;
-    int x8_blockBombChance;
-
-    char padC[0x24 - 0xC];
+    int x8;
+    int xC;
+    int x10;
+    int x14;
+    int x18;
+    int x1C;
+    int x20;
 
     int x24;
     int x28;
@@ -693,7 +698,219 @@ void grGreens_80215D54(Ground_GObj* gobj, int j)
 
 /// #grGreens_80215ED8
 
-/// #grGreens_802166C4
+void grGreens_802166C4(Ground_GObj* gobj)
+{
+    Ground* gp = GET_GROUND(gobj);
+    u8 weights[6];
+    int i;
+    int j;
+    int rng;
+    int total;
+    int left_blocked;
+    int right_blocked;
+    int n;
+    u8 b;
+
+    if ((s32) gp->gv.greens.xC-- < 0) {
+        i = -1;
+        left_blocked = 0;
+        right_blocked = 0;
+
+        for (j = 0; j < 6; j++) {
+            weights[j] = grGr_params->x1C;
+            for (n = 4; n >= 0; n--) {
+                if ((((u8*) gp->gv.greens.x8_blocks)[n * 0xC0 + j * 0x20] >>
+                     4) &
+                    0xF)
+                {
+                    switch (n) {
+                    case 0:
+                        weights[j] = grGr_params->x18;
+                        break;
+                    case 1:
+                        weights[j] = grGr_params->x14;
+                        break;
+                    case 2:
+                        weights[j] = grGr_params->x10;
+                        break;
+                    case 3:
+                        weights[j] = grGr_params->xC;
+                        break;
+                    case 4:
+                        weights[j] = grGr_params->x8;
+                        break;
+                    }
+                    break;
+                }
+            }
+        }
+
+        if (weights[0] == 0) {
+            left_blocked = 1;
+        }
+        if (weights[3] == 0) {
+            right_blocked = 1;
+        }
+        if (weights[1] == 0) {
+            left_blocked = 1;
+        }
+        if (weights[4] == 0) {
+            right_blocked = 1;
+        }
+        if (weights[2] == 0) {
+            left_blocked = 1;
+        }
+        if (weights[5] == 0) {
+            right_blocked = 1;
+        }
+
+        if (left_blocked == 0) {
+            if (right_blocked == 0) {
+                total = weights[0] + weights[1] + weights[2] + weights[3] +
+                        weights[4] + weights[5];
+                if (total != 0) {
+                    rng = HSD_Randi(total);
+                } else {
+                    rng = 0;
+                }
+                i = 0;
+                rng -= weights[0];
+                if (rng >= 0) {
+                    i = 1;
+                    rng -= weights[1];
+                    if (rng >= 0) {
+                        i = 2;
+                        rng -= weights[2];
+                        if (rng >= 0) {
+                            i = 3;
+                            rng -= weights[3];
+                            if (rng >= 0) {
+                                i = 4;
+                                rng -= weights[4];
+                                if (rng >= 0) {
+                                    i = 5;
+                                    rng -= weights[5];
+                                    if (rng >= 0) {
+                                        i = 6;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                HSD_ASSERT(1693, i < Gr_Greens_Block_Column * 2);
+            } else {
+                total = weights[0] + weights[1] + weights[2];
+                if (total != 0) {
+                    rng = HSD_Randi(total);
+                } else {
+                    rng = 0;
+                }
+                i = 0;
+                rng -= weights[0];
+                if (rng >= 0) {
+                    i = 1;
+                    rng -= weights[1];
+                    if (rng >= 0) {
+                        i = 2;
+                        rng -= weights[2];
+                        if (rng >= 0) {
+                            i = 3;
+                        }
+                    }
+                }
+                HSD_ASSERT(1702, i < Gr_Greens_Block_Column);
+            }
+        } else if (right_blocked == 0) {
+            total = weights[3] + weights[4] + weights[5];
+            if (total != 0) {
+                rng = HSD_Randi(total);
+            } else {
+                rng = 0;
+            }
+            i = 3;
+            rng -= weights[3];
+            if (rng >= 0) {
+                i = 4;
+                rng -= weights[4];
+                if (rng >= 0) {
+                    i = 5;
+                    rng -= weights[5];
+                    if (rng >= 0) {
+                        i = 6;
+                    }
+                }
+            }
+            HSD_ASSERT(1711, i < Gr_Greens_Block_Column * 2);
+        }
+
+        if (i != -1) {
+            j = 4;
+            if (!(((((u8*) gp->gv.greens.x8_blocks)[3 * 0xC0 + i * 0x20]) >>
+                   4) &
+                  0xF))
+            {
+                j = 3;
+                if (!(((((u8*) gp->gv.greens.x8_blocks)[2 * 0xC0 + i * 0x20]) >>
+                       4) &
+                      0xF))
+                {
+                    j = 2;
+                    if (!(((((u8*) gp->gv.greens.x8_blocks)[1 * 0xC0 +
+                                                              i * 0x20]) >>
+                           4) &
+                          0xF))
+                    {
+                        j = 1;
+                        if (!(((((u8*) gp->gv.greens.x8_blocks)[0 * 0xC0 +
+                                                                  i * 0x20]) >>
+                               4) &
+                              0xF))
+                        {
+                            j = 0;
+                        }
+                    }
+                }
+            }
+            if (grGr_params->x20 != 0) {
+                rng = HSD_Randi(grGr_params->x20);
+            } else {
+                rng = 0;
+            }
+            grGreens_80215358(gobj, i, j, (rng != 0) ? 1 : 2, 1);
+        }
+        gp->gv.greens.xC = randrange(grGr_params->x0_blockTimerMin,
+                                     grGr_params->x4_blockTimerMax);
+    }
+
+    for (i = 0; i < 5; i++) {
+        for (j = 0; j < 6; j++) {
+            grGreens_80215ED8(gobj, j, i);
+        }
+    }
+
+    for (i = 0; i < 5; i++) {
+        for (j = 0; j < 6; j++) {
+            int ij = i * 0xC0 + j * 0x20;
+            b = ((u8*) gp->gv.greens.x8_blocks)[ij + 1];
+            if ((b >> 4) & 1) {
+                ((u8*) gp->gv.greens.x8_blocks)[ij + 1] = b & ~0x10;
+                ((u8*) gp->gv.greens.x8_blocks)[ij + 1] |= 2;
+                ((u8*) gp->gv.greens.x8_blocks)[ij] &= ~0xF0;
+                Ground_801C4A08(
+                    *(HSD_GObj**) ((u8*) gp->gv.greens.x8_blocks + ij + 0xC));
+                grMaterial_801C8CDC(
+                    *(HSD_GObj**) ((u8*) gp->gv.greens.x8_blocks + ij + 0x10));
+                HSD_JObjSetFlags(*(HSD_JObj**) ((u8*) gp->gv.greens.x8_blocks +
+                                                ij + 0x14),
+                                 JOBJ_HIDDEN);
+                grGreens_80215D54(gobj, j);
+                i = -1;
+                j = 6;
+            }
+        }
+    }
+}
 
 void grGreens_80216C20(Ground_GObj* gobj)
 {
