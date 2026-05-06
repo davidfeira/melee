@@ -91,7 +91,17 @@ HSD_GObj* grHomeRun_8021C82C(int gobj_id)
     return gobj;
 }
 
-/// #grHomeRun_8021C914
+void grHomeRun_8021C914(Ground_GObj* gobj)
+{
+    Ground* gp = GET_GROUND(gobj);
+    HSD_JObj* jobj = (HSD_JObj*) gobj->hsd_obj;
+
+    grAnime_801C8138((HSD_GObj*) gobj, gp->map_id, 0);
+
+    HSD_JObjSetScaleX(jobj, grHr_804D6AE4 * HSD_JObjGetScaleX(jobj));
+    HSD_JObjSetScaleY(jobj, grHr_804D6AE4 * HSD_JObjGetScaleY(jobj));
+    HSD_JObjSetScaleZ(jobj, grHr_804D6AE4 * HSD_JObjGetScaleZ(jobj));
+}
 
 bool grHomeRun_8021CB10(Ground_GObj* arg)
 {
