@@ -893,7 +893,180 @@ s32 fn_80161004(MatchEnd* match_end)
     return max;
 }
 
-/// #fn_80161154
+s32 fn_80161154(MatchEnd* arg0)
+{
+    u8 cand[4];
+    struct MatchPlayerData* best;
+    s32 max_loser;
+    s32 winner;
+    s32 any;
+    s32 ties;
+    s32 i;
+
+    max_loser = fn_80161004(arg0);
+    winner = 4;
+    any = 0;
+
+    if (arg0->is_teams == 1) {
+        for (i = 0; i < 4; i++) {
+            if (arg0->player_standings[i].slot_type != 3 &&
+                (s32) arg0->team_standings[arg0->player_standings[i].team]
+                        .is_big_loser == max_loser)
+            {
+                cand[i] = 1;
+                any = 1;
+                winner = i;
+            } else {
+                cand[i] = 0;
+            }
+        }
+    } else {
+        for (i = 0; i < 4; i++) {
+            if (arg0->player_standings[i].slot_type != 3 &&
+                (s32) arg0->player_standings[i].is_big_loser == max_loser)
+            {
+                if (winner != 4) {
+                    any = 1;
+                } else {
+                    winner = i;
+                }
+                cand[i] = 1;
+            } else {
+                cand[i] = 0;
+            }
+        }
+    }
+
+    if (any == 0) {
+        return winner;
+    }
+
+    /* Stage: smallest x20 wins */
+    winner = 4;
+    for (i = 0; i < 4; i++) {
+        if (cand[i] != 0) {
+            if (winner == 4) {
+                winner = i;
+            } else if (arg0->player_standings[winner].x20 >
+                       arg0->player_standings[i].x20)
+            {
+                winner = i;
+            }
+            best = &arg0->player_standings[winner];
+        }
+    }
+    ties = 0;
+    for (i = 0; i < 4; i++) {
+        if (cand[i] != 0 && winner != i) {
+            if (arg0->player_standings[i].x20 == best->x20) {
+                ties++;
+            } else {
+                cand[i] = 0;
+            }
+        }
+    }
+    if (ties == 0) {
+        return winner;
+    }
+
+    /* Stage: largest x24 wins */
+    winner = 4;
+    for (i = 0; i < 4; i++) {
+        if (cand[i] != 0) {
+            if (winner == 4) {
+                winner = i;
+            } else if (arg0->player_standings[winner].x24 <
+                       arg0->player_standings[i].x24)
+            {
+                winner = i;
+            }
+            best = &arg0->player_standings[winner];
+        }
+    }
+    ties = 0;
+    for (i = 0; i < 4; i++) {
+        if (cand[i] != 0 && winner != i) {
+            if ((u32) arg0->player_standings[i].x24 == (u32) best->x24) {
+                ties++;
+            } else {
+                cand[i] = 0;
+            }
+        }
+    }
+    if (ties == 0) {
+        return winner;
+    }
+
+    /* Stage: smallest x44 wins */
+    winner = 4;
+    for (i = 0; i < 4; i++) {
+        if (cand[i] != 0) {
+            if (winner == 4) {
+                winner = i;
+            } else if (arg0->player_standings[winner].x44 >
+                       arg0->player_standings[i].x44)
+            {
+                winner = i;
+            }
+            best = &arg0->player_standings[winner];
+        }
+    }
+    ties = 0;
+    for (i = 0; i < 4; i++) {
+        if (cand[i] != 0 && winner != i) {
+            if (arg0->player_standings[i].x44 == best->x44) {
+                ties++;
+            } else {
+                cand[i] = 0;
+            }
+        }
+    }
+    if (ties == 0) {
+        return winner;
+    }
+
+    /* Stage: largest x50 wins */
+    winner = 4;
+    for (i = 0; i < 4; i++) {
+        if (cand[i] != 0) {
+            if (winner == 4) {
+                winner = i;
+            } else if (arg0->player_standings[winner].x50 <
+                       arg0->player_standings[i].x50)
+            {
+                winner = i;
+            }
+            best = &arg0->player_standings[winner];
+        }
+    }
+    ties = 0;
+    for (i = 0; i < 4; i++) {
+        if (cand[i] != 0 && winner != i) {
+            if (arg0->player_standings[i].x50 == best->x50) {
+                ties++;
+            } else {
+                cand[i] = 0;
+            }
+        }
+    }
+    if (ties == 0) {
+        return winner;
+    }
+
+    if (cand[0] != 0) {
+        return 0;
+    }
+    if (cand[1] != 0) {
+        return 1;
+    }
+    if (cand[2] != 0) {
+        return 2;
+    }
+    if (cand[3] != 0) {
+        winner = 3;
+    }
+    return winner;
+}
 
 struct fn_80161C90_stats {
     u16 sd_count;
