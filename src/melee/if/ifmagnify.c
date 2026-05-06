@@ -5,13 +5,21 @@
 #include "lb/lb_00B0.h"
 #include "lb/lb_00F9.h"
 #include "lb/lbarchive.h"
+#include "pl/inlines.h"
 
 #include <baselib/cobj.h>
+#include <baselib/dobj.h>
 #include <baselib/gobj.h>
 #include <baselib/gobjgxlink.h>
 #include <baselib/gobjobject.h>
 #include <baselib/gobjplink.h>
+#include <baselib/gobjuserdata.h>
+#include <baselib/jobj.h>
+#include <baselib/memory.h>
+#include <baselib/mobj.h>
 #include <baselib/tobj.h>
+#include <melee/gm/gm_1601.h>
+#include <melee/gm/gm_16AE.h>
 
 /* 3F97E8 */ extern HSD_CameraDescPerspective ifMagnify_803F97E8;
 /* 4DDB08 */ extern f32 ifMagnify_804DDB08;
@@ -114,7 +122,66 @@ void ifMagnify_802FB73C(void* player, Vec2* in, Vec2* out)
 
 void ifMagnify_802FC3BC(void) {}
 
-/// #ifMagnify_802FC3C0
+void ifMagnify_802FC3C0(s32 slot)
+{
+    HSD_JObj* jobj_root;
+    HSD_JObj* sp10;
+    GXColor spC;
+    HSD_GObj* gobj;
+    HSD_MObj* mobj;
+    void* entry;
+    HSD_ImageDesc* idesc;
+
+    entry = (u8*) &ifMagnify_804A1DE0 + slot * 0x10 + 0x14;
+    if (*(HSD_GObj**) entry != NULL) {
+        HSD_GObjPLink_80390228(*(HSD_GObj**) entry);
+    }
+    gobj = GObj_Create(HSD_GOBJ_CLASS_UI, 15, 0);
+    GObj_InitUserData(gobj, HSD_GOBJ_CLASS_UI,
+                      (void (*)(void*)) ifMagnify_802FC3BC, entry);
+    jobj_root = HSD_JObjLoadJoint(**(HSD_Joint***) ifMagnify_804A1DE0.joint);
+    HSD_GObjObject_80390A70(gobj, HSD_GObj_804D7849, jobj_root);
+    GObj_SetupGXLink(gobj, (GObj_RenderFunc) ifMagnify_802FB8C0, 11, 0);
+
+    lb_80011E24(jobj_root, &sp10, 2, -1);
+    if (slot == 0) {
+        *(HSD_ImageDesc**) ((u8*) entry + 8) =
+            sp10->u.dobj->next->mobj->tobj->imagedesc;
+    } else {
+        HSD_ImageDesc* src = ifMagnify_804A1DE0.player[0].idesc;
+        HSD_ImageDesc* dst =
+            (HSD_ImageDesc*) ((u8*) &ifMagnify_804A1DE0 + slot * 0x18 + 0x5C);
+        *dst = *src;
+        idesc = (HSD_ImageDesc*) ((u8*) &ifMagnify_804A1DE0 +
+                                  (slot - 1) * 0x18 + 0x74);
+        *(HSD_ImageDesc**) ((u8*) entry + 8) = idesc;
+        idesc = *(HSD_ImageDesc**) ((u8*) entry + 8);
+        idesc->image_ptr = HSD_MemAlloc(
+            (GXGetTexBufferSize(idesc->width, idesc->height, idesc->format, 0,
+                                0) +
+             0x1F) &
+            ~0x1F);
+        sp10->u.dobj->next->mobj->tobj->imagedesc =
+            *(HSD_ImageDesc**) ((u8*) entry + 8);
+    }
+
+    lb_80011E24(jobj_root, (HSD_JObj**) ((u8*) entry + 4), 1, -1);
+    spC = gm_80160968(gm_80160854(slot, Player_GetTeam(slot), gm_8016B168(),
+                                  Player_GetPlayerSlotType(slot)));
+
+    mobj = (*(HSD_JObj**) ((u8*) entry + 4))->u.dobj->mobj;
+    mobj->mat->diffuse.r = spC.r;
+    mobj->mat->diffuse.g = spC.g;
+    mobj->mat->diffuse.b = spC.b;
+    mobj = sp10->u.dobj->mobj;
+    mobj->mat->diffuse.r = spC.r;
+    mobj->mat->diffuse.g = spC.g;
+    mobj->mat->diffuse.b = spC.b;
+
+    *(HSD_GObj**) entry = gobj;
+    *(u8*) ((u8*) entry + 0xC) &= ~0x80;
+    *(u8*) ((u8*) entry + 0xC) &= ~0x40;
+}
 
 void ifMagnify_802FC618(void)
 {
