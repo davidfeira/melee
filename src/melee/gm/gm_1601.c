@@ -4373,7 +4373,141 @@ void fn_8016A488(s32 arg0)
     }
 }
 
-/// #fn_8016A4C8
+void fn_8016A4C8(void)
+{
+    Vec3 spawn_pos;
+    f32 facing;
+    s32 found_alive;
+    s32 cpu_type;
+    s32 j;
+    s32 i;
+    u8 costume;
+    s8 ckind;
+    s8 controller_idx;
+    s8* p;
+    PAD_STACK(0xD0);
+
+    found_alive = 0;
+    if (lbl_8046B488.unk_10_b1 ? 1 : 0) {
+        p = (s8*) &lbl_8046B488;
+        for (i = 0; i < 6; i++, p++) {
+            if ((Player_GetFlagsBit1(i) != 0) &&
+                (Player_GetPlayerState(i) == 0) &&
+                ((s32) lbl_8046B488.x7 > 0))
+            {
+                if (lbl_8046B488.x7 != 0) {
+                    lbl_8046B488.x7 -= 1;
+                }
+                fn_8016B738(1);
+                Player_80036D24(i);
+                p[0x1A6] = (s8) lbl_8046B488.x7;
+                Player_SetFlagsBit1(i);
+                Player_SetTeam(i, 4);
+                Ground_801C2D24(i + (lbl_8046B488.xA - 1), &spawn_pos);
+                spawn_pos.y = Stage_GetCamBoundsTopOffset();
+                Player_80032768(i, &spawn_pos);
+                Player_SetSlottype(i, Gm_PKind_Cpu);
+                Player_SetPlayerCharacter(
+                    i, (CharacterKind) (s8) lbl_8046B488.xA2[lbl_8046B488.x7]);
+                Player_SetStocks(i, 1);
+                costume = lbl_8046B488.x20[lbl_8046B488.x7];
+                Player_SetCostumeId(i, (s8) costume);
+                ckind = Player_GetPlayerCharacter(i);
+                for (j = 0; j < 6; j++) {
+                    if ((Player_GetPlayerSlotType(j) != Gm_PKind_NA) &&
+                        (Player_GetFlagsBit1(j) == 0) &&
+                        (ckind == Player_GetPlayerCharacter(j)) &&
+                        ((s8) costume == Player_GetCostumeId(j)))
+                    {
+                        controller_idx = 1;
+                        goto found;
+                    }
+                }
+                controller_idx = 0;
+            found:
+                Player_SetControllerIndex(i, controller_idx);
+                Player_SetMoreFlagsBit6(i, lbl_8046B488.xF);
+                Player_SetMoreFlagsBit1(i, 0);
+                if (spawn_pos.x >= 0.0f) {
+                    facing = -1.0f;
+                } else {
+                    facing = 1.0f;
+                }
+                Player_SetFacingDirection(i, facing);
+                Player_SetHUDDamage(i, 0);
+                Player_SetPlayerId(i, i);
+                Player_SetFlagsBit0(i, 0);
+                Player_SetNametagSlotID(i, 0x78);
+                Player_SetPlayerAndEntityCpuLevel(i, lbl_8046B488.x6);
+                cpu_type = 0x17;
+                if (lbl_8046B488.x7 != 1) {
+                    s32 r = HSD_Randi(4);
+                    if (r == 3) {
+                        cpu_type = 0x18;
+                    } else if (r >= 0) {
+                        cpu_type = 0x17;
+                    }
+                }
+                Player_SetPlayerAndEntityCpuType(i, cpu_type);
+                if (lbl_8046B488.unk_10_b4) {
+                    Player_SetFlagsBit5(i, 1);
+                    Player_SetPlayerAndEntityCpuType(i, 0x1B);
+                }
+                if (lbl_8046B488.unk_10_b6) {
+                    Player_SetFlagsAEBit0(i, 1);
+                } else {
+                    Player_SetFlagsAEBit0(i, 0);
+                }
+                Player_SetFlagsBit6(i, lbl_8046B488.unk_10_b5);
+                Player_SetModelScale(i, lbl_8046B488.x1C);
+                Player_SetAttackRatio(i, lbl_8046B488.x14);
+                Player_SetDefenseRatio(i, lbl_8046B488.x18);
+                if (lbl_8046B488.x8 > 1) {
+                    Player_SetMoreFlagsBit5(i, 1);
+                } else {
+                    Player_SetMoreFlagsBit5(i, 0);
+                }
+                if ((Player_GetPlayerCharacter(i) == CKIND_KIRBY) &&
+                    (lbl_8046B488.xE != 0))
+                {
+                    Player_SetUnk4D(
+                        i, (s8) lbl_8046B488.x124[lbl_8046B488.x7]);
+                    Player_SetFlagsAEBit1(i, 1);
+                }
+                {
+                    void (*cb)(s32, u8) =
+                        M2C_FIELD(&lbl_8046B488, void (*)(s32, u8), 0x1BC);
+                    if (cb != NULL) {
+                        cb(i, lbl_8046B488.x7);
+                    }
+                }
+                Player_SetStructFunc(i, fn_8016A488);
+                Player_80031AD0(i);
+                ifStatus_802F6508(i);
+                un_802FD28C(i);
+            }
+        }
+        if (lbl_8046B488.x7 == 0) {
+            for (i = 0; i < 6; i++) {
+                if ((Player_GetPlayerSlotType(i) != Gm_PKind_NA) &&
+                    (Player_GetFlagsBit1(i) != 0) &&
+                    (Player_GetStocks(i) != 0))
+                {
+                    found_alive = 1;
+                    break;
+                }
+            }
+            if (found_alive == 0) {
+                lbl_8046B488.unk_10_b0 = 1;
+                lbl_8046B488.unk_10_b1 = 0;
+                if ((lbl_8046B488.x1B8 != NULL) && (lbl_8046B488.x1B8(1) == 1))
+                {
+                    lbl_8046B488.x1B8 = NULL;
+                }
+            }
+        }
+    }
+}
 
 void gm_8016A92C(StartMeleeRules* arg0)
 {
