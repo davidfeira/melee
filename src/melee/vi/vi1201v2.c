@@ -277,8 +277,9 @@ static void HSD_JObjSetTranslateZ_2(HSD_JObj* jobj, f32 z)
     }
 }
 
-void un_80320A40_OnEnter(u8* arg)
+void un_80320A40_OnEnter(UNK_T arg_)
 {
+    u8* arg = (u8*) arg_;
     u8 char_index;
     HSD_CObj* cobj;
     HSD_GObj* gobj;

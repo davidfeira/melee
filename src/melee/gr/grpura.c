@@ -6,6 +6,7 @@
 #include "baselib/gobjproc.h"
 #include "baselib/random.h"
 #include "cm/camera.h"
+#include "cm/types.h"
 #include "gr/grdisplay.h"
 #include "gr/ground.h"
 #include "gr/grzakogenerator.h"
@@ -383,7 +384,53 @@ void grPura_802125F0(HSD_GObj* arg0)
     }
 }
 
-/// #grPura_80212CD4
+void grPura_80212CD4(HSD_GObj* arg0)
+{
+    Ground* gp = GET_GROUND(arg0);
+    HSD_JObj* hsd_obj = arg0->hsd_obj;
+    HSD_JObj** jobjs = (HSD_JObj**) ((s8*) gp + 0xC4);
+    CmSubject** subs = (CmSubject**) ((s8*) gp + 0x128);
+    HSD_JObj* iter;
+    CmSubject* sub;
+    Vec3 pos;
+    int i;
+
+    for (i = 0; i < 25; i++) {
+        jobjs[i] = NULL;
+        subs[i] = NULL;
+    }
+
+    iter = HSD_JObjGetChild(hsd_obj);
+    if (iter == NULL) {
+        return;
+    }
+    iter = HSD_JObjGetChild(iter);
+
+    for (i = 0; i < 25 && iter != NULL; i++) {
+        sub = Camera_80029020();
+        subs[i] = sub;
+        if (sub != NULL) {
+            jobjs[i] = iter;
+            lb_8000B1CC(jobjs[i], NULL, &pos);
+            sub->x10 = pos;
+            if (HSD_JObjGetFlags(iter) & 0x10) {
+                sub->x8 = 1;
+            } else {
+                sub->x8 = 0;
+            }
+            sub->x48.x = 30.0f;
+            sub->x48.y = -30.0f;
+            sub->x40.x = -30.0f;
+            sub->x40.y = 30.0f;
+            sub->x2C.x = sub->x40.x;
+            sub->x2C.y = sub->x40.y;
+            sub->x34.x = sub->x48.x;
+            sub->x34.y = sub->x48.y;
+            sub->x34.z = sub->x48.z;
+        }
+        iter = HSD_JObjGetNext(iter);
+    }
+}
 
 /// #grPura_80212EF4
 typedef struct grPura_unk128 {

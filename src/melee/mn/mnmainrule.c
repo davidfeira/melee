@@ -343,7 +343,62 @@ void mn_8022FB88(u8 arg0, struct mn_8022FB88_t* arg1)
     HSD_JObjAnimAll(jobj);
 }
 
-/// #mn_8022FD18
+extern u16 mn_804DBE04;
+extern u32 mn_804DBE08;
+extern u8 mn_804DBE0C;
+
+void mn_8022FD18(u8 arg0)
+{
+    struct mn_8022FB88_t* data = mn_804D6BD0->user_data;
+    struct mn_8022FB88_t* data2 = data;
+    u16 indices_a;
+    struct {
+        u32 b;
+        u8 trail;
+    } buf;
+    u8* p;
+    HSD_JObj* jobj;
+    s32 i;
+    u8 v;
+
+    buf.b = mn_804DBE08;
+    indices_a = mn_804DBE04;
+    buf.trail = mn_804DBE0C;
+
+    if (arg0 != 0) {
+        p = (u8*) &indices_a;
+        for (i = 0; i < 2; i++) {
+            HSD_JObjSetFlagsAll(data->slots[*p], 0x10);
+            p++;
+        }
+        p = (u8*) &buf.b;
+        for (i = 0; i < 5; i++) {
+            HSD_JObjClearFlagsAll(data->slots[*p], 0x10);
+            p++;
+        }
+        mn_8022FB88(((MainMenuPanelData*) data2)->state, data2);
+        return;
+    }
+
+    p = (u8*) &indices_a;
+    for (i = 0; i < 2; i++) {
+        HSD_JObjClearFlagsAll(data->slots[*p], 0x10);
+        p++;
+    }
+    p = (u8*) &buf.b;
+    for (i = 0; i < 5; i++) {
+        HSD_JObjSetFlagsAll(data->slots[*p], 0x10);
+        p++;
+    }
+
+    v = ((u8*) data)[9];
+    jobj = data->slots[7];
+    HSD_JObjReqAnimAll(jobj, (f32) (u8) (v / 10));
+    HSD_JObjAnimAll(jobj);
+    jobj = data->slots[8];
+    HSD_JObjReqAnimAll(jobj, (f32) (u8) (v % 10));
+    HSD_JObjAnimAll(jobj);
+}
 
 void mn_8022FEC8(HSD_GObj* gobj, HSD_JObj* jobj, u8 mode, u8 value)
 {

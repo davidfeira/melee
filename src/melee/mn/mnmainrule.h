@@ -23,7 +23,7 @@ struct mn_80231634_t {
 /* 22F538 */ void fn_8022F538(HSD_GObj*);
 struct mn_8022FB88_t;
 /* 22FB88 */ void mn_8022FB88(u8, struct mn_8022FB88_t*);
-/* 22FD18 */ UNK_RET mn_8022FD18(UNK_PARAMS);
+/* 22FD18 */ void mn_8022FD18(u8);
 /* 22FEC8 */ void mn_8022FEC8(HSD_GObj*, HSD_JObj*, u8, u8);
 /* 230198 */ UNK_RET mn_80230198(UNK_PARAMS);
 /* 230274 */ UNK_RET mn_80230274(UNK_PARAMS);

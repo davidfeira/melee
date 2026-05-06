@@ -2676,7 +2676,34 @@ u8 fn_80165548(MatchEnd* arg0, s8 arg1, s8 arg2)
     return result;
 }
 
-/// #fn_801656A8
+u8 fn_801656A8(MatchEnd* arg0, s8 arg1)
+{
+    s32 i;
+    s32 var_r8;
+    s32 var_r7;
+    u8 result = 0;
+
+    if (arg0->player_standings[arg1].slot_type != 3) {
+        var_r8 = 0;
+        for (i = 0; i < 6; i++) {
+            if (arg0->player_standings[i].slot_type != 3 &&
+                (u32) arg0->player_standings[arg1].x20 > (u32) arg0->player_standings[i].x20)
+            {
+                var_r8++;
+            }
+        }
+        var_r7 = 0;
+        for (i = 0; i < 6; i++) {
+            if (arg0->player_standings[i].slot_type != 3 &&
+                (u32) arg0->player_standings[arg1].x24 < (u32) arg0->player_standings[i].x24)
+            {
+                var_r7++;
+            }
+        }
+        result = (((var_r8 << 4) + var_r7) << 4) + (6 - arg1);
+    }
+    return result;
+}
 
 /// #fn_8016588C
 

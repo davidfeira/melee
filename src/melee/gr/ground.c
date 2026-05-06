@@ -1466,7 +1466,54 @@ static char msg1[] =
     "             check StageParam.csv or StageItem.csv, stdata.c\n";
 static char msg2[] = " stageid=%d\n";
 
-/// #Ground_801C28CC
+void Ground_801C28CC(void* arg0, s32 arg1)
+{
+    UnkBgmStruct* bgm = stage_info.param->xB0;
+    s32 count = stage_info.param->xB4;
+    s32 i;
+
+    for (i = 0; i < count; i++) {
+        if (bgm->x0 == arg1) {
+            UnkBgmStruct* b = bgm;
+            s32* out = (s32*) arg0;
+            s32 k;
+            s32 n = 0;
+            for (k = 0; k < 4; k++) {
+                out[0] = *(s16*) ((u8*) stage_info.param + n + 0x6A) * *(s16*) ((u8*) b + 0x1A);
+                out[1] = *(s16*) ((u8*) stage_info.param + n + 0x6C) * *(s16*) ((u8*) b + 0x1C);
+                out[2] = *(s16*) ((u8*) stage_info.param + n + 0x6E) * *(s16*) ((u8*) b + 0x1E);
+                out[3] = *(s16*) ((u8*) stage_info.param + n + 0x70) * *(s16*) ((u8*) b + 0x20);
+                out[4] = *(s16*) ((u8*) stage_info.param + n + 0x72) * *(s16*) ((u8*) b + 0x22);
+                out[5] = *(s16*) ((u8*) stage_info.param + n + 0x74) * *(s16*) ((u8*) b + 0x24);
+                out[6] = *(s16*) ((u8*) stage_info.param + n + 0x76) * *(s16*) ((u8*) b + 0x26);
+                out[7] = *(s16*) ((u8*) stage_info.param + n + 0x78) * *(s16*) ((u8*) b + 0x28);
+                b = (UnkBgmStruct*) ((u8*) b + 0x10);
+                out += 8;
+                n += 0x10;
+            }
+            if ((n >> 1) < 0x23) {
+                s16* bp = (s16*) ((u8*) b + 0x1A);
+                do {
+                    *out++ = *(s16*) ((u8*) stage_info.param + n + 0x6A) * *bp++;
+                    n += 2;
+                } while ((n >> 1) < 0x23);
+            }
+            return;
+        }
+        bgm++;
+    }
+
+    OSReport(msg0, __FILE__, 0x906, stage_info.internal_stage_id, arg1, count);
+    OSReport(msg1);
+    {
+        UnkBgmStruct* p = stage_info.param->xB0;
+        for (i = 0; i < count; i++) {
+            OSReport(msg2, p->x0);
+            p++;
+        }
+    }
+    while (1) {}
+}
 
 u8* Ground_801C2AD8(void)
 {
