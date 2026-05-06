@@ -384,7 +384,28 @@ int grPushOn_80219230(int arg0)
     __assert("grpushon.c", 0x35DU, "0");
 }
 
-/// #fn_802192A4
+extern Vec3 grPushOn_803E7CCC[4];
+
+s32 fn_802192A4(s32 unused, HSD_GObj* gobj, s32* out)
+{
+    Vec3 pos;
+    f32 scale = Ground_801C0498();
+    Vec3* p = grPushOn_803E7CCC - 1;
+    int i;
+
+    ftLib_80086644(gobj, &pos);
+
+    for (i = 0; i < 4; i++) {
+        p++;
+        if (scale * p->x < pos.x && scale * p->y > pos.x &&
+            scale * (-50.0f + p->z) < pos.y && scale * p->z > pos.y)
+        {
+            *out = *(s32*) grPushOn_804D6AB8;
+            return 1;
+        }
+    }
+    return 0;
+}
 
 DynamicsDesc* grPushOn_80219458(enum_t arg0)
 {
