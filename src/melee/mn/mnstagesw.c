@@ -29,6 +29,9 @@ static float mnStageSw_803ED488[15] = {
     0.0f, -0.1f, 0.0f, 0.0f, -0.1f,
 };
 
+/// Confirmation toggle anim frames (off, on)
+static f32 mnStageSw_804D4BB8[2] = { 0.0f, 1.0f };
+
 /// Stage switch toggle indices - maps menu position to internal stage ID
 static u8 mnStageSw_803ED4C4[NUM_STAGES] = {
     0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09,
@@ -259,6 +262,7 @@ static void mnStageSw_80236178(HSD_GObj* gobj, u8 idx)
 /// Get JObj for stage icon at given index
 /// Navigates JObj tree stored in gobj->user_data (idx < 15) or gobj->x34_unk
 /// (idx >= 15)
+#pragma dont_inline on
 static HSD_JObj* mnStageSw_802364A0(HSD_GObj* gobj, u8 idx)
 {
     HSD_JObj* jobj;
@@ -277,8 +281,77 @@ static HSD_JObj* mnStageSw_802364A0(HSD_GObj* gobj, u8 idx)
     }
     return jobj;
 }
+#pragma dont_inline reset
 
-/// #mnStageSw_80236548
+/// Update stage switch menu state on selection changes
+/// arg1: selection changed (refresh icons + highlight position + start anim)
+/// arg2: confirmation toggled (request stage on/off anim)
+static void mnStageSw_80236548(HSD_GObj* gobj, u8 arg1, u8 arg2)
+{
+    HSD_GObj* inner = (HSD_GObj*) gobj->user_data;
+    HSD_JObj* sp44;
+    HSD_JObj* sp3C;
+    HSD_JObj* highlight;
+    f32 frame;
+    f32 delta;
+    u8 hov;
+    u16 idx;
+
+    if (arg1 != 0) {
+        lb_80011E24(mnStageSw_802364A0(inner, ((u8*) inner)[1]), &sp44, 3,
+                    -1);
+        HSD_JObjSetFlagsAll(sp44, JOBJ_HIDDEN);
+        frame = mn_8022F298(sp44);
+
+        hov = (u8) mn_804A04F0.hovered_selection;
+        lb_80011E24(mnStageSw_802364A0(inner, hov), &sp44, 3, -1);
+        HSD_JObjClearFlagsAll(sp44, JOBJ_HIDDEN);
+        HSD_JObjReqAnimAll(sp44, frame);
+        HSD_JObjAnimAll(sp44);
+
+        highlight = (HSD_JObj*) inner->hsd_obj;
+        HSD_JObjClearFlagsAll(highlight, JOBJ_HIDDEN);
+
+        delta = HSD_JObjGetTranslationY(
+                    (HSD_JObj*) inner->user_data_remove_func) -
+                HSD_JObjGetTranslationY((HSD_JObj*) inner->user_data);
+
+        if (hov < 15) {
+            HSD_JObjSetTranslateX(
+                highlight,
+                HSD_JObjGetTranslationX((HSD_JObj*) inner->user_data));
+            HSD_JObjSetTranslateY(
+                highlight,
+                delta * (f32) hov +
+                    HSD_JObjGetTranslationY((HSD_JObj*) inner->user_data));
+        } else {
+            HSD_JObjSetTranslateX(
+                highlight,
+                HSD_JObjGetTranslationX((HSD_JObj*) inner->x34_unk));
+            HSD_JObjSetTranslateY(
+                highlight,
+                delta * (f32) (hov - 15) +
+                    HSD_JObjGetTranslationY((HSD_JObj*) inner->user_data));
+        }
+    }
+
+    if (arg2 != 0) {
+        u8 confirmed = mn_804A04F0.confirmed_selection;
+        lb_80011E24(mnStageSw_802364A0(
+                        inner, (u8) mn_804A04F0.hovered_selection),
+                    &sp3C, 2, -1);
+        HSD_JObjReqAnimAll(sp3C, mnStageSw_804D4BB8[confirmed]);
+        HSD_JObjAnimAll(sp3C);
+    }
+
+    if (arg1 != 0) {
+        idx = mn_804A04F0.hovered_selection;
+    } else {
+        idx = (u16) ((u8*) inner)[1];
+    }
+    lb_80011E24(mnStageSw_802364A0(inner, (u8) idx), &sp44, 3, -1);
+    mn_8022ED6C(sp44, (AnimLoopSettings*) mnStageSw_803ED488);
+}
 
 /// #fn_80236998
 
