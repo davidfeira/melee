@@ -1667,7 +1667,57 @@ static bool ftCo_800A4038(Fighter* fp, bool arg1)
     return false;
 }
 
-/// #ftCo_800A4768
+static void ftCo_800A4768(Fighter* fp, Vec3* out)
+{
+    Vec3 v;
+    f32 best;
+    mp_UnkStruct0* it;
+    f32 dx, dy, mag_sq;
+    struct Fighter_x1A88_t* data = &fp->x1A88;
+    PAD_STACK(0xC);
+
+    best = -1.0f;
+    for (it = mpIsland_80458E88.next; it != NULL; it = it->next) {
+        v = it->x14;
+
+        if (!(v.x < fp->x1A88.half_width + Stage_GetBlastZoneLeftOffset() ||
+              v.x > Stage_GetBlastZoneRightOffset() - data->half_width ||
+              v.y < data->half_height + Stage_GetBlastZoneBottomOffset() ||
+              v.y > Stage_GetBlastZoneTopOffset() - data->half_height))
+        {
+            dx = fp->cur_pos.x - v.x;
+            if (dx > 0.0f) {
+                dy = fp->cur_pos.y - v.y;
+                mag_sq = dx * dx + dy * dy;
+                if (best < 0.0 || best > mag_sq) {
+                    best = mag_sq;
+                    out->x = (f32) ((f64) v.x - 5.0);
+                    out->y = v.y;
+                    out->z = v.z;
+                }
+            }
+        }
+
+        if (!(v.x < fp->x1A88.half_width + Stage_GetBlastZoneLeftOffset() ||
+              v.x > Stage_GetBlastZoneRightOffset() - data->half_width ||
+              v.y < data->half_height + Stage_GetBlastZoneBottomOffset() ||
+              v.y > Stage_GetBlastZoneTopOffset() - data->half_height))
+        {
+            v = it->x8;
+            dx = fp->cur_pos.x - v.x;
+            if (dx < 0.0f) {
+                dy = fp->cur_pos.y - v.y;
+                mag_sq = dx * dx + dy * dy;
+                if (best < 0.0 || best > mag_sq) {
+                    best = mag_sq;
+                    out->x = (f32) (5.0 + (f64) v.x);
+                    out->y = v.y;
+                    out->z = v.z;
+                }
+            }
+        }
+    }
+}
 
 void ftCo_800A49B4(Fighter* fp)
 {

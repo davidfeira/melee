@@ -82,6 +82,58 @@ void mnEvent_8024D4E0(HSD_JObj* jobj, Vec3* translate)
     HSD_JObjSetTranslate(jobj, translate);
 }
 
+static GXColor mnEvent_804D502C = { 0, 0, 0, 0xFF };
+static char mnEvent_803EF7A0[] = { 0x81, 0x7C, 0x81, 0x7C, 0x3A,
+                                   0x81, 0x7C, 0x81, 0x7C, 0x20,
+                                   0x81, 0x7C, 0x81, 0x7C, 0 };
+static char mnEvent_804D5044[] = { 0x81, 0x7C, 0, 0 };
+
+void mnEvent_8024D5B0(HSD_GObj* gobj, s32 idx)
+{
+    int sp18;
+    int sp14;
+    int sp10;
+    HSD_Text* text;
+    u32 val;
+    MnEventData* data = gobj->user_data;
+
+    if (data->name_text != NULL) {
+        HSD_SisLib_803A5CC4(data->name_text);
+    }
+    text = HSD_SisLib_803A6754(0, 1);
+    data->name_text = text;
+    text->pos_x = 3.8f;
+    text->pos_y = 6.9f;
+    text->pos_z = 17.0f;
+    text->text_color = mnEvent_804D502C;
+    text->default_alignment = 2;
+    text->font_size.x = 0.03f;
+    text->font_size.y = 0.03f;
+    val = gmMainLib_8015CF5C((u8) gm_801BEBC0((u8) idx));
+    if ((u8) gm_801BEB8C((u8) gm_801BEBC0((u8) idx)) != 0) {
+        if (gmMainLib_8015CEFC((u8) gm_801BEBC0((u8) idx)) != 0) {
+            mn_8022EA78((char*) &sp18, 2, ((val / 60) / 60) % 60);
+            mn_8022EA78((char*) &sp14, 2, (val / 60) % 60);
+            mn_8022EA78((char*) &sp10, 2,
+                        (u32) (s32) ((99.0f * (f32) (val % 60)) / 59.0f));
+            HSD_SisLib_803A6B98(text, 0.0f, 0.0f, "%s:%s %s", &sp18, &sp14,
+                                &sp10);
+        } else {
+            text->pos_x = 4.25f;
+            text->pos_y = 6.9f;
+            text->pos_z = 17.0f;
+            text->default_kerning = 1;
+            HSD_SisLib_803A6B98(text, 0.0f, 0.0f, mnEvent_803EF7A0, &sp18,
+                                &sp14, &sp10);
+        }
+    } else if (gmMainLib_8015CEFC((u8) gm_801BEBC0((u8) idx)) != 0) {
+        HSD_SisLib_803A6B98(text, 0.0f, 0.0f, "%d", val);
+    } else {
+        text->default_kerning = 1;
+        HSD_SisLib_803A6B98(text, 0.0f, 0.0f, mnEvent_804D5044);
+    }
+}
+
 void fn_8024E1B4(HSD_GObj* gobj)
 {
     int i;

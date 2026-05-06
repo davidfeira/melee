@@ -1213,7 +1213,43 @@ void fn_80162068(MatchEnd* match_end)
     }
 }
 
-/// #fn_80162170
+s32 fn_80162170(MatchEnd* match_end)
+{
+    s32 i;
+    s32 j;
+    u8 nt;
+    struct MatchPlayerData* pdata_i;
+    struct MatchPlayerData* pdata_j;
+    struct NameTagData* nd;
+    s32 sum;
+    u32 usum;
+
+    for (i = 0; i < 4; i++) {
+        pdata_i = &match_end->player_standings[i];
+        if (pdata_i->slot_type == 3) {
+            continue;
+        }
+        nt = pdata_i->x4;
+        if (nt == 0x78) {
+            continue;
+        }
+        nd = GetPersistentNameData(nt);
+        for (j = 0; j < 4; j++) {
+            pdata_j = &match_end->player_standings[j];
+            if (i == j || pdata_j->slot_type == 3 || pdata_j->x4 == 0x78) {
+                continue;
+            }
+            sum = pdata_i->kills[j] + nd->vs_kos[pdata_j->x4];
+            if (sum > 0xFFFF) {
+                sum = 0xFFFF;
+            }
+            nd->vs_kos[pdata_j->x4] = (u16) sum;
+        }
+        usum = nd->play_time_by_fighter[gm_80164024(pdata_i->character_kind)] + match_end->frame_count / 60;
+        nd->play_time_by_fighter[gm_80164024(pdata_i->character_kind)] = (usum > (u32) -1) ? (u32) -1 : usum;
+        fn_80161C90(match_end, i, &nd->sd_count);
+    }
+}
 
 s32 gm_801623A4(MatchEnd* arg0)
 {
@@ -3764,8 +3800,9 @@ void gm_80168FC4(void)
     lbAudioAx_80027648();
 }
 
-void fn_80169000(MatchEnd* arg0, u8* arg1)
+void fn_80169000(MatchEnd* arg0, void* arg1_)
 {
+    u8* arg1 = (u8*) arg1_;
     u8 ranks[4];
     u8 vals[4];
     u8* vp;

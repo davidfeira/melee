@@ -19,6 +19,8 @@
 #include "lb/lb_00F9.h"
 #include "mp/mplib.h"
 
+#include <MSL/trigf.h>
+
 #include <dolphin/mtx.h>
 #include <baselib/gobj.h>
 #include <baselib/gobjgxlink.h>
@@ -568,7 +570,36 @@ int grFourside_801F3F10(void)
     return 0;
 }
 
-/// #fn_801F3F74
+void fn_801F3F74(HSD_GObj* gobj, int renderpass)
+{
+    Vec3 eye;
+    Ground* gp;
+    f32 abs_y;
+    f32 angle;
+    PAD_STACK(4);
+
+    if ((u32) renderpass == 1) {
+        gp = gobj->user_data;
+        HSD_CObjGetEyeVector(HSD_CObjGetCurrent(), &eye);
+        abs_y = eye.y;
+        if (abs_y < 0.0f) {
+            abs_y = -abs_y;
+        }
+        if (abs_y < 0.99f) {
+            angle = atan2f(-eye.x, -eye.z);
+            if (gp->gv.fourside.x0 != NULL) {
+                HSD_JObjSetRotationY(gp->gv.fourside.x0, 0.2f * angle);
+            }
+            if (gp->gv.fourside.x4 != NULL) {
+                HSD_JObjSetRotationY(gp->gv.fourside.x4, 0.4f * angle);
+            }
+            if (gp->gv.fourside.x8 != NULL) {
+                HSD_JObjSetRotationY(gp->gv.fourside.x8, 0.7f * angle);
+            }
+        }
+    }
+    grDisplay_801C5DB0(gobj, renderpass);
+}
 
 DynamicsDesc* grFourside_801F41E0(enum_t arg)
 {
