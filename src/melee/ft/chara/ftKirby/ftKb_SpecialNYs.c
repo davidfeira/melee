@@ -42,6 +42,10 @@
 #include <MSL/math.h>
 
 extern f32 ftKb_Init_804D9558;
+extern f32 ftKb_Init_804D9590;
+extern f32 ftKb_Init_804D9594;
+extern f32 ftKb_Init_804D9598;
+extern f64 ftKb_Init_804D95A0;
 
 /// Forward declarations for static functions
 static void fn_801095DC(HSD_GObj*);
@@ -1948,7 +1952,72 @@ void fn_8010CD88(HSD_GObj* gobj)
     ftKb_SpecialNGw_8010CD44(gobj);
 }
 
-/// fn_8010CE5C: not yet matching
+void fn_8010CE5C(Fighter_GObj* gobj)
+{
+    Vec3 vec0;
+    Vec3 vec1;
+
+    {
+        u8 _[4] = { 0 };
+        {
+            int sausageCount[6];
+            u8 _2[4] = { 0 };
+            {
+                Fighter* fp;
+                {
+                    u8 _3[8] = { 0 };
+                    Fighter* fp2 = GET_FIGHTER(gobj);
+                    ftKb_DatAttrs* da = fp2->dat_attrs;
+                    if (fp2->cmd_vars[0] != 0) {
+                        int var_r28;
+                        fp2->cmd_vars[0] = var_r28 = 0;
+
+                        if ((float) fp2->mv.kb.specialn_gw.maxSausage <
+                            da->specialn_gw_max_sausages_per_use)
+                        {
+                            fp2->mv.kb.specialn_gw.maxSausage++;
+
+                            vec1.x = ftKb_Init_804D9590;
+                            vec1.y = ftKb_Init_804D9594;
+                            vec1.z = ftKb_Init_804D9598;
+
+                            lb_8000B1CC(fp2->parts[ftParts_GetBoneIndex(
+                                                       fp2, FtPart_LThumbNb)]
+                                            .joint,
+                                        &vec1, &vec0);
+
+                            {
+                                int i;
+                                int* pSausage;
+                                fp = gobj->user_data;
+                                pSausage = sausageCount;
+                                for (i = 5, i -= 5; i < 5; i++) {
+                                    if (i != fp->fv.kb.xD4 &&
+                                        i != fp->fv.kb.xD8)
+                                    {
+                                        *pSausage++ = i;
+                                        var_r28++;
+                                    }
+                                }
+                                {
+                                    int temp_r5 =
+                                        sausageCount[HSD_Randi(var_r28)];
+                                    int var_r6;
+                                    fp->fv.kb.xD8 = fp->fv.kb.xD4;
+                                    var_r6 = temp_r5;
+                                    fp->fv.kb.xD4 = temp_r5;
+                                    it_802C837C(gobj, &vec0, 0x9B, var_r6,
+                                                fp2->facing_dir);
+                                }
+                            }
+                        }
+                        fp2->accessory4_cb = NULL;
+                    }
+                }
+            }
+        }
+    }
+}
 
 void fn_8010CFB0(Fighter_GObj* gobj)
 {
