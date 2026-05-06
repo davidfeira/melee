@@ -2014,7 +2014,91 @@ Item* ftCo_800A5F4C(Fighter* fp, ItemKind arg1)
 
 /// #ftCo_800A6A98
 
-/// #ftCo_800A6D2C
+static inline bool ftCo_800A2718_dontinline(mp_UnkStruct0* arg0)
+{
+    return ftCo_800A2718(arg0);
+}
+
+static bool ftCo_800A6D2C(Fighter* fp, Vec3* out)
+{
+    struct Fighter_x1A88_t* x1A88 = &fp->x1A88;
+    f32 best_sq_dist = -1.0f;
+    mp_UnkStruct0* self_island = mpIsland_8005AB54(fp->coll_data.floor.index);
+    mp_UnkStruct0* cur;
+
+    for (cur = mpIsland_80458E88.next; cur != NULL; cur = cur->next) {
+        Vec3 a;
+        Vec3 b;
+        f32 mid_x;
+        f32 mid_y;
+        Vec3 hit_pos;
+        Vec3 hit_normal;
+        int line_id;
+        u32 flags;
+        s32 ignore_special;
+        s32 found_floor;
+
+        if (ftCo_800A2718_dontinline(cur)) {
+            continue;
+        }
+        if (cur == self_island) {
+            continue;
+        }
+
+        a = cur->x8;
+        b = cur->x14;
+        HSD_Randf();
+        ignore_special = 0;
+        line_id = -1;
+        mid_x = 0.5f * (b.x + a.x);
+        mid_y = 0.5f * (b.y + a.y);
+        found_floor = mpCheckFloor(mid_x, mid_y + 5.0f, mid_x,
+                                   mid_y - 20.0f, 0.0f, &hit_pos, &line_id,
+                                   &flags, &hit_normal, -1, -1, -1, NULL,
+                                   NULL);
+        if (found_floor) {
+            if (grBigBlue_801EF844(line_id) ||
+                grInishie1_801FCAAC(line_id) ||
+                grCorneria_801E2D90(line_id) ||
+                grVenom_80206D10(line_id))
+            {
+                ignore_special = 1;
+            }
+            if (ignore_special) {
+                found_floor = 0;
+            }
+        }
+        if (!found_floor) {
+            continue;
+        }
+        if (hit_pos.y >= fp->cur_pos.y - x1A88->x558) {
+            continue;
+        }
+        if (hit_pos.x < fp->x1A88.half_width + Stage_GetBlastZoneLeftOffset() ||
+            hit_pos.x > Stage_GetBlastZoneRightOffset() - x1A88->half_width ||
+            hit_pos.y < x1A88->half_height + Stage_GetBlastZoneBottomOffset() ||
+            hit_pos.y > Stage_GetBlastZoneTopOffset() - x1A88->half_height)
+        {
+            continue;
+        }
+        {
+            f32 dx = hit_pos.x - fp->cur_pos.x;
+            f32 dy = hit_pos.y - fp->cur_pos.y;
+            f32 sq_dist = dx * dx + dy * dy;
+            if (best_sq_dist < 0.0 || sq_dist < best_sq_dist) {
+                out->x = hit_pos.x;
+                best_sq_dist = sq_dist;
+                out->y = hit_pos.y;
+                out->z = 0.0f;
+            }
+        }
+    }
+
+    if (best_sq_dist < 0.0) {
+        return false;
+    }
+    return true;
+}
 
 /// #ftCo_800A6FC4
 
