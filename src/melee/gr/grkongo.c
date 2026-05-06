@@ -1452,7 +1452,68 @@ static void fn_801D7700(Ground* gp, s32 arg1, CollData* cd, s32 arg3,
     }
 }
 
-/// #grKongo_801D77E0
+void grKongo_801D77E0(HSD_GObj* gobj, s32 arg1)
+{
+    Ground* gp = gobj->user_data;
+    s32 i;
+    f32 v;
+    f32 limit;
+    f32 step;
+
+    if (arg1 != 0) {
+        gp->gv.kongo.xC4 = 0.0f;
+        gp->gv.kongo.xC8 = 0.0f;
+        gp->gv.kongo.xD4 = 0.0f;
+        gp->gv.kongo.xD8 = 0.0f;
+    } else {
+        Ground* q = gp;
+        for (i = 2; i != 0; i--) {
+            if (q->gv.kongo.xC4 > 0.0f) {
+                if (q->gv.kongo.xC8 > 0.0f) {
+                    step = 0.017453292f * grKg_804D6980->unkB4;
+                } else {
+                    step = 0.017453292f * grKg_804D6980->unkB4 * 0.5f;
+                }
+                q->gv.kongo.xC8 -= step;
+            } else if (q->gv.kongo.xC4 < 0.0f) {
+                if (q->gv.kongo.xC8 < 0.0f) {
+                    step = 0.017453292f * grKg_804D6980->unkB4;
+                } else {
+                    step = 0.017453292f * grKg_804D6980->unkB4 * 0.5f;
+                }
+                q->gv.kongo.xC8 += step;
+            }
+            q->gv.kongo.xC4 += q->gv.kongo.xC8;
+            v = q->gv.kongo.xC4;
+            limit = 0.017453292f *
+                    (grKg_804D6980->unkB8 -
+                     0.017453292f * grKg_804D6980->unkAC);
+            if (v > limit) {
+                q->gv.kongo.xC4 = limit;
+                q->gv.kongo.xC8 = 0.0f;
+            } else if (v < -limit) {
+                q->gv.kongo.xC4 = -limit;
+                q->gv.kongo.xC8 = 0.0f;
+            } else {
+                f32 av = (v < 0.0f) ? -v : v;
+                f32 thresh = 0.017453292f * grKg_804D6980->unkB4;
+                if (av < thresh) {
+                    f32 av2 = (q->gv.kongo.xC8 < 0.0f) ? -q->gv.kongo.xC8
+                                                       : q->gv.kongo.xC8;
+                    if (av2 < thresh) {
+                        q->gv.kongo.xC4 = 0.0f;
+                        q->gv.kongo.xC8 = 0.0f;
+                    }
+                }
+            }
+            q = (Ground*) ((u8*) q + 0x10);
+        }
+    }
+    HSD_JObjSetRotationZ(gp->gv.kongo3.xCC, gp->gv.kongo.xC4);
+    HSD_JObjSetRotationZ(gp->gv.kongo3.xD0, gp->gv.kongo.xC4);
+    HSD_JObjSetRotationZ(gp->gv.kongo.xDC, gp->gv.kongo.xD4);
+    HSD_JObjSetRotationZ(gp->gv.kongo.xE0, gp->gv.kongo.xD4);
+}
 
 void grKongo_801D7BBC(HSD_GObj* gobj)
 {
