@@ -622,7 +622,49 @@ void fn_80215D50(Item_GObj* item_gobj, Ground* gp, HSD_GObj* gobj)
     return;
 }
 
-/// #grGreens_80215D54
+void grGreens_80215D54(Ground_GObj* gobj, int j)
+{
+    Ground* gp = GET_GROUND(gobj);
+    int joff = j << 5;
+    int ioff;
+    int prev_ioff;
+    int i;
+    u8* p;
+    struct grGreens_BlockVars tmp;
+    struct grGreens_BlockVars* row;
+    struct grGreens_BlockVars* prev_row;
+    int k;
+
+    for (i = 1; i < 5; i++) {
+        unsigned int s;
+        ioff = i * 0xC0;
+        s = (((u8*) gp->gv.greens.x8_blocks)[ioff + joff] >> 4) & 0xF;
+        if (s == 1 || s == 2) {
+            prev_ioff = (i - 1) * 0xC0;
+            if ((((u8*) gp->gv.greens.x8_blocks)[prev_ioff + joff] >> 4) & 0xF) {
+                continue;
+            }
+            for (k = i; k < 5; k++) {
+                row = (struct grGreens_BlockVars*) ((u8*) gp->gv.greens
+                                                        .x8_blocks +
+                                                    ioff + joff);
+                tmp = *row;
+                *row = *(struct grGreens_BlockVars*) ((u8*) row - 0xC0);
+                prev_row =
+                    (struct grGreens_BlockVars*) ((u8*) gp->gv.greens
+                                                      .x8_blocks +
+                                                  ioff + joff - 0xC0);
+                *prev_row = tmp;
+                ioff += 0xC0;
+            }
+            p = (u8*) gp->gv.greens.x8_blocks + prev_ioff + joff;
+            if ((unsigned int) ((*p >> 4) & 0xF) == 2) {
+                *p = (*p & ~0xF0) | 0x10;
+            }
+            i = 0;
+        }
+    }
+}
 
 /// #grGreens_80215ED8
 
