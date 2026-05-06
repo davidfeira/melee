@@ -53,7 +53,7 @@ struct lbl_8046B488_t;
 /* 160C90 */ void gm_80160C90(HSD_Text* text, u8 fighter_id, bool arg2);
 /* 160DE8 */ void fn_80160DE8(HSD_JObj*, u8, s32, u8, f32, f32);
 /* 160F58 */ float fn_80160F58(u8 ckind);
-/* 161004 */ UNK_RET fn_80161004(UNK_PARAMS);
+/* 161004 */ s32 fn_80161004(MatchEnd*);
 /* 161154 */ UNK_RET fn_80161154(UNK_PARAMS);
 /* 161C90 */ void fn_80161C90(MatchEnd*, s32, u16*);
 /* 162068 */ void fn_80162068(MatchEnd*);
