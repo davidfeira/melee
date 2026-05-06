@@ -3184,17 +3184,55 @@ def cmd_picker(args: argparse.Namespace) -> None:
     data = json.loads(report_path.read_text())
 
     differing_tus: Optional[set[str]] = None
+    upstream_cache: dict[str, str] = {}
     if getattr(args, "source_differs_upstream", False):
         differing_tus = _tus_differing_from_upstream()
 
+    def _fetch_upstream(rel_path: str) -> str:
+        if rel_path in upstream_cache:
+            return upstream_cache[rel_path]
+        remote = permute_upstream._upstream_remote()
+        if remote is None:
+            upstream_cache[rel_path] = ""
+            return ""
+        r = subprocess.run(
+            ["git", "show", f"{remote}/master:{rel_path}"],
+            capture_output=True, cwd=ROOT, check=False,
+        )
+        upstream_cache[rel_path] = r.stdout.decode("utf-8", errors="replace") if r.returncode == 0 else ""
+        return upstream_cache[rel_path]
+
+    def _upstream_already_matched(unit_short: str, func_name: str) -> bool:
+        """True if upstream/master has a real definition for this function
+        (so prep would refuse and a subagent would bounce)."""
+        rel_path = f"src/{unit_short}.c"
+        content = _fetch_upstream(rel_path)
+        if not content:
+            return False
+        # Don't drop if upstream still has it as INCLUDE_ASM or /// # placeholder
+        if re.search(r"INCLUDE_ASM\([^)]*,\s*" + re.escape(func_name) + r"\s*\)", content):
+            return False
+        if re.search(r"^\s*///\s*#\s*" + re.escape(func_name) + r"\s*$", content, re.MULTILINE):
+            return False
+        # Real definition signature
+        def_pat = re.compile(
+            r"^\s*(?:static\s+|inline\s+|extern\s+)*"
+            r"[A-Za-z_][A-Za-z0-9_*\s]*\s\*?\s*"
+            + re.escape(func_name) + r"\s*\(",
+            re.MULTILINE,
+        )
+        return bool(def_pat.search(content))
+
     rows: list[tuple[float, dict]] = []
     skipped_no_diff = 0
+    skipped_upstream_matched = 0
     for unit in data.get("units", []):
         unit_name = unit.get("name", "")
         unit_short = unit_name.replace("main/", "")
         for fn in unit.get("functions", []) or []:
             pct = fn.get("fuzzy_match_percent", 0.0)
             size_bytes = int(fn.get("size", 0))
+            func_name = fn.get("name", "")
 
             if args.mode == "untouched" and pct >= 99.99:
                 continue
@@ -3207,9 +3245,12 @@ def cmd_picker(args: argparse.Namespace) -> None:
             if differing_tus is not None and unit_short not in differing_tus:
                 skipped_no_diff += 1
                 continue
+            if differing_tus is not None and func_name and _upstream_already_matched(unit_short, func_name):
+                skipped_upstream_matched += 1
+                continue
 
             rows.append((size_bytes, {
-                "name": fn.get("name"),
+                "name": func_name,
                 "size": size_bytes,
                 "pct": pct,
                 "unit": unit_name,
@@ -3219,8 +3260,8 @@ def cmd_picker(args: argparse.Namespace) -> None:
 
     suffix = ""
     if differing_tus is not None:
-        suffix = (f"  (filtered by source-differs-upstream: "
-                  f"{len(differing_tus)} TUs differ; {skipped_no_diff} fns skipped)")
+        suffix = (f"  (source-differs-upstream: {len(differing_tus)} TUs differ; "
+                  f"{skipped_no_diff} fns wrong-TU; {skipped_upstream_matched} fns already matched upstream)")
     print(f"# {len(rows)} {args.mode} functions (showing first {args.limit}){suffix}")
     print(f"{'instructions':>12}  {'match%':>7}  function name")
     for _, r in rows[: args.limit]:
