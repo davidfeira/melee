@@ -24,6 +24,7 @@
 #include "if/textdraw.h"
 #include "if/textlib.h"
 #include "lb/lb_00B0.h"
+#include "lb/lb_00F9.h"
 #include "lb/lbarchive.h"
 #include "lb/lbaudio_ax.h"
 #include "lb/lblanguage.h"
@@ -191,7 +192,12 @@ typedef struct {
 } ToyED8Data;
 
 typedef struct {
-    u8 x0[0x18];
+    HSD_GObj* x0;
+    HSD_GObj* x4;
+    HSD_GObj* x8;
+    HSD_GObj* xC;
+    HSD_GObj* x10;
+    HSD_GObj* x14;
     f32 x18;
     u8 x1C[0x20 - 0x1C];
     f32 x20;
@@ -286,6 +292,7 @@ extern f32 un_804D6E8C;
 extern f32 un_804D6E90;
 extern f32 un_804D6E94;
 
+extern s32 un_804D6E60;
 extern s32 un_804D6E70;
 extern s32 un_804D6E74;
 extern s32 un_804D6E78;
@@ -2423,7 +2430,103 @@ f32 un_80309338(Vec3* arg0, Vec3* arg1)
 
 /// #fn_8030E110
 
-/// #un_8030FA50
+void un_8030FA50(void)
+{
+    char* str = un_803FDD18;
+    Toy6E68* state = (Toy6E68*) un_804D6E68;
+    HSD_CameraDescPerspective* cam_desc;
+    HSD_CObj* cobj;
+    HSD_CObj* cobj2;
+    HSD_GObj* gobj;
+    Mtx mtx;
+    Vec3 eye;
+    PAD_STACK(64);
+
+    cam_desc = HSD_ArchiveGetPublicAddress(
+        ((ToyGlobalsS_*) un_804D6ED8)->x50, str + 0x8D0);
+
+    state->x14 = GObj_Create(1, 2, 0);
+    HSD_SObjLib_803A55DC(state->x14, 0x280, 0x1E0, 0);
+    gobj = state->x14;
+    gobj->gxlink_prios = 0x0004000000000000ULL;
+
+    state->x0 = GObj_Create(1, 2, 0);
+    HSD_GObjObject_80390A70(state->x0, HSD_GObj_804D784B,
+                            lb_80013B14(cam_desc));
+    GObj_SetupGXLinkMax(state->x0, (GObj_RenderFunc) un_80306954, 0);
+    gobj = state->x0;
+    gobj->gxlink_prios = 0x1048000000000000ULL;
+
+    state->x10 = GObj_Create(1, 2, 0);
+    HSD_SObjLib_803A55DC(state->x10, 0x280, 0x1E0, 0);
+    gobj = state->x10;
+    gobj->gxlink_prios = 0x0100000000000000ULL;
+
+    state->x8 = GObj_Create(1, 2, 0);
+    cobj = lb_80013B14((HSD_CameraDescPerspective*) (str + 0x914));
+    HSD_CObjSetFrustum(cobj, 0.049584f, -0.035585f, -0.026839f, 0.076839f);
+    HSD_GObjObject_80390A70(state->x8, HSD_GObj_804D784B, cobj);
+    GObj_SetupGXLinkMax(state->x8, (GObj_RenderFunc) un_803068E0, 0);
+    gobj = state->x8;
+    gobj->gxlink_prios = 0x0E80000000000000ULL;
+
+    if (un_804D6EA2 != 0) {
+        un_804D6E60 = 0;
+        DevText_SetXY(un_804D6E9C, 0x21C, 0x82);
+        HSD_GObj_SetupProc(state->x8, (HSD_GObjEvent) fn_8030B530, 0);
+    } else if (un_804D6E50 != 0) {
+        HSD_GObj_SetupProc(state->x8, (HSD_GObjEvent) fn_8030E110, 0);
+    } else {
+        HSD_GObj_SetupProc(state->x8, (HSD_GObjEvent) fn_80309404, 0);
+    }
+    HSD_GObj_80390CD4(state->x8);
+
+    state->x61 = 0;
+    state->x60 = 4;
+    un_80307828(0);
+    ((Toy6E68*) un_804D6E68)->x58 = 0x95E;
+
+    state->x4 = GObj_Create(1, 2, 0);
+    cobj2 = lb_80013B14((HSD_CameraDescPerspective*) (str + 0x974));
+    HSD_GObjObject_80390A70(state->x4, HSD_GObj_804D784B, cobj2);
+    GObj_SetupGXLinkMax(state->x4, (GObj_RenderFunc) un_803068E0, 0);
+    gobj = state->x4;
+    gobj->gxlink_prios = 0x8000000000000000ULL;
+    un_804D6E70 = HSD_SisLib_803A611C(0, state->x4, 0xB, 0xC, 0, 0x3F, 0, 0);
+
+    HSD_CObjGetEyePosition(cobj2, &eye);
+    eye.y = 0.0f;
+    eye.x = 0.0f;
+    eye.z = HSD_CObjGetEyeDistance(cobj2);
+    MTXRotRad(mtx, 'y', 0.57595867f);
+    PSMTXMultVecSR(mtx, &eye, &eye);
+    HSD_CObjSetEyePosition(cobj2, &eye);
+
+    state->xC = GObj_Create(1, 2, 0);
+    HSD_GObjObject_80390A70(state->xC, HSD_GObj_804D784B,
+                            lb_80013B14(cam_desc));
+    GObj_SetupGXLinkMax(state->xC, HSD_GObj_803910D8, 0);
+    gobj = state->xC;
+    gobj->gxlink_prios = 0x4000000000000000ULL;
+    un_804D6E74 = HSD_SisLib_803A611C(3, state->xC, 0xC, 0xB, 0, 0x3E, 0, 0);
+    un_804D6E78 = HSD_SisLib_803A611C(3, state->xC, 0xD, 0xB, 0, 0x3E, 0, 0);
+    un_804D6E7C = HSD_SisLib_803A611C(3, state->xC, 0xE, 0xB, 0, 0x3E, 0, 0);
+
+    if (un_804D6E50 != 0) {
+        gobj = state->x0;
+        gobj->gxlink_prios = 0;
+        gobj = state->x4;
+        gobj->gxlink_prios = 0;
+        gobj = state->xC;
+        gobj->gxlink_prios = 0;
+        gobj = state->x10;
+        gobj->gxlink_prios = 0;
+        gobj = state->x14;
+        gobj->gxlink_prios = 0;
+        gobj = state->x8;
+        gobj->gxlink_prios = 0x02A0000000000000ULL;
+    }
+}
 
 /// #un_8030FE48
 
