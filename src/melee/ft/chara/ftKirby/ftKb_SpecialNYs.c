@@ -49,6 +49,7 @@ static void fn_80109680(HSD_GObj*);
 static void fn_80109714(HSD_GObj*);
 static void fn_801097B8(HSD_GObj*);
 static void fn_8010C288(HSD_GObj* gobj);
+static void fn_8010AA64(HSD_GObj* gobj);
 void fn_8010C44C(HSD_GObj* gobj);
 void fn_8010CD88(HSD_GObj* gobj);
 
@@ -137,10 +138,12 @@ float ftKb_SpecialNYs_80109380(void)
     return cd->specialn_ys_unk3 / cd->specialn_ys_damage_multiplier;
 }
 
+#pragma dont_inline on
 ftDynamics* ftKb_SpecialNYs_801093A0(void)
 {
     return ft_80459B88.hats[FTKIND_SAMUS]->hat_dynamics[0];
 }
+#pragma dont_inline reset
 
 void ftKb_SpecialNYs_801093B4(Fighter_GObj* gobj)
 {
@@ -844,7 +847,51 @@ void ftKb_SpecialNYs_8010AA2C(Fighter_GObj* gobj)
 
 /// #fn_8010AA64
 
-/// #ftKb_SpecialNYs_8010AC78
+void ftKb_SpecialNYs_8010AC78(Fighter_GObj* victim, Fighter_GObj* gobj)
+{
+    Fighter* fp = GET_FIGHTER(victim);
+    HSD_JObj* jobj = victim->hsd_obj;
+    ftHurtboxInit hurt;
+    Vec3 scale;
+    Fighter* fp2;
+
+    if (fp->ground_or_air == GA_Ground) {
+        ftCommon_8007D5D4(fp);
+    }
+    Fighter_ChangeMotionState(victim, 0x14C, Ft_MF_Unk06, 0.0f, 1.0f, 0.0f,
+                              gobj);
+    fp->take_dmg_cb = (HSD_GObjEvent) fn_8010B1D4;
+    ftCommon_8007E2F4(fp, 0x1FF);
+    fp->invisible = true;
+    scale.x = scale.y = scale.z = fp->co_attrs.xBC.size;
+    ftCommon_SetAccessory(fp, (HSD_Joint*) ftKb_SpecialNYs_801093A0());
+    HSD_JObjSetScale(fp->x20A0_accessory, &scale);
+    lb_8000C2F8(HSD_JObjGetChild(fp->x20A0_accessory),
+                fp->parts[ftParts_GetBoneIndex(fp, FtPart_TransN)].joint);
+    fp->mv.co.yoshiegg.scale = scale;
+    fp2 = GET_FIGHTER(victim);
+    ftColl_8007B0C0(victim, Intangible);
+    hurt.bone_idx = ftParts_GetBoneIndex(fp2, FtPart_TransN);
+    hurt.height = HurtHeight_Mid;
+    hurt.is_grabbable = false;
+    hurt.a_offset = fp2->co_attrs.xBC.x4;
+    hurt.b_offset = fp2->co_attrs.xBC.x10;
+    hurt.scale = fp2->co_attrs.xBC.x1C;
+    ftColl_HurtboxInit(fp2, fp2->hurt_capsules, &hurt);
+    ftKb_SpecialNYs_80109260(gobj, &fp->self_vel);
+    fp->facing_dir = ftKb_SpecialNYs_80109290(gobj);
+    fp->dmg.x182c_behavior = ftKb_SpecialNYs_8010929C(gobj);
+    fp->mv.ca.specialhi.vel.y = 0.0f;
+    fp->mv.co.yoshiegg.x0 = gobj;
+    fp->take_dmg_2_cb = (HSD_GObjEvent) fn_8010B16C;
+    ftCommon_8007EFC0(fp, 1);
+    fp->mv.co.walk.fast_anim_frame = ftKb_SpecialNYs_801092BC(gobj);
+    fp->mv.co.common.x14 = fp->mv.co.walk.fast_anim_frame;
+    fp->mv.co.common.x4.z = ftKb_SpecialNYs_801092AC(gobj);
+    ftCommon_InitGrab(fp, 0, ftKb_SpecialNYs_801092CC(gobj));
+    HSD_JObjGetScale(jobj, &fp->mv.co.yoshiegg.x18);
+    fp->accessory4_cb = fn_8010AA64;
+}
 
 #pragma dont_inline on
 void ftCo_KirbyYoshiEgg_Anim(Fighter_GObj* gobj)
