@@ -81,7 +81,8 @@ typedef struct TyListState {
     /* 0x27C */ struct HSD_GObj* gobj;
     /* 0x280 */ u8 pad_280[0xC];
     /* 0x28C */ struct HSD_JObj* jobj;
-    /* 0x290 */ u8 pad_290[8];
+    /* 0x290 */ struct HSD_Text* x290;
+    /* 0x294 */ u8 pad_294[4];
     /* 0x298 */ s16 selectedIdx;
     /* 0x29A */ s8 entryCount;
     /* 0x29B */ u8 x29B;

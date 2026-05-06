@@ -13,13 +13,16 @@
 #include <baselib/cobj.h>
 #include <baselib/controller.h>
 #include <baselib/displayfunc.h>
+#include <baselib/dobj.h>
 #include <baselib/fog.h>
 #include <baselib/gobj.h>
 #include <baselib/gobjgxlink.h>
 #include <baselib/gobjobject.h>
 #include <baselib/gobjplink.h>
 #include <baselib/gobjproc.h>
+#include <baselib/mobj.h>
 #include <baselib/sislib.h>
+#include <baselib/tobj.h>
 #include <baselib/video.h>
 
 typedef struct {
@@ -460,7 +463,77 @@ HSD_JObj* un_80313508(void* parent, void* symbol, float x, float y, float z)
 
 /// #fn_80313BD8
 
-/// #fn_8031438C
+void fn_80313BD8(HSD_GObj* gobj);
+extern s32 un_804D6EEC;
+extern f32 un_804DDE34;
+extern f32 un_804DDE40;
+extern f32 un_804DDE44;
+extern f32 un_804DDE68;
+extern f32 un_804DDE88;
+extern f32 un_804DDE8C;
+extern char un_804D5A88[3];
+
+typedef struct TyListArchive {
+    /* 0x00 */ HSD_JObj** x0;
+    /* 0x04 */ u8 pad_4[0x18 - 0x4];
+    /* 0x18 */ HSD_JObj* jobjs[3];
+} TyListArchive;
+
+typedef struct TyListGobjEntry {
+    /* 0x00 */ HSD_GObj* x0;
+    /* 0x04 */ HSD_GObj* x4;
+    /* 0x08 */ u8 pad_8[0x16 - 0x8];
+    /* 0x16 */ s8 x16;
+} TyListGobjEntry;
+
+void fn_8031438C(HSD_GObj* arg0)
+{
+    TyListState* state = (TyListState*) un_804A2AC0;
+    TyListGobjEntry* entry = (TyListGobjEntry*) &state->gobj_2AC;
+    TyListArchive* archive = un_804D6ED8;
+    s32 i;
+    HSD_GObj* tmp;
+    PAD_STACK(0x18);
+
+    if (((s8*) state)[0x2C2] != 0) {
+        if (entry->x16 > 1) {
+            for (i = 0; i < 3; i++) {
+                u8* base_p = (u8*) archive + i * 4;
+                if (i == (s8) state->x29B) {
+                    HSD_JObjReqAnim(*(HSD_JObj**) (base_p + 0x18),
+                                    un_804DDE44);
+                } else {
+                    HSD_JObjReqAnim(*(HSD_JObj**) (base_p + 0x18),
+                                    un_804DDE48);
+                }
+                HSD_AObjSetRate(
+                    archive->jobjs[0]->u.dobj->mobj->tobj->aobj,
+                    un_804DDE48);
+            }
+            HSD_JObjAnimAll((HSD_JObj*) archive->x0[10]);
+        } else {
+            tmp = entry->x4;
+            if (tmp != NULL) {
+                ((s32*) tmp)[9] = 0;
+                ((s32*) tmp)[8] = 0x42100000;
+            }
+            state->x290 = HSD_SisLib_803A6754(3, un_804D6EEC);
+            state->x290->pos_z = un_804DDE68;
+            state->x290->font_size.x = un_804DDE40;
+            state->x290->font_size.y = un_804DDE34;
+            state->x290->default_kerning = 1;
+            state->x290->default_alignment = 2;
+            HSD_SisLib_803A6B98(state->x290, un_804DDE88, un_804DDE8C,
+                                un_804D5A88, un_GetTrophyTotal());
+        }
+        entry->x16--;
+        return;
+    }
+
+    HSD_GObjProc_8038FED4(arg0);
+    HSD_GObj_SetupProc(entry->x0, fn_80313BD8, 0);
+    HSD_GObj_80390CD4(entry->x0);
+}
 
 void fn_80314504(HSD_GObj* gobj)
 {
