@@ -407,7 +407,59 @@ void gmCamera_801A2BB0(void)
 
 /// #gmCamera_801A2BF0
 
-/// #gmCamera_801A2D44
+void gmCamera_801A2D44(void)
+{
+    HSD_JObj* jobj;
+    HSD_JObj* jobj_b;
+    f32 var_f31;
+    gmCameraUnkStruct* gcus = &gmCamera_80479BC8.gcus;
+    PAD_STACK(24);
+
+    if ((lbSnap_8001D338(0) != 0) || (lbSnap_8001D338(1) != 0)) {
+        gmCamera_801A3048(2);
+        return;
+    }
+    if (HSD_PadCopyStatus[3].trigger & 0x1100) {
+        if ((s32) gcus->x18 == 0) {
+            lbAudioAx_80024030(1);
+            gmCamera_801A3048(7);
+            return;
+        }
+        lbAudioAx_80024030(0);
+        gmCamera_801A3048(0);
+        return;
+    }
+    if (HSD_PadCopyStatus[3].trigger & 0x200) {
+        lbAudioAx_80024030(0);
+        gmCamera_801A3048(0);
+        return;
+    }
+    if ((HSD_PadCopyStatus[3].trigger & 0x40001) &&
+        (s32) gcus->x18 != 0)
+    {
+        lbAudioAx_80024030(2);
+        gcus->x18 = 0;
+        lb_80011E24(gcus->x8, &jobj, 0xC, -1);
+        if ((s32) gcus->x18 != 0) {
+            var_f31 = 5.0f;
+        } else {
+            var_f31 = -5.0f;
+        }
+        HSD_JObjSetTranslateX(jobj, var_f31);
+    } else if ((HSD_PadCopyStatus[3].trigger & 0x80002) &&
+               (s32) gcus->x18 != 1)
+    {
+        lbAudioAx_80024030(2);
+        gcus->x18 = 1;
+        lb_80011E24(gcus->x8, &jobj_b, 0xC, -1);
+        if ((s32) gcus->x18 != 0) {
+            var_f31 = 5.0f;
+        } else {
+            var_f31 = -5.0f;
+        }
+        HSD_JObjSetTranslateX(jobj_b, var_f31);
+    }
+}
 
 void gmCamera_801A2FBC(void)
 {
