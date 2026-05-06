@@ -8,9 +8,15 @@
 
 #include "baselib/forward.h"
 
+#include "baselib/archive.h"
+#include "baselib/gobj.h"
+#include "baselib/gobjgxlink.h"
+#include "baselib/gobjobject.h"
+#include "baselib/gobjproc.h"
 #include "baselib/jobj.h"
 #include "baselib/sislib.h"
 #include "cm/cmsnap.h"
+#include "gm/gm_1601.h"
 #include "gm/gm_16AE.h"
 #include "gm/gm_1A36.h"
 #include "gm/gm_1A45.h"
@@ -18,10 +24,12 @@
 #include "gm/types.h"
 #include "if/ifall.h"
 #include "lb/lb_00F9.h"
+#include "lb/lbarchive.h"
 #include "lb/lbaudio_ax.h"
 #include "lb/lbcardnew.h"
 #include "lb/lbsnap.h"
 #include "mn/mnmain.h"
+#include "sc/types.h"
 
 /// void* HSD_SisLib_803A5ACC(u8, int, float, float, float); /* extern */
 /// void HSD_SisLib_803A6368(void*, u32);                    /* extern */
@@ -551,7 +559,45 @@ void fn_801A31D8(HSD_GObj* gobj)
     HSD_JObjAnimAll(gobj->hsd_obj);
 }
 
-/// #gmCamera_801A31FC
+void gmCamera_801A31FC(void)
+{
+    HSD_GObj* gobj_a;
+    HSD_GObj* gobj_b;
+    HSD_JObj* jobj_b;
+    HSD_Joint** joint_a;
+    DynamicModelDesc* mdl_b;
+    gmCameraUnkStruct* gcus = &gmCamera_80479BC8.gcus;
+
+    cmSnap_800316B4();
+    gcus->x14 = 1;
+    gcus->xC = 0;
+    if (gmCamera_803DA6B4[gcus->xC].x4 != NULL) {
+        gmCamera_803DA6B4[gcus->xC].x4();
+    }
+    gcus->ifvscam = lbArchive_LoadArchive("IfVsCam");
+    joint_a = HSD_ArchiveGetPublicAddress(gcus->ifvscam, "IfCamera");
+    gobj_a = GObj_Create(0xE, 0x10, 0);
+    gcus->x4 = HSD_JObjLoadJoint(*joint_a);
+    HSD_GObjObject_80390A70(gobj_a, HSD_GObj_804D7849, gcus->x4);
+    GObj_SetupGXLink(gobj_a, HSD_GObj_JObjCallback, 0xB, 0);
+    mdl_b = HSD_ArchiveGetPublicAddress(gcus->ifvscam, "IfCamera_Top_model_set");
+    gobj_b = GObj_Create(0xE, 0x10, 0);
+    jobj_b = HSD_JObjLoadJoint(mdl_b->joint);
+    gcus->x8 = jobj_b;
+    HSD_GObjObject_80390A70(gobj_b, HSD_GObj_804D7849, jobj_b);
+    GObj_SetupGXLink(gobj_b, HSD_GObj_JObjCallback, 0xB, 0);
+    gm_8016895C(jobj_b, mdl_b, 0);
+    HSD_JObjReqAnimAll(jobj_b, 0.0f);
+    HSD_JObjAnimAll(jobj_b);
+    HSD_JObjSetFlagsAll(jobj_b, 0x10);
+    HSD_GObj_SetupProc(gobj_b, fn_801A31D8, 0);
+    gcus->x20 = 2;
+    HSD_SisLib_803A62A0(3, "SdVsCam", "SIS_VsCameraData");
+    gcus->x54 = HSD_SisLib_803A611C(3, NULL, 9, 0xD, 0, 0xE, 0, 0xB);
+    gcus->x48[0] = NULL;
+    gcus->x48[1] = NULL;
+    gcus->x48[2] = NULL;
+}
 
 void gmCamera_801A33BC(void)
 {
