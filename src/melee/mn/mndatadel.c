@@ -20,8 +20,35 @@
 
 /// #mnDataDel_8024EA6C
 
-/// #mnDataDel_8024EBC8                 /* unable to generate initializer:
-/// unknown type */
+void mnDataDel_8024EBC8(HSD_JObj* root, u8 unused, u8 a, u8 b)
+{
+    HSD_JObj* j2;
+    HSD_JObj* j1;
+    f32 frame;
+
+    lb_80011E24(root, &j1, WARN_JOINT_PANEL_TEXT_BOTTOM, -1);
+    HSD_JObjReqAnimAll(j1, a ? 1.0f : 0.0f);
+    mn_8022F3D8(j1, 0xff, (HSD_TypeMask) 0x400);
+    HSD_JObjAnimAll(j1);
+
+    lb_80011E24(root, &j2, WARN_JOINT_BACKGROUND, -1);
+    if (a) {
+        if (b) {
+            frame = mnDataDel_803EF870.x18.end_frame;
+        } else {
+            frame = mnDataDel_803EF870.x18.start_frame;
+        }
+    } else {
+        if (b) {
+            frame = mnDataDel_803EF870.x24.end_frame;
+        } else {
+            frame = mnDataDel_803EF870.x24.start_frame;
+        }
+    }
+    HSD_JObjReqAnimAll(j2, frame);
+    mn_8022F3D8(j2, 0xff, (HSD_TypeMask) 0x400);
+    HSD_JObjAnimAll(j2);
+}
 
 /// @brief animates the warning modal
 void fn_8024ECCC(HSD_GObj* arg0)
