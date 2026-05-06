@@ -3834,7 +3834,142 @@ long fn_80169A84(u8 mode, s8* dst, s8* src)
 }
 #pragma pop
 
-/// #fn_80169C54
+void fn_80169C54(s8 arg0, s8 arg1)
+{
+    s32 colors[7];
+    struct lbl_8046B488_t* gp;
+    struct lbl_8046B488_t* base;
+    s32 count;
+    s32 ctr;
+    s32 j;
+    s8 internal_id;
+    s32* dst;
+    u8 ncolors;
+    s32 v;
+    s32 k;
+    s8* it;
+
+    count = 0;
+    gp = fn_8016AE60();
+    colors[0] = -1;
+    base = gp;
+    ctr = 3;
+    dst = colors;
+    colors[1] = -1;
+    colors[2] = -1;
+    colors[3] = -1;
+    colors[4] = -1;
+    colors[5] = -1;
+    colors[6] = -1;
+
+    do {
+        if ((s32) *(s8*) gp == 4) {
+            if (base->xB != 0) {
+                count = 1;
+                colors[0] = base->xC;
+            } else {
+                ncolors = gm_80169238(4);
+                k = 0;
+                if ((s32) ncolors > 0) {
+                    s32 left = (s32) ncolors - 8;
+                    if ((s32) ncolors > 8) {
+                        s32 m = (u32) (left + 7) >> 3;
+                        if (left > 0) {
+                            do {
+                                dst[0] = k;
+                                dst[1] = k + 1;
+                                dst[2] = k + 2;
+                                dst[3] = k + 3;
+                                dst[4] = k + 4;
+                                dst[5] = k + 5;
+                                dst[6] = k + 6;
+                                dst[7] = k + 7;
+                                count += 8;
+                                k += 8;
+                                dst += 8;
+                                m--;
+                            } while (m != 0);
+                        }
+                    }
+                    {
+                        s32* p2 = &colors[k];
+                        s32 left2 = (s32) ncolors - k;
+                        if (k < (s32) ncolors) {
+                            do {
+                                *p2 = k;
+                                count++;
+                                p2++;
+                                k++;
+                                left2--;
+                            } while (left2 != 0);
+                        }
+                    }
+                }
+            }
+            break;
+        }
+        gp = (struct lbl_8046B488_t*) ((s8*) gp + 1);
+        ctr--;
+    } while (ctr != 0);
+
+    if ((s8) arg0 == 4) {
+        colors[count] = (s8) arg1;
+        count++;
+    }
+    if (count > 0) {
+        s32 i = 0;
+        it = (s8*) base;
+        do {
+            v = (s32) (s8) *it;
+            if (v != 0x21 && v != 4) {
+                internal_id = Player_800325C8((CharacterKind) v, 0);
+                if (internal_id != -1 && internal_id != 4) {
+                    s32* p3 = colors;
+                    j = 0;
+                    while (j < count) {
+                        Player_80031DA8(internal_id, *p3);
+                        p3++;
+                        j++;
+                    }
+                }
+                internal_id = Player_800325C8((CharacterKind) v, 1);
+                if (internal_id != -1 && internal_id != 4) {
+                    s32* p3 = colors;
+                    j = 0;
+                    while (j < count) {
+                        Player_80031DA8(internal_id, *p3);
+                        p3++;
+                        j++;
+                    }
+                }
+            }
+            i++;
+            it++;
+        } while (i < 3);
+        if ((s8) arg0 != 4) {
+            internal_id = Player_800325C8((CharacterKind) (s8) arg0, 0);
+            if (internal_id != -1 && internal_id != 4) {
+                s32* p3 = colors;
+                j = 0;
+                while (j < count) {
+                    Player_80031DA8(internal_id, *p3);
+                    p3++;
+                    j++;
+                }
+            }
+            internal_id = Player_800325C8((CharacterKind) (s8) arg0, 1);
+            if (internal_id != -1 && internal_id != 4) {
+                s32* p3 = colors;
+                j = 0;
+                while (j < count) {
+                    Player_80031DA8(internal_id, *p3);
+                    p3++;
+                    j++;
+                }
+            }
+        }
+    }
+}
 
 void fn_80169F50(s8 arg0, s8 arg1)
 {
