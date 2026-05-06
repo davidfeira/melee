@@ -1308,7 +1308,35 @@ void grIceMt_801F98A8(Ground_GObj* param1)
     }
 }
 
-/// #grIceMt_801F993C
+f32 grIceMt_801F993C(s32 arg0, s32 arg1)
+{
+    f32 y;
+    u32 i;
+    u32 j;
+
+    y = Ground_801C0498();
+
+    for (i = 0; i < ICEMT_FIELD_MAX; i++) {
+        if (arg0 == grIm_803E4068[i].id) {
+            break;
+        }
+    }
+    if (i >= ICEMT_FIELD_MAX) {
+        __assert("gricemt.c", 0xA9D, "<ICEMT_FIELD_MAX>");
+    }
+
+    for (j = 0; j < ICEMT_FIELD_MAX; j++) {
+        if (arg1 == grIm_803E4068[j].id) {
+            break;
+        }
+    }
+    if (j >= ICEMT_FIELD_MAX) {
+        __assert("gricemt.c", 0xAA2, "<ICEMT_FIELD_MAX>");
+    }
+
+    return -((y * grIm_803E4068[i].x8) -
+             ((y * grIm_803E4068[j].x4) + grIm_804D69F4->x40));
+}
 
 void grIceMt_801F9ACC(Ground_GObj* gobj, float y, HSD_GObjEvent ev, Ground_GObj* arg3)
 {
