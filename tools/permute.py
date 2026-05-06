@@ -952,22 +952,54 @@ def cmd_diff(args: argparse.Namespace) -> None:
         and pct < 100.0
         and len(mismatches) <= args.permute_threshold
     ):
-        active = list_active_permuters()
-        max_concurrent = getattr(args, "max_concurrent", DEFAULT_MAX_CONCURRENT_PERMUTERS)
-        use_cluster = getattr(args, "cluster", False)
-        local_active = [(f, p) for f, p, c in active if not c]
-        if any(f == func for f, _, _ in active):
-            print(f"\n[diff] permuter for {func} already running (skipping)")
-        elif not use_cluster and len(local_active) >= max_concurrent:
+        # Classify mismatches: refuse to dispatch when the diff is dominated by
+        # reloc-symbol / numerical-offset false positives. The permuter scorer
+        # treats these as equivalent (post-link bytes match) so the run returns
+        # "already 100%" and the slot is wasted. log-stuck is the right action.
+        reloc_count = 0
+        instr_count = 0
+        for t, b in zip(target_ins, base_ins):
+            kind = t.get("diff_kind", "NONE")
+            if kind in ("NONE", "EQUAL"):
+                continue
+            text_t = t.get("instruction", {}).get("formatted", "")
+            text_b = b.get("instruction", {}).get("formatted", "")
+            klass = _classify_mismatch(text_t, text_b)
+            if klass in ("reloc-symbol", "numerical-offset"):
+                reloc_count += 1
+            else:
+                instr_count += 1
+        if instr_count == 0 and reloc_count > 0:
             print(
-                f"\n[diff] near-miss but {len(local_active)}/{max_concurrent} local permuters running — not launching."
-                f"\n       pass --cluster to dispatch to the p@h cluster instead, or"
-                f"\n       run `python tools/permute.py budget` to see them."
+                f"\n[diff] REFUSING --auto-permute: all {reloc_count} mismatches are reloc-symbol/"
+                f"numerical-offset class.\n"
+                f"       The permuter scorer treats these as equivalent and will return 'already 100%'.\n"
+                f"       Run `permute.py log-stuck {func} --tags=permuter-false-positive,...` instead."
+            )
+        elif not getattr(args, "force_permute", False) and reloc_count > 0 and instr_count <= 2:
+            print(
+                f"\n[diff] REFUSING --auto-permute: {reloc_count} reloc + only {instr_count} real-instruction "
+                f"mismatches.\n"
+                f"       Permuter run is likely to plateau (the scorer ignores the reloc class).\n"
+                f"       Pass --force-permute to dispatch anyway."
             )
         else:
-            where = "cluster" if use_cluster else "local"
-            print(f"\n[diff] near-miss ({len(mismatches)} insns off) — launching {where} permuter in background")
-            _launch_permuter_background(c_file, func, cluster=use_cluster)
+            active = list_active_permuters()
+            max_concurrent = getattr(args, "max_concurrent", DEFAULT_MAX_CONCURRENT_PERMUTERS)
+            use_cluster = getattr(args, "cluster", False)
+            local_active = [(f, p) for f, p, c in active if not c]
+            if any(f == func for f, _, _ in active):
+                print(f"\n[diff] permuter for {func} already running (skipping)")
+            elif not use_cluster and len(local_active) >= max_concurrent:
+                print(
+                    f"\n[diff] near-miss but {len(local_active)}/{max_concurrent} local permuters running — not launching."
+                    f"\n       pass --cluster to dispatch to the p@h cluster instead, or"
+                    f"\n       run `python tools/permute.py budget` to see them."
+                )
+            else:
+                where = "cluster" if use_cluster else "local"
+                print(f"\n[diff] near-miss ({len(mismatches)} insns off, {instr_count} real + {reloc_count} reloc) — launching {where} permuter in background")
+                _launch_permuter_background(c_file, func, cluster=use_cluster)
 
 
 def _launch_permuter_background(c_file: Path, func: str, cluster: bool = False) -> None:
@@ -4128,6 +4160,12 @@ def main() -> None:
         "--with-fuzzy",
         action="store_true",
         help="also rebuild report.json so fuzzy_match_percent is current (~30s extra). Default: skip — use commit-match for fuzzy verification.",
+    )
+    pd.add_argument(
+        "--force-permute",
+        action="store_true",
+        dest="force_permute",
+        help="dispatch --auto-permute even when reloc-symbol mismatches dominate (default: refuse, since permuter scorer treats them as equivalent and the run will plateau)",
     )
     pd.set_defaults(handler=cmd_diff)
 
