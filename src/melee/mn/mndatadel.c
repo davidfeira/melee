@@ -14,6 +14,7 @@
 #include "gm/gm_16F1.h"
 #include "gm/gmmain_lib.h"
 #include "lb/lb_00F9.h"
+#include "lb/lbaudio_ax.h"
 #include "lb/lbcardgame.h"
 #include "lb/lblanguage.h"
 #include "mn/mnmain.h"
@@ -61,7 +62,48 @@ void mnDataDel_8024E940(void)
     lb_8001CE00();
 }
 
-/// #mnDataDel_8024EA6C
+void mnDataDel_8024EA6C(void)
+{
+    HSD_JObj* jobj;
+    f32 frame;
+    s32 i;
+    s32 saved_lang;
+    s32* idx;
+    struct MnDataDelData* data;
+    u8* user_data;
+
+    data = &mnDataDel_803EF870;
+    idx = &data->x3C;
+    user_data = mnDataDel_804D6C68->user_data;
+    for (i = 0; i < 6; i++) {
+        lb_80011E24((HSD_JObj*) mn_80231634(
+                        *(struct mn_80231634_t**) ((u8*) mnDataDel_804D6C68
+                                                       ->user_data +
+                                                   idx[i] * 4 + 0x10)),
+                    &jobj, 1, -1);
+        frame = mn_8022F298(jobj);
+        HSD_JObjReqAnimAll(jobj, 1.0f);
+        mn_8022F3D8(jobj, 0xff, (HSD_TypeMask) 0x80);
+        HSD_JObjAnimAll(jobj);
+        HSD_JObjReqAnimAll(jobj, frame);
+        mn_8022F3D8(jobj, 0xff, (HSD_TypeMask) 0x480);
+        HSD_JObjAnimAll(jobj);
+        user_data[i + 3] = 1;
+    }
+    saved_lang = lbLang_GetSavedLanguage();
+    gmMainLib_8015FBA4();
+    gm_801A3EF4();
+    if (saved_lang == lbLang_GetSavedLanguage()) {
+        lbAudioAx_800237A8(0xBF, 0x7F, 0x40);
+    } else {
+        lbLang_SetSavedLanguage(saved_lang);
+        lbAudioAx_80027AB0(0xBF);
+    }
+    gm_801603B0();
+    gmMainLib_8015F588((u8) gmMainLib_8015F4E8());
+    gm_801729EC();
+    lb_8001CE00();
+}
 
 void mnDataDel_8024EBC8(HSD_JObj* root, u8 unused, u8 a, u8 b)
 {
