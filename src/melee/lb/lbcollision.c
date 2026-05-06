@@ -2575,6 +2575,56 @@ bool lbColl_8000A584(HurtCapsule* hurt, u32 arg1, u32 arg2, Mtx arg3, f32 arg8)
     }
 }
 
+static GXColor lbColl_804D36C4 = { 0, 0xFF, 0xFF, 0x80 };
+static GXColor lbColl_804D36C8 = { 0, 0x80, 0x80, 0x80 };
+
+bool lbColl_8000A78C(HitResult* hit, u32 arg1, Mtx arg2, f32 pos_z)
+{
+    Mtx sp9C;
+    Vec3 sp90;
+    Vec3 sp84;
+    Vec3 sp30;
+    Vec3 sp24;
+    Mtx sp3C;
+
+    f32 temp_f31;
+    MtxPtr var_r31;
+    u32 var_r0;
+
+    if (lbColl_804D36C4.a == 0xFF) {
+        var_r0 = 0;
+    } else {
+        var_r0 = 2;
+    }
+    if (var_r0 == arg1) {
+        if (!hit->skip_update_pos) {
+            lb_8000B1CC(hit->bone, &hit->offset, &hit->pos);
+            if (arg2 != NULL) {
+                hit->pos.z = pos_z;
+            }
+            hit->skip_update_pos = 1;
+        }
+        if (arg2 != NULL) {
+            PSMTXConcat(arg2, HSD_JObjGetMtxPtr(hit->bone), sp9C);
+        }
+        temp_f31 = hit->size;
+        sp84 = hit->pos;
+        sp90 = hit->pos;
+        if (arg2 != NULL) {
+            var_r31 = sp9C;
+        } else {
+            var_r31 = HSD_JObjGetMtxPtr(hit->bone);
+        }
+        HSD_MtxInverse(var_r31, sp3C);
+        PSMTXMultVec(sp3C, &sp90, &sp24);
+        PSMTXMultVec(sp3C, &sp84, &sp30);
+        lbColl_800096B4(var_r31, sp24, sp30, &lbColl_804D36C4,
+                        &lbColl_804D36C8, temp_f31);
+        return true;
+    }
+    return false;
+}
+
 bool lbColl_8000A95C(HitResult* hit, u32 arg1, Mtx arg2, f32 pos_z)
 {
     Mtx sp9C;
