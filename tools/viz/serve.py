@@ -766,8 +766,15 @@ if __name__ == "__main__":
     threading.Thread(target=_cpu_sampler, daemon=True).start()
     threading.Thread(target=_upstream_fetcher, daemon=True).start()
     port = int(os.environ.get("VIZ_PORT", "7777"))
-    with ThreadedServer(("127.0.0.1", port), Handler) as httpd:
-        print(f"[viz] http://localhost:{port}/")
+    # Default to localhost-only for safety (no firewall surface). Cluster mode
+    # sets VIZ_BIND=0.0.0.0 via start-cluster-server.ps1 so workers on the LAN
+    # can reach /kit/* endpoints.
+    bind = os.environ.get("VIZ_BIND", "127.0.0.1")
+    with ThreadedServer((bind, port), Handler) as httpd:
+        if bind in ("", "0.0.0.0"):
+            print(f"[viz] http://0.0.0.0:{port}/  (LAN-reachable)")
+        else:
+            print(f"[viz] http://{bind}:{port}/")
         try:
             httpd.serve_forever()
         except KeyboardInterrupt:

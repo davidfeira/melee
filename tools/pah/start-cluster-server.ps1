@@ -161,6 +161,9 @@ Write-Host ""
 $env:PAH_CONTROLLER_HOST = $LanIp
 $env:PAH_CONTROLLER_PORT = "$ControllerPort"
 $env:VIZ_PORT = "$VizPort"
+# Cluster mode needs the viz reachable from worker machines, so bind to all
+# interfaces. Default (127.0.0.1) only protects standalone use.
+$env:VIZ_BIND = "0.0.0.0"
 
 # Foreground exec — user sees viz logs and ctrl-c stops it cleanly.
 & python tools/viz/serve.py
