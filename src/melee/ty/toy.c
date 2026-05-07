@@ -299,7 +299,147 @@ extern s32 un_804D6E74;
 extern s32 un_804D6E78;
 extern s32 un_804D6E7C;
 
-/// #un_80305058
+s32 un_80305058(s32 arg0, s32 arg1, s32 arg2, f32 farg0)
+{
+    s32 unowned[293];
+    s32 owned[293];
+    s16* list;
+    u16* ptr;
+    s32 trophyId;
+    s32 byteOffset;
+    s32 found;
+    s32 unownedCount;
+    s32 ownedCount;
+    s32 totalCount;
+    s32 useUnowned;
+    s32 idx;
+
+    unownedCount = 0;
+    ownedCount = 0;
+    totalCount = 0;
+    trophyId = 0;
+    byteOffset = 0;
+
+    do {
+        list = un_804D6EB4;
+        if (lbLang_IsSettingUS() != 0) {
+            while (*list != -1) {
+                if (*list == trophyId) {
+                    found = 0;
+                    goto check_found;
+                }
+                list++;
+            }
+        }
+        found = 1;
+
+    check_found:
+        if (found != 0) {
+            if (arg0 == 0x63) {
+                if (gm_8016B498() != 0 || (u8) gm_801A4310() == 0xC) {
+                    ptr = &un_804A284C[5];
+                } else {
+                    ptr = gmMainLib_8015CC78();
+                }
+                if (!(*(u16*) ((u8*) ptr + byteOffset) & 0x4000)) {
+                    if (arg1 == 0x63) {
+                        if (arg2 != 0) {
+                        }
+                    } else if ((f32) arg1 == un_803060BC(trophyId, 6)) {
+                        if (arg2 != 0) {
+                            if (gm_8016B498() != 0 || (u8) gm_801A4310() == 0xC) {
+                                ptr = &un_804A284C[5];
+                            } else {
+                                ptr = gmMainLib_8015CC78();
+                            }
+                            if (!(*(u16*) ((u8*) ptr + byteOffset) & 0x4000)) {
+                            } else {
+                                goto block_43;
+                            }
+                        } else {
+                            goto block_43;
+                        }
+                    }
+                } else {
+                    goto block_43;
+                }
+            } else if ((f32) arg0 != un_803060BC(trophyId, 6)) {
+                if ((arg1 != 0x63) && ((f32) arg1 == un_803060BC(trophyId, 6))) {
+                    if (arg2 != 0) {
+                        if (gm_8016B498() != 0 || (u8) gm_801A4310() == 0xC) {
+                            ptr = &un_804A284C[5];
+                        } else {
+                            ptr = gmMainLib_8015CC78();
+                        }
+                        if (!(*(u16*) ((u8*) ptr + byteOffset) & 0x4000)) {
+                        } else {
+                            goto block_43;
+                        }
+                    } else {
+                        goto block_43;
+                    }
+                }
+            } else if (arg2 != 0) {
+                if (gm_8016B498() != 0 || (u8) gm_801A4310() == 0xC) {
+                    ptr = &un_804A284C[5];
+                } else {
+                    ptr = gmMainLib_8015CC78();
+                }
+                if (!(*(u16*) ((u8*) ptr + byteOffset) & 0x4000)) {
+                } else {
+                    goto block_43;
+                }
+            } else {
+            block_43:
+                if (gm_8016B498() != 0 || (u8) gm_801A4310() == 0xC) {
+                    ptr = &un_804A284C[5];
+                } else {
+                    ptr = gmMainLib_8015CC78();
+                }
+                if ((u8) *(u16*) ((u8*) ptr + byteOffset) != 0) {
+                    owned[ownedCount] = trophyId;
+                    ownedCount++;
+                } else {
+                    unowned[unownedCount] = trophyId;
+                    unownedCount++;
+                }
+                totalCount++;
+            }
+        }
+
+        trophyId++;
+        byteOffset += 2;
+    } while (trophyId < 0x125);
+
+    if (totalCount == 0) {
+        return -1;
+    }
+
+    if (farg0 >= 100.0f || ownedCount == 0) {
+        useUnowned = 1;
+    } else {
+        f32 randVal = HSD_Randf();
+        if ((f32) HSD_Randi(0x64) + randVal < farg0) {
+            useUnowned = 1;
+        } else {
+            useUnowned = 0;
+        }
+    }
+
+    if (useUnowned != 0 && unownedCount != 0) {
+        idx = HSD_Randi(unownedCount);
+        if (idx > unownedCount) {
+            idx = 0;
+        }
+        return unowned[idx];
+    }
+
+    idx = HSD_Randi(ownedCount);
+    if (idx > ownedCount) {
+        idx = 0;
+    }
+    return owned[idx];
+}
 
 /* 97.5% match */
 void un_803053C4(s32 targetValue, s32 count, s32 flag)
@@ -2539,10 +2679,11 @@ void un_803102C4(s8 arg0)
 /* 72.4% match */
 void un_803102D0(void)
 {
+    char* str = un_803FDD18;
     if (un_804D6ECC == NULL) {
-        un_804D6ECC = lbArchive_LoadSymbols(str_TyDataf_dat, &un_804D6EA8,
-                                            str_tyModelFileTbl, &un_804D6EA4,
-                                            str_tyModelFileUsTbl, NULL);
+        un_804D6ECC = lbArchive_LoadSymbols(str + 0xa58, &un_804D6EA8,
+                                            str + 0xa64, &un_804D6EA4,
+                                            str + 0xa74, NULL);
     }
 }
 
