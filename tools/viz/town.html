@@ -365,9 +365,11 @@ body {
 }
 #modal-table tr.matched-upstream td:first-child { color: #2e7d32; font-weight: 700; }
 #modal-table tr.matched-local    td:first-child { color: #6b8e23; font-weight: 700; }
+#modal-table tr.near             td:first-child { color: #c47b3b; font-weight: 700; }
 #modal-table tr.improved         td:first-child { color: #b88018; }
 #modal-table tr.queued           td:first-child { color: #4a6fb8; }
 #modal-table tr.stuck            td:first-child { color: #b04545; }
+#modal-table tr.not_started      td:first-child { color: #999; }
 #modal-table tr:hover            { background: rgba(255, 230, 180, 0.4); }
 #modal-table tr.session          { background: rgba(255, 235, 100, 0.15); }
 #modal-table tr.session:hover    { background: rgba(255, 235, 100, 0.35); }
@@ -1257,7 +1259,7 @@ function connect() {
 const masterLog = {
   funcs: [],
   me: null,                  // {email, name} of current user
-  filters: new Set(["matched-upstream", "matched-local", "improved", "queued", "stuck"]),
+  filters: new Set(["matched-upstream", "matched-local", "near", "improved", "queued", "stuck", "not_started"]),
   sortKey: "ts",             // default: most-recent-activity first
   sortDir: -1,
   mineOnly: false,
@@ -1311,13 +1313,15 @@ async function refreshMasterLog() {
 }
 
 function buildFilterChips() {
-  const states = ["matched-upstream", "matched-local", "improved", "queued", "stuck"];
+  const states = ["matched-upstream", "matched-local", "near", "improved", "queued", "stuck", "not_started"];
   const labels = {
     "matched-upstream": "✅ upstream",
     "matched-local":    "✅ local",
+    "near":             "🎯 near (95-99%)",
     "improved":         "📈 improved",
     "queued":           "⏳ queued",
     "stuck":            "🚧 stuck",
+    "not_started":      "○ not started",
   };
   const ctr = document.getElementById("modal-filters");
   ctr.innerHTML = "";
@@ -1382,7 +1386,8 @@ function renderMasterLog() {
   });
   const k = masterLog.sortKey, d = masterLog.sortDir;
   const stateOrder = {
-    "matched-upstream": 0, "matched-local": 1, "improved": 2, "queued": 3, "stuck": 4,
+    "matched-upstream": 0, "matched-local": 1, "near": 2, "improved": 3,
+    "queued": 4, "stuck": 5, "not_started": 6,
   };
   rows.sort((a, b) => {
     let av = a[k] ?? "", bv = b[k] ?? "";

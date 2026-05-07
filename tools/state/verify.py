@@ -1,0 +1,189 @@
+"""verify-and-commit: compile, objdiff, label commit truthfully.
+
+Usage:
+  python3 tools/state/verify.py <function_name> [--commit] [--note KEY=VALUE]
+
+Steps:
+  1. Look up function's TU via report.json (must be present in build/GALE01/report.json).
+  2. Compile build/GALE01/src/<tu>.o (or build-linux/... if --linux).
+  3. Run objdiff-cli against build/GALE01/obj/<tu>.o.
+  4. Read match_percent for the named function.
+  5. Print result.  If --commit: stage modified .c/.h files for the TU and commit
+     with auto-generated message.
+  6. Update notes.jsonl with last_pct + any --note flags.
+
+Commit message format (auto-generated):
+  match_percent == 100.0       Match <name>
+  100 > pct >= 95              Improve <name> to NN.NN%, log permuter-queued
+  pct < 95                     WIP <name> at NN.NN%
+
+Exit codes:
+  0 success (regardless of match%)
+  2 function not found / no TU mapping
+  3 build failed
+  4 objdiff failed
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import subprocess
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / "tools"))
+
+from state import state as state_mod  # noqa: E402
+
+REPORT = ROOT / "build" / "GALE01" / "report.json"
+OBJDIFF = ROOT / "build" / "tools" / "objdiff-cli.exe"
+
+
+def _build_dir(linux: bool) -> Path:
+    return ROOT / ("build-linux" if linux else "build") / "GALE01"
+
+
+def _find_tu(name: str) -> str | None:
+    """Return TU path (e.g. melee/gr/grkongo.c) for a function, or None.
+
+    report.json uses 'main/melee/.../foo' format (no extension).  We normalize
+    to 'melee/.../foo.c' which matches the on-disk src/ layout.
+    """
+    if not REPORT.exists():
+        return None
+    data = json.loads(REPORT.read_text(encoding="utf-8"))
+    for unit in data.get("units", []):
+        for fn in unit.get("functions", []):
+            if fn.get("name") == name:
+                raw = unit.get("name", "")
+                # Drop 'main/' prefix; add .c suffix.
+                if raw.startswith("main/"):
+                    raw = raw[len("main/"):]
+                return raw + ".c"
+    return None
+
+
+def _ninja(target: str, linux: bool) -> None:
+    cmd = ["ninja", target]
+    if linux:
+        # On Windows host, ninja runs under WSL Ubuntu.
+        cmd = ["wsl", "-d", "Ubuntu", "--"] + cmd
+    proc = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True)
+    if proc.returncode != 0:
+        sys.stderr.write(proc.stdout + proc.stderr)
+        raise SystemExit(3)
+
+
+def _objdiff_match_percent(tu: str, fname: str, linux: bool) -> float | None:
+    bd = _build_dir(linux)
+    obj_o = bd / "obj" / tu.replace(".c", ".o")
+    src_o = bd / "src" / tu.replace(".c", ".o")
+    if not obj_o.exists():
+        sys.stderr.write(f"reference .o missing: {obj_o}\n")
+        raise SystemExit(4)
+    if not src_o.exists():
+        sys.stderr.write(f"compiled .o missing: {src_o}\n")
+        raise SystemExit(4)
+
+    out_path = ROOT / "build" / "GALE01" / "_verify.json"
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    proc = subprocess.run(
+        [str(OBJDIFF), "diff", "-1", str(obj_o), "-2", str(src_o), "-o", str(out_path)],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+    )
+    if proc.returncode != 0:
+        sys.stderr.write(proc.stdout + proc.stderr)
+        raise SystemExit(4)
+
+    diff = json.loads(out_path.read_text(encoding="utf-8"))
+    for sym in diff.get("left", {}).get("symbols", []):
+        if sym.get("name") == fname:
+            pct = sym.get("match_percent")
+            if pct is None:
+                return None
+            return float(pct)
+    return None
+
+
+def _commit_message(name: str, pct: float | None) -> str:
+    if pct is None:
+        return f"WIP {name} (objdiff returned no match% — function not in compiled .o)"
+    if pct >= 100.0:
+        return f"Match {name}"
+    if pct >= 95.0:
+        return f"Improve {name} to {pct:.2f}%, log permuter-queued"
+    return f"WIP {name} at {pct:.2f}%"
+
+
+def _commit(tu: str, msg: str) -> None:
+    # Stage everything under the TU's directory plus the matching header dir.
+    src_path = ROOT / "src" / tu
+    files = [src_path]
+    # Include the matching header if present.
+    h_path = src_path.with_suffix(".h")
+    if h_path.exists():
+        files.append(h_path)
+
+    rels = [str(p.relative_to(ROOT)) for p in files]
+    subprocess.run(["git", "add"] + rels, cwd=ROOT, check=True)
+    subprocess.run(["git", "commit", "-m", msg], cwd=ROOT, check=True)
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("name", help="function symbol")
+    ap.add_argument("--commit", action="store_true", help="git-add + git-commit on success")
+    ap.add_argument("--linux", action="store_true", help="use build-linux/ via WSL Ubuntu")
+    ap.add_argument(
+        "--note",
+        action="append",
+        default=[],
+        metavar="KEY=VALUE",
+        help="append annotation; KEY in {status,blocker} (repeatable)",
+    )
+    args = ap.parse_args()
+
+    tu = _find_tu(args.name)
+    if not tu:
+        sys.stderr.write(f"no TU found for {args.name} in report.json\n")
+        return 2
+
+    # Compile the TU.
+    bd_prefix = "build-linux" if args.linux else "build"
+    target = f"{bd_prefix}/GALE01/src/{tu.replace('.c', '.o')}"
+    print(f"[1/3] compile {target}")
+    _ninja(target, args.linux)
+
+    # Diff.
+    print(f"[2/3] objdiff {args.name} vs reference")
+    pct = _objdiff_match_percent(tu, args.name, args.linux)
+    label = "?" if pct is None else f"{pct:.2f}%"
+    print(f"      match: {label}")
+
+    # Persist last_pct.
+    state_mod.add_note(args.name, state_mod.KEY_LAST_PERCENT, pct, tu=tu)
+    for note in args.note:
+        if "=" not in note:
+            sys.stderr.write(f"--note must be KEY=VALUE; got {note!r}\n")
+            return 2
+        k, v = note.split("=", 1)
+        state_mod.add_note(args.name, k, v, tu=tu)
+
+    # Commit if asked.
+    msg = _commit_message(args.name, pct)
+    if args.commit:
+        print(f"[3/3] commit: {msg}")
+        _commit(tu, msg)
+    else:
+        print(f"[3/3] would-commit: {msg}  (rerun with --commit to apply)")
+
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

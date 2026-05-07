@@ -4,6 +4,7 @@ Routes:
     GET /         -> town.html
     GET /events   -> SSE stream tailing events.jsonl
     GET /history  -> all current events as JSON (initial state)
+    GET /state    -> per-function state from tools/state/state.py (truthful match%)
 
 Run:
     python tools/viz/serve.py            # http://localhost:7777/
@@ -15,8 +16,18 @@ import os
 import re
 import socketserver
 import subprocess
+import sys
 import time
 from pathlib import Path
+
+# Make tools/ importable so we can pull from state.state without packaging it.
+_TOOLS_DIR = Path(__file__).resolve().parents[1]
+if str(_TOOLS_DIR) not in sys.path:
+    sys.path.insert(0, str(_TOOLS_DIR))
+try:
+    from state import state as _state_mod  # type: ignore
+except Exception:  # pragma: no cover — viz still works without state file
+    _state_mod = None
 
 try:
     import psutil
@@ -165,6 +176,8 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             self._history()
         elif self.path == "/master-log":
             self._master_log()
+        elif self.path == "/state":
+            self._state()
         elif self.path.startswith("/note?"):
             self._note()
         elif self.path == "/cpu":
@@ -281,20 +294,58 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
+    def _state(self):
+        """Truthful per-function state from build/GALE01/report.json + notes.jsonl.
+
+        Returns: {"funcs": [{name, tu, match_percent, status, notes}, ...],
+                  "summary": {status: count}}.
+
+        Status values:
+          matched         match_percent == 100.0
+          near            95.0 <= mp < 100.0
+          partial         0 < mp < 95.0
+          not_started     mp is None
+          + manual overrides via notes.jsonl: permuter-queued, blocked,
+            ready-to-ship, ignored
+        """
+        if _state_mod is None:
+            payload = {"error": "tools/state not importable", "funcs": []}
+        else:
+            try:
+                states = _state_mod.load_state()
+                payload = {
+                    "funcs": [s.to_dict() for s in states],
+                    "summary": _state_mod.summarize(states),
+                    "source": "build/GALE01/report.json + tools/state/notes.jsonl",
+                }
+            except Exception as e:
+                payload = {"error": str(e), "funcs": []}
+        body = json.dumps(payload).encode()
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(body)))
+        self.send_header("Cache-Control", "no-cache")
+        self.end_headers()
+        self.wfile.write(body)
+
     def _master_log(self):
         """Aggregate every function we've ever worked on across all sessions.
 
-        Sources:
-        - decomp-notes/*.md frontmatter (tags) + body (best fuzzy)
-        - git log --all for `Match <func>` and `Improve <func>` commits
-        - upstream/master commits for funcs accepted into the public repo
+        Source-of-truth is now build/GALE01/report.json + tools/state/notes.jsonl
+        (via tools.state.state). Commit log is consulted only for author/timestamp
+        enrichment — never to determine whether a function actually matches.
+        That eliminates the failure mode where a hand-typed "Match X" commit
+        labels a 99% near-miss as matched.
 
         Classification:
-        - matched-upstream: in upstream/master
-        - matched-local:    Match commit on origin only (waiting on PR)
-        - improved:         Improve commit on origin (best partial)
-        - queued:           notes tagged permuter-dispatched/queued (waiting on cycles)
-        - stuck:            notes with other tags (structural blocker)
+        - matched-upstream: state==matched and TU is `Matching` in upstream
+                            (linked into upstream's binary)
+        - matched-local:    state==matched but TU still NonMatching upstream
+                            (waiting on PR)
+        - near:             state==near (95-99.99% — auto permuter candidate)
+        - partial:          state==partial (<95%)
+        - not_started:      no .c body
+        - queued/blocked:   manual annotation in notes.jsonl
         """
         try:
             body = json.dumps(self._derive_master_log()).encode()
@@ -413,6 +464,38 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 pass
         for name, e in funcs.items():
             e["this_session"] = name in session_funcs
+
+        # 4b. Truthful state override — replace commit-message-derived state with
+        # build/GALE01/report.json + tools/state/notes.jsonl. The commit-log walk
+        # above is preserved purely to populate author/commit/ts metadata.
+        if _state_mod is not None:
+            try:
+                states = {s.name: s for s in _state_mod.load_state()}
+            except Exception:
+                states = {}
+            for name, e in funcs.items():
+                s = states.get(name)
+                if s is None:
+                    continue
+                ds = s.derived_status
+                # Map state.derived_status → master-log "state" enum.
+                if ds == "matched":
+                    e["state"] = "matched-upstream" if name in upstream_matched else "matched-local"
+                elif ds == "near":
+                    e["state"] = "near"
+                elif ds == "partial":
+                    e["state"] = "improved"
+                elif ds == "not_started":
+                    e["state"] = "not_started"
+                elif ds == "permuter-queued":
+                    e["state"] = "queued"
+                elif ds == "blocked":
+                    e["state"] = "stuck"
+                elif ds == "ready-to-ship":
+                    e["state"] = "matched-local"
+                # Always replace fuzzy with the truthful number.
+                if s.match_percent is not None:
+                    e["fuzzy"] = f"{s.match_percent:.2f}%"
 
         # 5. Get current user email/name to mark "mine" rows.
         try:
