@@ -87,7 +87,7 @@ body {
 
 #picker  { left: 24px; top: 70px; border-color: var(--ink); }
 #picker  h2 { color: var(--picker); }
-#worklog { left: 24px; top: 240px; border-color: var(--ink); min-width: 320px; max-width: 320px; }
+#worklog { left: 24px; top: 400px; border-color: var(--ink); min-width: 320px; max-width: 320px; }
 #worklog h2 { color: var(--ink); }
 #worklog-pills {
   display: flex; flex-wrap: wrap; gap: 4px;
@@ -96,7 +96,26 @@ body {
 #worklog-pills .pill {
   font-size: 10px; padding: 2px 8px;
 }
-#worklog-pills #master-btn { font-weight: 700; }
+
+/* Controls bubble — separate from work-log HUD because these are app
+   controls (open modal, toggle setting), not session counters. */
+#controls {
+  position: fixed;
+  left: 24px; top: 200px;
+  background: var(--paper); border: 2px solid var(--ink); border-radius: 12px;
+  padding: 8px 10px;
+  box-shadow: 0 3px 0 var(--shadow);
+  display: flex; flex-direction: column; gap: 4px;
+  z-index: 5;
+}
+#controls .pill {
+  font-size: 11px; padding: 3px 10px; cursor: pointer;
+  border: 2px solid var(--ink); border-radius: 999px;
+  background: var(--paper); user-select: none; white-space: nowrap;
+  text-align: left;
+}
+#controls .pill:hover { background: var(--ink); color: var(--paper); }
+#controls #master-btn { font-weight: 700; }
 #match   { right: 24px; top: 70px; border-color: var(--ink); min-width: 220px; }
 #match   h2 { color: #b88018; }
 #farm    { left: 50%; bottom: 24px; transform: translateX(-50%); min-width: 380px; }
@@ -545,6 +564,13 @@ body {
   </div>
 </div>
 
+<div id="controls">
+  <div class="pill" id="master-btn" onclick="openMasterLog()">📒 master log</div>
+  <div class="pill" id="sessions-btn" onclick="openSessions()" title="archived past sessions (rotate via tools/viz/new_session.py)">📅 sessions</div>
+  <div class="pill" id="permuter-toggle" onclick="togglePermuterMode()" title="when off, near-misses log-stuck with permuter-queued instead of dispatching">🤖 permuter: …</div>
+  <div class="pill" id="emoji-btn" onclick="openEmojiSettings()" title="customize sprite/icon emojis">🎨 emojis</div>
+</div>
+
 <div id="stage">
   <div id="mama">🧙‍♀️</div>
   <div id="mama-activity"></div>
@@ -586,10 +612,6 @@ body {
       <div class="pill">in flight: <span id="hud-agents">0</span></div>
       <div class="pill">permuters: <span id="hud-permuters">0</span></div>
       <div class="pill">stuck: <span id="hud-stuck">0</span></div>
-      <div class="pill" id="master-btn" onclick="openMasterLog()">📒 open master log</div>
-      <div class="pill" id="sessions-btn" onclick="openSessions()" title="archived past sessions (rotate via tools/viz/new_session.py)">📅 sessions</div>
-      <div class="pill" id="permuter-toggle" onclick="togglePermuterMode()" title="when off, near-misses log-stuck with permuter-queued instead of dispatching">🤖 permuter: …</div>
-      <div class="pill" id="emoji-btn" onclick="openEmojiSettings()" title="customize sprite/icon emojis">🎨 emojis</div>
     </div>
     <div class="body" id="worklog-body">no functions worked yet</div>
     <div id="worklog-list"></div>
@@ -1132,7 +1154,7 @@ function applyEmojis() {
   setText("#stuck h2", `${emojis.stuck} Stuck Shelf`);
   setText("#worklog h2", `${emojis.worklog} Work Log`);
   const masterBtn = document.getElementById("master-btn");
-  if (masterBtn) masterBtn.innerHTML = `${emojis.masterlog} open master log`;
+  if (masterBtn) masterBtn.innerHTML = `${emojis.masterlog} master log`;
   // Live machines: refresh their ⚙️ head text
   for (const m of state.machines.values()) {
     const head = m.el.querySelector(".head");
