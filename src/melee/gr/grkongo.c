@@ -1499,10 +1499,11 @@ done:
 
 bool grKongo_801D7F78(HSD_GObj* gobj)
 {
+    double _pre;
     Vec3 pos1;
     Vec3 pos2;
     HSD_GObj* cur;
-    PAD_STACK(16);
+    PAD_STACK(12);
 
     if (grKongo_801D7E78(gobj, &pos1) == NULL) {
         return false;
