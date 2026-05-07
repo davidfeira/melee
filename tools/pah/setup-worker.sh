@@ -90,6 +90,38 @@ if [[ "$PKG_MGR" == "apt-get" ]]; then
   fi
 fi
 
+# Docker — pah.py run-server uses it to sandbox each permuter invocation.
+# On macOS we need Docker Desktop (GUI install); on Linux we install the
+# `docker.io` / `docker` apt package and add the user to the docker group.
+if ! command -v docker >/dev/null 2>&1; then
+  case "$OS" in
+    Darwin)
+      echo "Docker not found. Install Docker Desktop from docker.com first," >&2
+      echo "then re-run this bootstrap. (Homebrew: brew install --cask docker)" >&2
+      exit 5
+      ;;
+    Linux)
+      case "$PKG_MGR" in
+        apt-get)  sudo apt-get install -y docker.io docker-compose-plugin || sudo apt-get install -y docker.io ;;
+        dnf)      sudo dnf install -y docker docker-compose ;;
+        pacman)   sudo pacman -S --noconfirm docker ;;
+      esac
+      sudo systemctl enable --now docker 2>/dev/null || true
+      sudo usermod -aG docker "$USER" 2>/dev/null || true
+      if ! docker info >/dev/null 2>&1; then
+        echo "Docker installed but the current shell can't talk to it. Log out and log" >&2
+        echo "back in (or run \`newgrp docker\`), then re-run this bootstrap." >&2
+        exit 6
+      fi
+      ;;
+  esac
+fi
+if ! docker info >/dev/null 2>&1; then
+  echo "Docker is installed but not running. Start it (Docker Desktop on macOS," >&2
+  echo "\`sudo systemctl start docker\` on Linux), then re-run." >&2
+  exit 7
+fi
+
 # Resolve cores/memory if not set.
 if [[ -z "$CORES" ]]; then
   total_cores=$(nproc 2>/dev/null || sysctl -n hw.ncpu)

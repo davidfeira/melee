@@ -186,6 +186,15 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             self._kit_info()
         elif self.path in ("/kit/pah.conf", "/kit/pah.conf/"):
             self._kit_pah_conf()
+        elif self.path == "/kit/bootstrap-worker.ps1":
+            self._kit_file("build-linux/pah-worker-kit/bootstrap-worker.ps1",
+                           "text/plain; charset=utf-8")
+        elif self.path == "/kit/pah-worker-kit.zip":
+            self._kit_file("build-linux/pah-worker-kit/pah-worker-kit.zip",
+                           "application/zip")
+        elif self.path == "/kit/setup-worker.sh":
+            self._kit_file("tools/pah/setup-worker.sh",
+                           "text/plain; charset=utf-8")
         elif self.path.startswith("/note?"):
             self._note()
         elif self.path == "/cpu":
@@ -310,6 +319,23 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         self.send_header("Cache-Control", "no-cache")
         self.end_headers()
         self.wfile.write(body)
+
+    def _kit_file(self, rel_path: str, content_type: str):
+        """Stream a file from REPO_ROOT/<rel_path>. 404 if missing."""
+        full = REPO_ROOT / rel_path
+        if not full.is_file():
+            self.send_response(404)
+            self.send_header("Content-Type", "text/plain")
+            self.end_headers()
+            self.wfile.write(f"missing: {rel_path}\n".encode())
+            return
+        data = full.read_bytes()
+        self.send_response(200)
+        self.send_header("Content-Type", content_type)
+        self.send_header("Content-Length", str(len(data)))
+        self.send_header("Cache-Control", "no-cache")
+        self.end_headers()
+        self.wfile.write(data)
 
     def _kit_info(self):
         """Return controller info for worker bootstrap.
