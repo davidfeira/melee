@@ -331,9 +331,9 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                                     stats["matches"] += 1
                                 else:
                                     stats["near"] += 1
-                            elif kind == "log_stuck":
+                            elif kind == "stuck":
                                 stats["stuck"] += 1
-                            elif kind == "permuter_queued":
+                            elif kind == "permuter_start":
                                 stats["queued"] += 1
                             f = ev.get("func")
                             if f:
