@@ -32,7 +32,9 @@
 set -euo pipefail
 
 REPO_URL="${REPO_URL:-https://github.com/davidfeira/melee.git}"
-BRANCH="${BRANCH:-master}"
+# system-rebuild has vendor/decomp-permuter and the cluster tooling; master
+# is the clean upstream mirror without those.
+BRANCH="${BRANCH:-system-rebuild}"
 INSTALL_DIR="${INSTALL_DIR:-$HOME/melee-pah-worker}"
 CORES="${CORES:-}"
 MEMORY_GB="${MEMORY_GB:-}"
