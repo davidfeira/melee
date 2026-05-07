@@ -1,21 +1,37 @@
 #include "ifmagnify.h"
 
+#include "cm/camera.h"
+#include "ft/ftlib.h"
 #include "gr/ground.h"
 #include "if/ifall.h"
+#include "if/if_2FC93.h"
 #include "lb/lb_00B0.h"
 #include "lb/lb_00F9.h"
 #include "lb/lbarchive.h"
+#include "pl/player.h"
 
 #include <baselib/cobj.h>
 #include <baselib/gobj.h>
 #include <baselib/gobjgxlink.h>
 #include <baselib/gobjobject.h>
 #include <baselib/gobjplink.h>
+#include <baselib/jobj.h>
 #include <baselib/tobj.h>
+#include <melee/gm/gm_1601.h>
+#include <melee/gm/gm_16AE.h>
+#include <melee/gm/types.h>
+#include <trigf.h>
 
 /* 3F97E8 */ extern HSD_CameraDescPerspective ifMagnify_803F97E8;
+/* 4DDB08 */ extern f32 ifMagnify_804DDB08;
+/* 4DDB40 */ extern f32 ifMagnify_804DDB40;
+/* 4DDB44 */ extern f32 ifMagnify_804DDB44;
+/* 4DDB48 */ extern f32 ifMagnify_804DDB48;
 /* 4DDB4C */ extern f32 ifMagnify_804DDB4C;
+/* 4DDB50 */ static const double ifMagnify_804DDB50 = 4503601774854144.0;
 /* 4DDB60 */ extern int ifMagnify_804DDB60;
+
+__declspec(section ".sdata") char ifMagnify_804D57E8[] = "lupe";
 
 ifMagnify ifMagnify_804A1DE0;
 
@@ -29,7 +45,87 @@ s32 ifMagnify_802FB6E8(s32 slot)
 
 /// #ifMagnify_802FB73C
 
-/// #ifMagnify_802FB8C0
+void ifMagnify_802FB8C0(HSD_GObj* arg0, s32 arg1)
+{
+    typedef struct {
+        HSD_GObj* gobj;
+        HSD_JObj* tobj;
+        HSD_ImageDesc* idesc;
+        struct {
+            u8 is_offscreen : 1;
+            u8 ignore_offscreen : 1;
+            u8 unk : 6;
+        } state;
+    } PlayerEntry;
+
+    S32Vec2 sp40;
+    Vec2 sp38;
+    f32 sp34;
+    f32 sp30;
+    Vec3 sp24;
+    GXColor sp20;
+    GXColor sp1C;
+    s32 do_render;
+    s32 slot;
+    PlayerEntry* entry;
+    s32 var_r29;
+    HSD_GObj* fighter;
+    u8 pkind;
+    u8 team_mode;
+    u32 state_val;
+    u8 kind;
+    PAD_STACK(24);
+
+    if (arg1 != 0) {
+        return;
+    }
+
+    entry = (PlayerEntry*) arg0->user_data;
+    slot = ((u8*) entry - ((u8*) ifMagnify_804A1DE0.player + 0)) / 0x10;
+    var_r29 = 0;
+
+    if (gm_8016AE38()->hud_enabled == 0 || ifAll_IsHUDHidden() != 0 ||
+        Camera_80030130() != 0) {
+        do_render = 0;
+    } else {
+        do_render = 1;
+    }
+
+    if (do_render != 0 && entry->state.is_offscreen) {
+        fighter = Player_GetEntity(slot);
+        if (fighter != NULL) {
+            ftLib_80086A58(fighter, &sp40);
+            sp30 = (f32) sp40.x - ifMagnify_804DDB40;
+            sp34 = -((f32) sp40.y - ifMagnify_804DDB44);
+            HSD_JObjSetRotationZ(entry->tobj, atan2f(sp34, sp30));
+            ifMagnify_802FB73C(entry, (Vec2*) &sp30, &sp38);
+            sp24.x = ifMagnify_804DDB48 * sp38.x;
+            sp24.y = ifMagnify_804DDB4C * sp38.y;
+            sp24.z = ifMagnify_804DDB08;
+            HSD_JObjSetTranslate((HSD_JObj*) entry->gobj->hsd_obj, &sp24);
+            HSD_GObj_JObjCallback(arg0, arg1);
+            state_val = entry->state.unk & 0x3F;
+            if (state_val == 4 || state_val == 2) {
+                pkind = Player_GetPlayerSlotType(slot);
+                team_mode = gm_8016B168();
+                sp20 = gm_80160968(gm_80160854((u8) slot, Player_GetTeam(slot),
+                                              team_mode, pkind));
+                sp1C = sp20;
+                if (state_val == 2) {
+                    kind = 1;
+                } else {
+                    kind = 2;
+                }
+                un_802FD928((u8) slot, kind, &sp1C);
+                var_r29 = 1;
+            }
+        }
+    }
+
+    if (var_r29 == 0) {
+        un_802FD9D8((u8) slot);
+    }
+}
 
 /// #ifMagnify_802FBBDC
 
