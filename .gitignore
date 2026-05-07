@@ -111,6 +111,7 @@ __pycache__
 *.exe
 *.dll
 *.bat
+!start_cluster_server.bat
 
 # https://github.com/github/gitignore/blob/main/Global/VisualStudioCode.gitignore
 .vscode/*
