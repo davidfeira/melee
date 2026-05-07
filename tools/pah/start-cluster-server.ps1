@@ -56,7 +56,7 @@ try {
     exit 2
 }
 
-# 3. Cache controller pub_key if not already done.
+# 3. Cache controller pub_key if not already done; write controller_address.
 $cfgPath = Join-Path $RepoRoot "build-linux\pah-controller-state\pah_config.toml"
 if (Test-Path $cfgPath) {
     $hasPub = Select-String -Path $cfgPath -Pattern '^pub_key' -Quiet
@@ -68,6 +68,18 @@ if (Test-Path $cfgPath) {
     } else {
         Write-Host "    pub_key already cached" -ForegroundColor Green
     }
+    # Write/overwrite controller_address so /kit/info doesn't have to fall back
+    # to the request Host header. Workers fetching /kit/pah.conf will then get
+    # the right server_address regardless of how the viz is launched.
+    $cfgText = Get-Content $cfgPath -Raw
+    $newAddr = "${LanIp}:${ControllerPort}"
+    if ($cfgText -match '(?m)^controller_address\s*=') {
+        $cfgText = ($cfgText -replace '(?m)^controller_address\s*=.*$', "controller_address = `"$newAddr`"")
+    } else {
+        $cfgText = $cfgText.TrimEnd() + "`ncontroller_address = `"$newAddr`"`n"
+    }
+    Set-Content -Path $cfgPath -Value $cfgText -NoNewline -Encoding ASCII
+    Write-Host "    controller_address = $newAddr" -ForegroundColor Green
 } else {
     Write-Host "    no pah_config.toml yet — controller will create on first start" -ForegroundColor DarkYellow
 }
