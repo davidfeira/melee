@@ -3,6 +3,20 @@
 #include <platform.h>
 
 #include <baselib/debug.h>
+#include <baselib/devcom.h>
+
+#include <dolphin/os.h>
+#include <dolphin/os/OSAlarm.h>
+
+typedef struct DefragJob {
+    OSAlarm x0_alarm;
+    void* x28_src;
+    void* x2C_dest;
+    u32 x30_size;
+    u32 x34_progress;
+    void* x38_args;
+    HSD_DevComCallback x3C_callback;
+} DefragJob;
 
 struct Allocator {
     void* x0_arenaLo;
@@ -14,13 +28,14 @@ struct Allocator {
     u8 x638[0x698 - 0x638];
     Handle* x698_free_heap;
     Handle* x69C;
-    u8 x6A0[0x6E0 - 0x6A0];
+    DefragJob x6A0_job;
     u32 x6E0;
     void* x6E4;
     void* x6E8;
     u8 x6EC[0x6F0 - 0x6EC];
 };
 
+/* 015184 */ void fn_80015184(OSAlarm* alarm, OSContext* context);
 /* 015320 */ static void lbMemory_80015320(int, Handle*, int, int);
 
 /// lbMemory_804318B0
@@ -177,6 +192,32 @@ Handle* lbMemory_80014FC8(Handle* arg0, u32 size)
             g_alloc.x634_max_num_allocs = g_alloc.x630_num_allocs;
         }
         return result;
+    }
+}
+
+void fn_80015184(OSAlarm* alarm, OSContext* context)
+{
+    DefragJob* job = &g_alloc.x6A0_job;
+    u32 progress;
+    u32 chunk;
+
+    if (job->x30_size == 0) {
+        __assert(__FILE__, 0x127, "p->size");
+    }
+    progress = job->x34_progress;
+    chunk = job->x30_size - progress;
+    if (chunk > 0x19000) {
+        chunk = 0x19000;
+    }
+    memcpy((void*) ((u32) job->x2C_dest + progress),
+           (void*) ((u32) job->x28_src + progress), chunk);
+    job->x34_progress += chunk;
+    if (job->x34_progress == job->x30_size) {
+        job->x30_size = 0;
+        job->x3C_callback(0, (int) job->x38_args, NULL, 0);
+    } else {
+        OSCreateAlarm(&job->x0_alarm);
+        OSSetAlarm(&job->x0_alarm, OSMillisecondsToTicks(3), fn_80015184);
     }
 }
 
