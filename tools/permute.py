@@ -1068,11 +1068,20 @@ def _launch_permuter_background(c_file: Path, func: str, cluster: bool = False) 
     permuter-queued tag) for later batch processing.
     """
     mode_path = ROOT / "tools" / "viz" / "permuter_mode.txt"
-    if mode_path.exists() and mode_path.read_text(encoding="utf-8").strip().lower().startswith("off"):
+    mode = ""
+    if mode_path.exists():
+        mode = mode_path.read_text(encoding="utf-8").strip().lower()
+    if mode.startswith("off"):
         print(f"[permute] permuter dispatch is OFF (toggle in viz). Skipping launch for {func}.")
         print(f"[permute] Run log-stuck with --tags=permuter-queued (or permuter-queued-cluster) instead:")
         print(f"  python tools/permute.py log-stuck {func} --tags=permuter-queued,regalloc \\")
         print(f"      --diagnosis=\"<your near-miss diagnosis>\"")
+        sys.exit(2)
+    if mode.startswith("cluster") and not cluster:
+        print(f"[permute] permuter mode is CLUSTER (local CPU reserved for ninja).")
+        print(f"[permute] Re-run with --cluster to dispatch to the p@h cluster, or")
+        print(f"[permute] flip the toggle to 'on' in the viz to enable local dispatch:")
+        print(f"  echo on > {mode_path.relative_to(ROOT).as_posix()}")
         sys.exit(2)
     nm_dir = ROOT / "nonmatchings" / func
     if not nm_dir.exists():

@@ -220,9 +220,18 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         self.wfile.write(body)
 
     def _permuter_mode(self, method: str):
-        """GET: returns {mode: 'on'|'off'}. POST with body {mode: 'on'|'off'}
-        flips the toggle. permute.py reads this file before launching any
-        permuter and bails when off."""
+        """GET: returns {mode: 'on'|'cluster'|'off'}.
+        POST with body {mode: ...} writes the toggle.
+
+        Three states:
+        - on:      local dispatch allowed (uses your CPU)
+        - cluster: only --cluster dispatch; local refuses (preserves CPU
+                   for ninja). Use when the LAN cluster is up.
+        - off:     no dispatch at all; near-misses log-stuck.
+
+        permute.py reads this file before launching any permuter and bails
+        accordingly.
+        """
         path = ROOT / "permuter_mode.txt"
         if method == "POST":
             length = int(self.headers.get("Content-Length") or "0")
@@ -231,10 +240,10 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             except json.JSONDecodeError:
                 body = {}
             mode = (body.get("mode") or "").lower()
-            if mode in ("on", "off"):
+            if mode in ("on", "cluster", "off"):
                 path.write_text(mode, encoding="utf-8")
         cur = path.read_text(encoding="utf-8").strip().lower() if path.exists() else "on"
-        if cur not in ("on", "off"):
+        if cur not in ("on", "cluster", "off"):
             cur = "on"
         body = json.dumps({"mode": cur}).encode()
         self.send_response(200)

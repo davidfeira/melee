@@ -1680,12 +1680,22 @@ function setPermuterPill(mode) {
   const el = document.getElementById("permuter-toggle");
   if (!el) return;
   el.textContent = `${emojis.toggle} permuter: ${mode}`;
-  el.style.background = mode === "on" ? "#d4f4dc" : "#f4d4d4";
+  // on=local-allowed (green); cluster=cluster-only, local off (blue);
+  // off=no dispatch at all (red).
+  const colors = { on: "#d4f4dc", cluster: "#d4dcf4", off: "#f4d4d4" };
+  el.style.background = colors[mode] || "#eee";
+  el.title =
+    mode === "cluster"
+      ? "cluster mode: local CPU reserved; only --cluster dispatches; click to cycle on→cluster→off"
+      : mode === "off"
+      ? "off: no permuter dispatch at all; near-misses log-stuck. click to cycle"
+      : "on: local dispatch allowed (uses your CPU). click to cycle";
 }
 async function togglePermuterMode() {
   const el = document.getElementById("permuter-toggle");
   const cur = (el.textContent.match(/permuter:\s*(\w+)/) || [, "on"])[1];
-  const next = cur === "on" ? "off" : "on";
+  // Three-state cycle: on → cluster → off → on
+  const next = cur === "on" ? "cluster" : cur === "cluster" ? "off" : "on";
   try {
     const r = await fetch("/permuter-mode", {
       method: "POST",
