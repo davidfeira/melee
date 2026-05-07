@@ -152,12 +152,25 @@ echo "==> worker config: $CORES cores, ${MEMORY_GB}GB memory"
 echo "==> controller:    $CONTROLLER_URL"
 echo "==> install dir:   $INSTALL_DIR"
 
-# Clone or update repo.
+# Clone or update repo. Fetch the target branch explicitly because earlier
+# clones may have been shallow on a different branch (e.g. master) and
+# wouldn't otherwise know about system-rebuild's refs.
 if [[ -d "$INSTALL_DIR/.git" ]]; then
   echo "==> updating existing checkout"
-  git -C "$INSTALL_DIR" fetch origin --quiet
-  git -C "$INSTALL_DIR" checkout "$BRANCH" --quiet
-  git -C "$INSTALL_DIR" pull --ff-only --quiet
+  # Unshallow if needed so we can switch branches at all.
+  if [[ -f "$INSTALL_DIR/.git/shallow" ]]; then
+    git -C "$INSTALL_DIR" fetch --unshallow --quiet origin "$BRANCH" 2>/dev/null || \
+      git -C "$INSTALL_DIR" fetch --depth 1 --quiet origin "$BRANCH"
+  else
+    git -C "$INSTALL_DIR" fetch origin "$BRANCH" --quiet
+  fi
+  # Make a tracking branch from origin/<branch> if we don't already have one.
+  if git -C "$INSTALL_DIR" rev-parse --verify "$BRANCH" >/dev/null 2>&1; then
+    git -C "$INSTALL_DIR" checkout "$BRANCH" --quiet
+    git -C "$INSTALL_DIR" reset --hard "origin/$BRANCH" --quiet
+  else
+    git -C "$INSTALL_DIR" checkout -b "$BRANCH" "origin/$BRANCH" --quiet
+  fi
 else
   echo "==> cloning $REPO_URL ($BRANCH)"
   git clone --branch "$BRANCH" --depth 1 "$REPO_URL" "$INSTALL_DIR"
