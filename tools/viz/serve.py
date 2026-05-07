@@ -182,6 +182,10 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             # Also catch /sessions/ — without this, SimpleHTTPRequestHandler
             # serves the real tools/viz/sessions/ directory listing.
             self._sessions()
+        elif self.path in ("/kit/info", "/kit/info/"):
+            self._kit_info()
+        elif self.path in ("/kit/pah.conf", "/kit/pah.conf/"):
+            self._kit_pah_conf()
         elif self.path.startswith("/note?"):
             self._note()
         elif self.path == "/cpu":
@@ -304,6 +308,85 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         self.send_header("Content-Type", "text/plain; charset=utf-8")
         self.send_header("Content-Length", str(len(body)))
         self.send_header("Cache-Control", "no-cache")
+        self.end_headers()
+        self.wfile.write(body)
+
+    def _kit_info(self):
+        """Return controller info for worker bootstrap.
+
+        Reads build-linux/pah-controller-state/pah_config.toml for the
+        cached pub_key (run tools/pah/derive-pubkey.py once to populate it),
+        and returns the LAN-side controller endpoint plus the public key.
+
+        Workers fetch this to construct their own pah.conf without needing
+        the operator to hand-copy fields.
+        """
+        cfg_path = REPO_ROOT / "build-linux" / "pah-controller-state" / "pah_config.toml"
+        info = {"server_address": None, "server_public_key": None, "warning": None}
+        if cfg_path.exists():
+            text = cfg_path.read_text(encoding="utf-8")
+            for line in text.splitlines():
+                line = line.strip()
+                if line.startswith("pub_key") and "=" in line:
+                    info["server_public_key"] = line.split("=", 1)[1].strip().strip('"')
+                if line.startswith("controller_address") and "=" in line:
+                    info["server_address"] = line.split("=", 1)[1].strip().strip('"')
+        if not info["server_public_key"]:
+            info["warning"] = (
+                "pub_key not cached — run `python tools/pah/derive-pubkey.py` on "
+                "the controller machine once to populate it."
+            )
+        if not info["server_address"]:
+            host = os.environ.get("PAH_CONTROLLER_HOST") or self.headers.get("Host", "").split(":")[0]
+            port = os.environ.get("PAH_CONTROLLER_PORT", "1234")
+            info["server_address"] = f"{host}:{port}" if host else None
+            info.setdefault("warning", "")
+            info["warning"] = (info["warning"] or "") + (
+                " server_address inferred from request Host; set PAH_CONTROLLER_HOST/PORT env vars or "
+                "controller_address in pah_config.toml for stability."
+            )
+        body = json.dumps(info).encode()
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+
+    def _kit_pah_conf(self):
+        """Return a worker pah.conf (toml) ready to be saved as
+        ~/.config/decomp-permuter/config.toml on the worker.
+
+        Workers still need to run `pah.py setup` interactively once on first
+        run to generate their own signing key — but the controller pubkey
+        and address come pre-filled from this endpoint.
+        """
+        cfg_path = REPO_ROOT / "build-linux" / "pah-controller-state" / "pah_config.toml"
+        pub_key = ""
+        addr = ""
+        if cfg_path.exists():
+            for line in cfg_path.read_text(encoding="utf-8").splitlines():
+                line = line.strip()
+                if line.startswith("pub_key") and "=" in line:
+                    pub_key = line.split("=", 1)[1].strip().strip('"')
+                if line.startswith("controller_address") and "=" in line:
+                    addr = line.split("=", 1)[1].strip().strip('"')
+        if not addr:
+            host = os.environ.get("PAH_CONTROLLER_HOST") or self.headers.get("Host", "").split(":")[0]
+            port = os.environ.get("PAH_CONTROLLER_PORT", "1234")
+            addr = f"{host}:{port}"
+        toml_lines = [
+            f'server_address = "{addr}"',
+        ]
+        if pub_key:
+            toml_lines.append(f'server_public_key = "{pub_key}"')
+        else:
+            toml_lines.append(
+                "# server_public_key missing — run `python tools/pah/derive-pubkey.py`"
+            )
+        body = ("\n".join(toml_lines) + "\n").encode()
+        self.send_response(200)
+        self.send_header("Content-Type", "application/toml")
+        self.send_header("Content-Length", str(len(body)))
         self.end_headers()
         self.wfile.write(body)
 
