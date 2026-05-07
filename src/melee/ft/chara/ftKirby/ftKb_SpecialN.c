@@ -62,12 +62,18 @@
 /// External variables from ftKb_Init.c
 extern bool ftKb_Init_803CB490[];
 
+struct ftKb_Init_803CB490_layout {
+    char pad[0x74];
+    Vec3 vec;
+};
+
 struct ftKb_Init_803CB4EC_t {
     int ints[6];
     Vec3 vec;
 };
 extern struct ftKb_Init_803CB4EC_t ftKb_Init_803CB4EC;
 
+extern f32 ftKb_Init_804D9390;
 extern f32 ftKb_Init_804D93E8;
 extern f32 ftKb_Init_804D93EC;
 extern char ftKb_Init_803CB510[];
@@ -848,24 +854,28 @@ void ftKb_SpecialHi_800F3570(Fighter_GObj* gobj)
 void ftKb_SpecialHi_800F36DC(Fighter_GObj* gobj)
 {
     Fighter* fp = GET_FIGHTER(gobj);
-    fp->mv.kb.speciallw.x24 = ftKb_Init_803CB4EC.vec;
+    struct ftKb_Init_803CB490_layout* p =
+        (struct ftKb_Init_803CB490_layout*) ftKb_Init_803CB490;
+    f32 zero;
+    fp->mv.kb.speciallw.x24 = p->vec;
     fp->mv.kb.speciallw.x54 = fp->mv.kb.speciallw.x24;
-    fp->mv.kb.speciallw.x88[0] = 0.0f;
-    fp->mv.kb.speciallw.x88[4] = 0.0f;
-    fp->mv.kb.speciallw.x30 = ftKb_Init_803CB4EC.vec;
+    zero = ftKb_Init_804D9390;
+    fp->mv.kb.speciallw.x88[0] = zero;
+    fp->mv.kb.speciallw.x88[4] = zero;
+    fp->mv.kb.speciallw.x30 = p->vec;
     fp->mv.kb.speciallw.x60 = fp->mv.kb.speciallw.x30;
-    fp->mv.kb.speciallw.x88[1] = 0.0f;
-    fp->mv.kb.speciallw.x88[5] = 0.0f;
-    fp->mv.kb.speciallw.x3C = ftKb_Init_803CB4EC.vec;
+    fp->mv.kb.speciallw.x88[1] = zero;
+    fp->mv.kb.speciallw.x88[5] = zero;
+    fp->mv.kb.speciallw.x3C = p->vec;
     fp->mv.kb.speciallw.x6C = fp->mv.kb.speciallw.x3C;
-    fp->mv.kb.speciallw.x88[2] = 0.0f;
-    fp->mv.kb.speciallw.x88[6] = 0.0f;
-    fp->mv.kb.speciallw.x48 = ftKb_Init_803CB4EC.vec;
+    fp->mv.kb.speciallw.x88[2] = zero;
+    fp->mv.kb.speciallw.x88[6] = zero;
+    fp->mv.kb.speciallw.x48 = p->vec;
     fp->mv.kb.speciallw.x78 = fp->mv.kb.speciallw.x48;
-    fp->mv.kb.speciallw.x88[3] = 0.0f;
-    fp->mv.kb.speciallw.x88[7] = 0.0f;
-    fp->mv.kb.speciallw.x18 = ftKb_Init_803CB4EC.vec;
-    fp->mv.kb.speciallw.x84 = 0.0f;
+    fp->mv.kb.speciallw.x88[3] = zero;
+    fp->mv.kb.speciallw.x88[7] = zero;
+    fp->mv.kb.speciallw.x18 = p->vec;
+    fp->mv.kb.speciallw.x84 = zero;
 }
 
 void ftKb_SpecialHi_800F37EC(Fighter_GObj* gobj)
@@ -1220,11 +1230,6 @@ void ftKb_SpecialAirLwEnd_Phys(Fighter_GObj* gobj)
 {
     ft_80085134(gobj);
 }
-
-struct ftKb_Init_803CB490_layout {
-    char pad[0x74];
-    Vec3 vec;
-};
 
 void ftKb_SpecialLw1_Coll(Fighter_GObj* gobj)
 {
@@ -3333,6 +3338,39 @@ static inline void fn_800F9260_DrMario(HSD_GObj* gobj, Fighter* fp, Vec3* pos)
     fp2->fv.kb.x68 = pick;
     itDrMarioPill_Spawn(gobj, pos, pick, It_Kind_Kirby_DrMarioVitamin,
                         fp->facing_dir);
+}
+
+void fn_800F9260(HSD_GObj* gobj)
+{
+    Vec3 sp44;
+    Fighter* fp = GET_FIGHTER(gobj);
+    bool flag;
+
+    if (fp->fv.kb.hat.kind == FTKIND_KIRBY) {
+        return;
+    }
+    if (fp->throw_flags_b0) {
+        fp->throw_flags_b0 = false;
+        flag = true;
+    } else {
+        flag = false;
+    }
+    if (!flag) {
+        return;
+    }
+    {
+        Fighter_Part bone = ftParts_GetBoneIndex(fp, FtPart_LHandN);
+        lb_8000B1CC(fp->parts[bone].joint, NULL, &sp44);
+    }
+    if (fp->fv.kb.hat.kind == FTKIND_MARIO) {
+        it_8029B6F8(gobj, &sp44, It_Kind_Kirby_MarioFire, fp->facing_dir);
+        {
+            Fighter_Part bone = ftParts_GetBoneIndex(fp, FtPart_LHandN);
+            efSync_Spawn(0x49f, gobj, fp->parts[bone].joint, &fp->facing_dir);
+        }
+        return;
+    }
+    fn_800F9260_DrMario(gobj, fp, &sp44);
 }
 
 void ftKb_SpecialNMr_800F93CC(Fighter_GObj* gobj)
