@@ -1,13 +1,14 @@
 ---
 function: ftColl_8007B4E0
 tu: src/melee/ft/ftcoll.c
-headline: regalloc
-tags: [regalloc]
+headline: regalloc + permuter-territory
+tags: [regalloc, permuter-territory]
 ---
-## ftColl_8007B4E0 (`src/melee/ft/ftcoll.c`) — regalloc
+## ftColl_8007B4E0 (`src/melee/ft/ftcoll.c`) — regalloc + permuter-territory
 
-- **Tags:** `regalloc`
+- **Tags:** `regalloc`, `permuter-territory`
 - **Best fuzzy:** 96.7647%
-- **Diagnosis:** 30 mismatches, all pure regalloc (r5/r6 and r10/r11 swap pairs). Target writes hurt_capsules base via r5, inits via r6+r10/r11; base swaps to r6/r5 and r10/r11. Adding FighterHurtCapsule* hurt local did not change codegen. >15 instr so above auto-permute threshold, but single-class regalloc is permuter territory — eligible for cluster dispatch.
-- **Tried:** (1) introduce FighterHurtCapsule* hurt = &fp->hurt_capsules[i] local pointer to mirror ftColl_HurtboxInit shape — same 30 mismatches.
-- **Likely fix:** Cluster permuter run; manual approaches won't shift register pairs without an unrelated source change.
+- **Diagnosis:** Pure r5/r6 and r10/r11 register allocation swap throughout the loop body. Game binary assigns r5=byte-offset-counter, r6=hurt_capsule-walker, r11=init-temp-ptr; our compile assigns r6=byte-offset-counter, r5=hurt_capsule-walker, r10=init-temp-ptr. 30 mismatches, all DIFF_ARG_MISMATCH, no structural diff. Source code is correct and identical to upstream/master matched version.
+- **Tried:** (1) Index-based loop (original): 96.76%, 30 mismatches all register. (2) Pointer-based loop with hurt++ and FighterHurtCapsule* hurt: 93.6%, 39 mismatches, worse. Reverted to index-based.
+- **Likely fix:** Permuter should resolve the r5/r6 and r10/r11 swap -- these are exactly the kind of register allocation choices the permuter handles. Note: upstream/master already has this function matched with identical source, suggesting this is a TU-context-dependent regalloc difference.
+

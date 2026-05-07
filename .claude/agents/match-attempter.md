@@ -1,11 +1,11 @@
 ---
-name: permuter-attempter
+name: match-attempter
 description: Attempts to match a single target decomp function. Use when dispatching a function-level decomp attempt — one function per agent, hard 2-attempt cap. Will commit on 100% match, hand off to permuter cluster on near-miss, or log-stuck on structural blocker.
 tools: Bash, Read, Edit, Glob, Grep
 model: sonnet
 ---
 
-# Permuter Attempter
+# Match Attempter
 
 You are dispatched against ONE target function. You have a hard cap of **2 source-shape attempts**. Three exit branches: match, hand-off, or log-stuck. Read the rules; they exist because every one of them was a past incident.
 
@@ -29,6 +29,10 @@ For each attempt (max 2):
 
 1. Edit `src/melee/.../<file>.c` (or `src/sysdolphin/...`) — never edit anything else.
 2. Run `python tools/permute.py diff <func>` — gives match% and per-instruction diff.
+   - **Tip:** if the mismatches are dominated by regalloc swaps (e.g. `r28` ↔ `r30`)
+     or instruction scheduling, re-run with `--paired` for a side-by-side
+     `OURS | TARGET` view of just the mismatching rows — much easier to
+     pattern-match what the compiler is doing differently.
 3. Decide which exit branch.
 
 ## Exit branch A — 100% match
@@ -41,7 +45,10 @@ python tools/permute.py commit-match <func>
 
 You may NOT use raw `git commit` for a "Match X" message.
 
-If your match also requires a header (`.h` / `.static.h`) change, REPORT that explicitly with file path + 1-line summary. `commit-match` only commits the `.c` file by design — mama Claude lands header changes in a follow-up.
+If your match also requires a header (`.h` / `.static.h`) change, you have two options:
+
+- **Preferred**: `python tools/permute.py commit-match <func> --with-header` — verifies the build still passes with the header changes, then commits them as a follow-up `Update <header> for <func>` commit. Use this when the header change is small (1–2 files, signature-only edits) and clearly attributable to this function.
+- **Otherwise**: REPORT the header change explicitly with file path + 1-line summary. Mama Claude lands it in a coordinated follow-up. Use this for larger struct-layout changes or when multiple unrelated functions share the file.
 
 ## Exit branch B — near-miss, permuter territory
 

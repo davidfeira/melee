@@ -91,21 +91,20 @@ void grPura_80211CFC(bool num) {}
 
 /// #grPura_80211D00
 
-const f32 grPu_804DBA58 = 0.8;
-const f32 grPu_804DBA5C = 3600.0;
-const f64 grPu_804DBA60 = 4503601774854144.0;
-const f64 grPu_804DBA68 = 4503599627370496.0;
-const f32 grPu_804DBA70 = 0.0;
-const f32 grPu_804DBA74 = 2.0;
-const f32 grPu_804DBA78 = 30.0;
-const f32 grPu_804DBA7C = -30.0;
+f32 grPu_804DBA58 = 0.8;
+f32 grPu_804DBA5C = 3600.0;
+f64 grPu_804DBA60 = 4503601774854144.0;
+f64 grPu_804DBA68 = 4503599627370496.0;
+f32 grPu_804DBA70 = 0.0;
+f32 grPu_804DBA74 = 2.0;
+f32 grPu_804DBA78 = 30.0;
+f32 grPu_804DBA7C = -30.0;
 
 /* 4D6AA0 */ static HSD_GObj* grPu_804D6AA0;
 
 void grPura_80211D00(void)
 {
     Vec3 cam_offset;
-    f32 fVar1;
 
     grPu_804D6AA0 = Ground_801C49F8();
     stage_info.unk8C.b4 = 0;
@@ -118,14 +117,10 @@ void grPura_80211D00(void)
     Ground_801C39C0();
     Ground_801C3BB4();
     Stage_UnkSetVec3TCam_Offset(&cam_offset);
-    fVar1 = Stage_GetCamBoundsTopOffset();
-    Ground_801C3880(grPu_804DBA58 * (fVar1 - cam_offset.y));
-    fVar1 = Stage_GetCamBoundsBottomOffset();
-    Ground_801C3890(grPu_804DBA58 * (fVar1 - cam_offset.y));
-    fVar1 = Stage_GetCamBoundsLeftOffset();
-    Ground_801C38A0(grPu_804DBA58 * (fVar1 - cam_offset.x));
-    fVar1 = Stage_GetCamBoundsRightOffset();
-    Ground_801C38AC(grPu_804DBA58 * (fVar1 - cam_offset.x));
+    Ground_801C3880(grPu_804DBA58 * (Stage_GetCamBoundsTopOffset() - cam_offset.y));
+    Ground_801C3890(grPu_804DBA58 * (Stage_GetCamBoundsBottomOffset() - cam_offset.y));
+    Ground_801C38A0(grPu_804DBA58 * (Stage_GetCamBoundsLeftOffset() - cam_offset.x));
+    Ground_801C38AC(grPu_804DBA58 * (Stage_GetCamBoundsRightOffset() - cam_offset.x));
 }
 
 void grPura_80211DD8(void) {}
@@ -223,15 +218,15 @@ void grPura_80212024(Ground_GObj* arg0)
     PAD_STACK(16);
     grAnime_801C8138(arg0, gp->map_id, 0);
     gp->x11_flags.b012 = 2;
-    *(s16*) &gp->gv.pura.xC4 = HSD_Randi(4);
+    gp->gv.pura.xC4 = HSD_Randi(4);
     do {
         uVar1 = HSD_Randi(4);
-    } while (*(s16*) &gp->gv.pura.xC4 == (gp->gv.pura.xC6 = uVar1));
-    Ground_801C205C(&grPu_803E6AA0[*(s16*) &gp->gv.pura.xC4]);
-    Camera_SetBackgroundColor(grPu_803E6AA0[*(s16*) &gp->gv.pura.xC4].r,
-                              grPu_803E6AA0[*(s16*) &gp->gv.pura.xC4].g,
-                              grPu_803E6AA0[*(s16*) &gp->gv.pura.xC4].b);
-    *(s16*) &gp->gv.pura.xC8 = 0;
+    } while (gp->gv.pura.xC4 == (gp->gv.pura.xC6 = uVar1));
+    Ground_801C205C(&grPu_803E6AA0[gp->gv.pura.xC4]);
+    Camera_SetBackgroundColor(grPu_803E6AA0[gp->gv.pura.xC4].r,
+                              grPu_803E6AA0[gp->gv.pura.xC4].g,
+                              grPu_803E6AA0[gp->gv.pura.xC4].b);
+    gp->gv.pura.xC8 = 0;
 }
 
 bool grPura_802120D8(Ground_GObj* arg0)

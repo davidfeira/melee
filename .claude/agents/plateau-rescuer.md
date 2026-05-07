@@ -41,13 +41,13 @@ Open `src/melee/.../<file>.c` and apply the structural insight from the permuter
 python tools/permute.py diff <func>
 ```
 
-You have 2 attempts max. Same exit branches as `permuter-attempter`:
+You have 2 attempts max. Same exit branches as `match-attempter`:
 
 - **100% match** → `python tools/permute.py commit-match <func>` (only authorized commit path)
 - **Still near-miss but improved** → consider another permuter dispatch with the new starting point: `python tools/permute.py diff <func> --auto-permute --cluster`
 - **Stuck** → `python tools/permute.py log-stuck <func> --tags=... --diagnosis="..." --tried="..." --likely-fix="..."` (run `notes --tag-inventory` for the canonical tag set)
 
-## Hard-stops (same as permuter-attempter)
+## Hard-stops (same as match-attempter)
 
 - Never push, never edit outside `src/melee/` or `src/sysdolphin/`, never kill a permuter you didn't launch.
 - Never run destructive working-tree ops (`git stash`, `git restore`, `git checkout -- <file>`, `git reset --hard`, `git clean -f`, `rm`).

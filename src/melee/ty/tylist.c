@@ -198,8 +198,24 @@ extern f32 un_804DDE34;
 extern f32 un_804DDE38;
 extern f32 un_804DDE3C;
 extern f32 un_804DDE40;
+extern f32 un_804DDE44;
+extern f32 un_804DDE48;
+extern f32 un_804DDE4C;
+extern f32 un_804DDE50;
+
 extern GXColor lb_804D3760;
 extern GXColor lb_804D3764;
+
+typedef struct TyListGobjEntry {
+    /* 0x00 */ HSD_GObj* x0;
+    /* 0x04 */ HSD_GObj* x4;
+    /* 0x08 */ u8 pad_8[0x0C - 0x08];
+    /* 0x0C */ s8 x0C;
+    /* 0x0D */ u8 pad_0D[0x16 - 0x0D];
+    /* 0x16 */ s8 x16;
+} TyListGobjEntry;
+
+extern TyListGobjEntry un_804A2D6C;
 
 typedef struct TyListRow {
     /* 0x00 */ u8 pad_0[0xC];
@@ -308,7 +324,124 @@ void un_80312904(void* arg0, s8 arg1)
     HSD_SisLib_803A6368(row->text2, row->x28 + 0x12E);
 }
 
-/// #un_80312BAC
+void un_80312BAC(TyListState* state, s8 arg1)
+{
+    void* archive = un_804D6ED8;
+    s16 old_idx;
+    s32 var_r28;
+    s32 i;
+    TyListArg* row;
+    HSD_JObj* jobj;
+
+    old_idx = un_804D6EDC[state->selectedIdx];
+    un_803067BC((s8) state->x29B, (s8) state->x29C);
+    state->selectedIdx = un_803062BC((s32) old_idx);
+
+    if (un_GetTrophyTotal() <= 0xA) {
+        var_r28 = state->selectedIdx;
+        i = 0;
+        while (i < (s8) state->x278->x24 + 1) {
+            if (--var_r28 < 0) {
+                var_r28 = un_GetTrophyTotal() - 1;
+            }
+            i++;
+        }
+    } else {
+        var_r28 = state->selectedIdx;
+        i = 0;
+        while (i < (s8) state->x278->x24 + 1) {
+            if (--var_r28 < 0) {
+                var_r28 = un_GetTrophyTotal() - 1;
+            }
+            i++;
+        }
+    }
+
+    jobj = state->jobj;
+    row = state->x270;
+    if (jobj != NULL) {
+        f32 y = row->x30;
+        if (jobj == NULL) {
+            __assert(&un_804D5A78, 0x3B3, &un_804D5A80);
+        }
+        jobj->translate.y = y;
+        if (!(jobj->flags & 0x02000000)) {
+            if (jobj == NULL) {
+                goto done_first_dirty;
+            }
+            if (jobj == NULL) {
+                __assert(&un_804D5A78, 0x234, &un_804D5A80);
+            }
+            {
+                u32 flags = jobj->flags;
+                s32 skip = 0;
+                if (!(flags & 0x800000) && (flags & 0x40)) {
+                    skip = 1;
+                }
+                if (skip == 0) {
+                    HSD_JObjSetMtxDirtySub(jobj);
+                }
+            }
+        }
+    }
+done_first_dirty:
+
+    for (i = 0; i < (s8) state->entryCount; i++) {
+        row->idx = var_r28;
+        un_80312904(row, arg1);
+        un_80313464(row);
+        if (row->x24 >= 0 &&
+            row->x24 < (s8) state->entryCount - 2 &&
+            row->idx == un_GetTrophyTotal() - 1)
+        {
+            HSD_JObj* jobj2 = state->jobj;
+            if (jobj2 != NULL) {
+                f32 y = row->x30;
+                if (jobj2 == NULL) {
+                    __assert(&un_804D5A78, 0x3B3, &un_804D5A80);
+                }
+                jobj2->translate.y = y;
+                if (!(jobj2->flags & 0x02000000)) {
+                    if (jobj2 == NULL) {
+                        goto done_inner_dirty;
+                    }
+                    if (jobj2 == NULL) {
+                        __assert(&un_804D5A78, 0x234, &un_804D5A80);
+                    }
+                    {
+                        u32 flags = jobj2->flags;
+                        s32 skip = 0;
+                        if (!(flags & 0x800000) && (flags & 0x40)) {
+                            skip = 1;
+                        }
+                        if (skip == 0) {
+                            HSD_JObjSetMtxDirtySub(jobj2);
+                        }
+                    }
+                }
+            }
+        }
+done_inner_dirty:
+        row = row->x4;
+        var_r28++;
+        if (var_r28 >= un_GetTrophyTotal()) {
+            var_r28 = 0;
+        }
+    }
+
+    i = 0;
+    while (i < 3) {
+        HSD_JObj* anim_jobj = *((HSD_JObj**)((u8*) archive + i * 4 + 0x18));
+        if (i == (s8) state->x29B) {
+            HSD_JObjReqAnim(anim_jobj, un_804DDE44);
+        } else {
+            HSD_JObjReqAnim(anim_jobj, un_804DDE48);
+        }
+        HSD_AObjSetRate(anim_jobj->u.dobj->mobj->tobj->aobj, un_804DDE48);
+        HSD_JObjAnim(anim_jobj);
+        i++;
+    }
+}
 
 void un_80312E88(TyListArg* arg, float delta)
 {
@@ -409,7 +542,89 @@ next:
     un_80312904(arg, 0x63);
     un_80313464(arg);
 }
-/// #un_8031305C
+s8 un_8031305C(void* a, TyListState* state, s8 movedFlag)
+{
+    TyListArg* entry;
+    f32 delta;
+    s32 i;
+    PAD_STACK(8);
+
+    if ((s8) state->x29F > 0) {
+        delta = state->x2A4;
+        if ((s8) state->x2A1 == 0) {
+            delta *= un_804DDE50;
+        }
+        entry = state->entries;
+        i = 0;
+        while (i < (s8) state->entryCount) {
+            s8 x2A1 = state->x2A1;
+            if (((s8) x2A1 != 0 || (entry->x24 != -1)) &&
+                ((s8) x2A1 != 1 || (s8) state->entryCount - 1 != entry->x24)) {
+                un_80312E88(entry, delta);
+            }
+            entry = (TyListArg*) ((u8*) entry + 0x34);
+            i++;
+        }
+        state->x29F = (u8) (state->x29F - 1);
+        if ((s8) state->x29F == 0) {
+            i = 0;
+            entry = state->entries;
+            while (i < (s8) state->entryCount) {
+                un_80312E88(entry, un_804DDE4C);
+                if ((s8) state->x2A1 == 0) {
+                    entry->x24 = (s8) (entry->x24 - 1);
+                    if (entry->x24 < -1) {
+                        entry->x24 = (s8) (state->entryCount - 2);
+                    }
+                } else {
+                    entry->x24 = (s8) (entry->x24 + 1);
+                    if (entry->x24 >= (s8) state->entryCount - 1) {
+                        entry->x24 = (s8) -1;
+                    }
+                }
+                entry = entry->x4;
+                i++;
+            }
+            if ((s8) state->x2A1 == 0) {
+                state->x270->idx = (s16) (state->x274->idx + 1);
+                if (state->x270->idx >= un_GetTrophyTotal()) {
+                    state->x270->idx = 0;
+                }
+                un_80312904(state->x270, un_804A2D6C.x0C);
+                state->x278 = state->x278->x4;
+                state->selectedIdx = state->x278->idx;
+                state->x270 = state->x270->x4;
+                state->x274 = state->x274->x4;
+            } else {
+                state->x274->idx = (s16) (state->x270->idx - 1);
+                if (state->x274->idx < 0) {
+                    state->x274->idx = (s16) (un_GetTrophyTotal() - 1);
+                }
+                un_80312904(entry, un_804A2D6C.x0C);
+                state->x278 = state->x278->x0;
+                state->selectedIdx = state->x278->idx;
+                state->x270 = state->x270->x0;
+                state->x274 = state->x274->x0;
+            }
+            if ((s8) state->x29E > 0) {
+                state->x29E = (u8) (state->x29E - 1);
+            }
+            if ((s8) state->x29E == 0) {
+                HSD_JObjClearFlagsAll(state->x288, 0x10U);
+                un_80312904(state->x278, (s8) state->x278->x24);
+                if (HSD_PadCopyStatus->button & 0xC00) {
+                    state->pad_2A0 = 5;
+                } else {
+                    state->pad_2A0 = 0;
+                }
+            }
+            if (movedFlag != 0) {
+                lbAudioAx_80024030(2);
+            }
+        }
+    }
+    return (s8) state->x29F;
+}
 
 void un_80313358(TyListState* state, s8 arg2, s8 arg3, s8 arg4)
 {
@@ -577,7 +792,6 @@ HSD_JObj* un_80313508(void* parent, void* symbol, float x, float y, float z)
 
 /// #un_80313774
 
-extern struct TyListGobjEntry un_804A2D6C;
 extern s32 un_804D6EE8;
 extern s32 un_804D6EEC;
 extern f32 un_804DDE44;
@@ -596,8 +810,8 @@ extern f32 un_804DDE98;
 extern char un_803FE5E8[];
 extern char un_804D5A88[3];
 
-s32 un_8031305C(void* a, void* b, s32 c);
-void un_80312BAC(void* state, u8 v);
+s8 un_8031305C(void* a, TyListState* state, s8 movedFlag);
+void un_80312BAC(TyListState* state, s8 arg1);
 
 void fn_80313BD8(HSD_GObj* gobj)
 {
@@ -861,13 +1075,6 @@ typedef struct TyListArchive {
     /* 0x04 */ u8 pad_4[0x18 - 0x4];
     /* 0x18 */ HSD_JObj* jobjs[3];
 } TyListArchive;
-
-typedef struct TyListGobjEntry {
-    /* 0x00 */ HSD_GObj* x0;
-    /* 0x04 */ HSD_GObj* x4;
-    /* 0x08 */ u8 pad_8[0x16 - 0x8];
-    /* 0x16 */ s8 x16;
-} TyListGobjEntry;
 
 void fn_8031438C(HSD_GObj* arg0)
 {

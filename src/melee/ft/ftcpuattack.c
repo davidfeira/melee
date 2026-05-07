@@ -714,7 +714,180 @@ bool ftCo_800B89CC(Fighter* fp)
     return true;
 }
 
-/// #ftCo_800B8A9C
+bool ftCo_800B8A9C(Fighter* fp)
+{
+    struct Fighter_x1A88_t* cpu = &fp->x1A88;
+    Fighter* target;
+    Item* item;
+    float weapon_reach;
+    int result;
+    int var_r0;
+    Vec3 sp1C;
+    Vec3 sp28;
+    int sp34;
+    u32 sp38;
+
+    if (!cpu->xF9_b2) {
+        return false;
+    }
+    target = cpu->x44;
+    cpu->xEC = 0;
+    cpu->xC8 = 0;
+    if (target == NULL || fp->motion_id == ftCo_MS_Pass ||
+        ftCo_800A1C44(target) || ftCo_800B885C(fp) || ftCo_800A1CA8(fp))
+    {
+        cpu->xA4 = 0;
+        return false;
+    }
+    {
+        Fighter* target2 = cpu->x44;
+        if (target2->motion_id >= ftCo_MS_Catch &&
+            target2->motion_id <= ftCo_MS_EscapeAir)
+        {
+            if (cpu->xEC < 8U) {
+                cpu->xCC_array[cpu->xEC] = 0x28;
+                cpu->xEC++;
+            }
+            if (cpu->xEC < 8U) {
+                cpu->xCC_array[cpu->xEC] = 0x29;
+                cpu->xEC++;
+            }
+        } else if (target2->x34_scale.y > fp->x34_scale.y) {
+            if (cpu->xEC < 8U) {
+                cpu->xCC_array[cpu->xEC] = 0x28;
+                cpu->xEC++;
+            }
+            if (cpu->xEC < 8U) {
+                cpu->xCC_array[cpu->xEC] = 0x29;
+                cpu->xEC++;
+            }
+            if (fp->kind == FTKIND_KIRBY && cpu->xEC < 8U) {
+                cpu->xCC_array[cpu->xEC] = 0x11;
+                cpu->xEC++;
+            }
+        }
+    }
+    ftCo_800B77E8(fp);
+    if (fp->ground_or_air == GA_Air) {
+        if (ftCo_800B89CC(fp)) {
+            result = ftCo_800B4AB0(fp, target,
+                                   ((void**)Fighter_804D64FC->x8)[fp->kind]);
+            if (result != 0) {
+                cpu->xA4 = result;
+                return true;
+            }
+        }
+        goto done;
+    }
+    if (ftCo_800A3134(target) || ftCo_800A3200(target)) {
+        if (cpu->xC8 < 8U) {
+            cpu->xA8_array[cpu->xC8] = 0xa;
+            cpu->xC8++;
+        }
+        if (cpu->xC8 < 8U) {
+            cpu->xA8_array[cpu->xC8] = 0xe;
+            cpu->xC8++;
+        }
+        result = ftCo_800B4AB0(fp, target,
+                               ((void**)Fighter_804D64FC->x4)[fp->kind]);
+        if (result != 0) {
+            cpu->xA4 = result;
+            return true;
+        }
+        goto done;
+    }
+    if (fp->item_gobj != NULL && ftCo_800A59E4(GET_ITEM(fp->item_gobj))) {
+        item = GET_ITEM(fp->item_gobj);
+        if (!ftCo_800A59E4(item)) {
+            weapon_reach = 0.0f;
+        } else {
+            switch (item->kind) {
+            case It_Kind_Harisen:
+                weapon_reach = ((float*)Fighter_804D64FC->x24)[0];
+                break;
+            case It_Kind_LipStick:
+                weapon_reach = ((float*)Fighter_804D64FC->x24)[1];
+                break;
+            case It_Kind_StarRod:
+                weapon_reach = ((float*)Fighter_804D64FC->x24)[2];
+                break;
+            case It_Kind_Sword:
+                weapon_reach = ((float*)Fighter_804D64FC->x24)[3];
+                break;
+            case It_Kind_Bat:
+                weapon_reach = ((float*)Fighter_804D64FC->x24)[4];
+                break;
+            case It_Kind_Parasol:
+                weapon_reach = ((float*)Fighter_804D64FC->x24)[5];
+                break;
+            default:
+                weapon_reach = 0.0f;
+                break;
+            }
+        }
+        result = ftCo_800B52AC(fp, target,
+                               ((void**)Fighter_804D64FC->x18)[fp->kind],
+                               weapon_reach);
+        if (result != 0) {
+            cpu->xA4 = result;
+            return true;
+        }
+    }
+    if (cpu->level > 5 && ftCo_800B9F6C(target)) {
+        result = ftCo_800B4AB0(fp, target,
+                               ((void**)Fighter_804D64FC->x10)[fp->kind]);
+        if (result != 0) {
+            cpu->xA4 = result;
+            return true;
+        }
+    }
+    {
+        Fighter* target3 = cpu->x44;
+        if (fp->item_gobj != NULL) {
+            var_r0 = 0;
+        } else if (ftCo_800A3200(target3)) {
+            var_r0 = 0;
+        } else {
+            if (ftCo_800A0FB0(&sp1C, &sp34, &sp38, &sp28, -1, -1, -1,
+                              target3->cur_pos.x,
+                              5.0f + target3->cur_pos.y,
+                              target3->cur_pos.x,
+                              target3->cur_pos.y - 1000.0f,
+                              0.0f) != 0)
+            {
+                var_r0 = 0;
+            } else {
+                var_r0 = 1;
+            }
+        }
+    }
+    if (var_r0 != 0) {
+        result = ftCo_800B4AB0(fp, target,
+                               ((void**)Fighter_804D64FC->x1C)[fp->kind]);
+        if (result != 0) {
+            cpu->xA4 = result;
+            cpu->xF8_b7 = 1;
+            return true;
+        }
+    }
+    result = ftCo_800B4AB0(fp, target,
+                           ((void**)Fighter_804D64FC->x4)[fp->kind]);
+    if (result != 0) {
+        cpu->xA4 = result;
+        return true;
+    }
+    if (cpu->x50 != 0) {
+        result = ftCo_800B5AB0(fp,
+                               ((void**)Fighter_804D64FC->x14)[fp->kind]);
+        if (result != 0) {
+            cpu->xA4 = result;
+            return true;
+        }
+    }
+done:
+    cpu->xA4 = 0;
+    return false;
+}
 
 void ftCo_800B9020(Fighter* fp)
 {

@@ -23,9 +23,11 @@ typedef struct {
 /* 39F89C */ static void calcTornadoLastPos(HSD_Particle*, f32*, f32*, f32*);
 /* 39FA28 */ static void getColorPrimEnv(HSD_Particle*, GXColor*, GXColor*);
 /* 39FB74 */ static void getColorMatAmb(HSD_Particle*, GXColor*, GXColor*);
+/* 4D0908 */ extern HSD_Particle* hsd_804D0908[146];
 /* 3B9628 */ extern f32 HSD_PSDisp_803B9628[12];
 /* 40C300 */ extern psdisp_UnknownType001 HSD_PSDisp_8040C300;
 /* 40C360 */ extern psdisp_UnknownType002 HSD_PSDisp_8040C360;
+/* 4D0FC0 */ static HSD_Particle* HSD_PSDisp_804D0FC0[0x3C];
 /* 4D6380 */ extern u8 HSD_PSDisp_804D6380[2];
 /* 4D6384 */ extern u8 HSD_PSDisp_804D6384[2];
 /* 4D7908 */ extern s32 HSD_PSDisp_804D7908;
@@ -182,4 +184,252 @@ static void getColorMatAmb(HSD_Particle* pp, GXColor* matCol, GXColor* ambCol)
         ambCol->r = ambCol->g = ambCol->b = pp->ambRGB;
         ambCol->a = pp->ambA;
     }
+}
+
+HSD_Particle* particleSort(s32 arg0, u8 arg1, HSD_Particle** arg2,
+                            HSD_Particle** arg3)
+{
+    struct {
+        HSD_Particle* head;
+        HSD_Particle* tail;
+    } buckets[16];
+
+    u8* sort_key_ptr;
+    HSD_Particle** particle_ptr;
+    HSD_Particle* cur;
+    HSD_Particle* nxt;
+    s32 bucket_idx;
+    u32 kind;
+    s32 flag;
+    HSD_Particle* head1;
+    HSD_Particle* tail1;
+    HSD_Particle* head2;
+    HSD_Particle* tail2;
+    HSD_Particle* result;
+
+    sort_key_ptr = (u8*)&HSD_PSDisp_8040C360 + arg0;
+    particle_ptr = &hsd_804D0908[arg0];
+    cur = *particle_ptr;
+
+    if ((u8)*sort_key_ptr == arg1) {
+        *arg2 = cur;
+        *arg3 = HSD_PSDisp_804D0FC0[arg0 + 0x2B];
+        return cur;
+    }
+
+    *sort_key_ptr = arg1;
+
+    if (cur == NULL) {
+        HSD_PSDisp_804D0FC0[arg0 + 0x2B] = NULL;
+        *arg2 = NULL;
+        *arg3 = NULL;
+        return NULL;
+    }
+
+    memset(buckets, 0, 0x80);
+
+    kind = cur->kind;
+    if (kind & 8) {
+        flag = 0;
+    } else {
+        flag = 1;
+    }
+    bucket_idx = ((kind >> 25) & 7) + flag * 8;
+    buckets[bucket_idx].head = cur;
+    nxt = cur->next;
+
+    while (nxt != NULL) {
+        if ((cur->kind ^ nxt->kind) & 0x0E000008) {
+            buckets[bucket_idx].tail = cur;
+            kind = nxt->kind;
+            if (kind & 8) {
+                flag = 0;
+            } else {
+                flag = 1;
+            }
+            bucket_idx = ((kind >> 25) & 7) + flag * 8;
+            if (buckets[bucket_idx].head == NULL) {
+                buckets[bucket_idx].head = nxt;
+            } else {
+                buckets[bucket_idx].tail->next = nxt;
+            }
+        }
+        cur = nxt;
+        nxt = nxt->next;
+    }
+    buckets[bucket_idx].tail = cur;
+
+    {
+        HSD_Particle** p = (HSD_Particle**)buckets;
+        HSD_Particle* h;
+
+        tail1 = NULL;
+        h = p[0];
+        head1 = NULL;
+        tail2 = NULL;
+        if (h != NULL) {
+            if (head1 == NULL) {
+                head1 = h;
+            } else {
+                tail1->next = h;
+            }
+            tail1 = p[1];
+        }
+        h = *(p += 2);
+        if (h != NULL) {
+            if (head1 == NULL) {
+                head1 = h;
+            } else {
+                tail1->next = h;
+            }
+            tail1 = p[1];
+        }
+        h = *(p += 2);
+        if (h != NULL) {
+            if (head1 == NULL) {
+                head1 = h;
+            } else {
+                tail1->next = h;
+            }
+            tail1 = p[1];
+        }
+        h = *(p += 2);
+        if (h != NULL) {
+            if (head1 == NULL) {
+                head1 = h;
+            } else {
+                tail1->next = h;
+            }
+            tail1 = p[1];
+        }
+        h = *(p += 2);
+        if (h != NULL) {
+            if (head1 == NULL) {
+                head1 = h;
+            } else {
+                tail1->next = h;
+            }
+            tail1 = p[1];
+        }
+        h = *(p += 2);
+        if (h != NULL) {
+            if (head1 == NULL) {
+                head1 = h;
+            } else {
+                tail1->next = h;
+            }
+            tail1 = p[1];
+        }
+        h = *(p += 2);
+        if (h != NULL) {
+            if (head1 == NULL) {
+                head1 = h;
+            } else {
+                tail1->next = h;
+            }
+            tail1 = p[1];
+        }
+        h = *(p += 2);
+        if (h != NULL) {
+            if (head1 == NULL) {
+                head1 = h;
+            } else {
+                tail1->next = h;
+            }
+            tail1 = p[1];
+        }
+
+        head2 = NULL;
+        p = (HSD_Particle**)&buckets[8];
+        h = p[0];
+        if (h != NULL) {
+            if (head2 == NULL) {
+                head2 = h;
+            } else {
+                tail2->next = h;
+            }
+            tail2 = p[1];
+        }
+        h = *(p += 2);
+        if (h != NULL) {
+            if (head2 == NULL) {
+                head2 = h;
+            } else {
+                tail2->next = h;
+            }
+            tail2 = p[1];
+        }
+        h = *(p += 2);
+        if (h != NULL) {
+            if (head2 == NULL) {
+                head2 = h;
+            } else {
+                tail2->next = h;
+            }
+            tail2 = p[1];
+        }
+        h = *(p += 2);
+        if (h != NULL) {
+            if (head2 == NULL) {
+                head2 = h;
+            } else {
+                tail2->next = h;
+            }
+            tail2 = p[1];
+        }
+        h = *(p += 2);
+        if (h != NULL) {
+            if (head2 == NULL) {
+                head2 = h;
+            } else {
+                tail2->next = h;
+            }
+            tail2 = p[1];
+        }
+        h = *(p += 2);
+        if (h != NULL) {
+            if (head2 == NULL) {
+                head2 = h;
+            } else {
+                tail2->next = h;
+            }
+            tail2 = p[1];
+        }
+        h = *(p += 2);
+        if (h != NULL) {
+            if (head2 == NULL) {
+                head2 = h;
+            } else {
+                tail2->next = h;
+            }
+            tail2 = p[1];
+        }
+        h = *(p += 2);
+        if (h != NULL) {
+            if (head2 == NULL) {
+                head2 = h;
+            } else {
+                tail2->next = h;
+            }
+            tail2 = p[1];
+        }
+    }
+
+    result = NULL;
+    if (tail1 != NULL) {
+        result = head1;
+        tail1->next = head2;
+    }
+    if (tail2 != NULL) {
+        if (result == NULL) {
+            result = head2;
+        }
+        tail2->next = NULL;
+    }
+
+    *particle_ptr = result;
+    HSD_PSDisp_804D0FC0[arg0 + 0x2B] = head2;
+    *arg2 = result;
+    *arg3 = head2;
+    return result;
 }

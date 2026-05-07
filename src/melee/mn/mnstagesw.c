@@ -22,6 +22,18 @@
 
 #define NUM_STAGES 29
 
+/// Extended user-data layout for the stage switch GObj.
+/// Allocated at 0xB4 bytes via HSD_MemAlloc.
+typedef struct {
+    u8 cur_menu;        ///< 0x00: snapshot of mn_804A04F0.cur_menu
+    u8 stage_idx;       ///< 0x01: current hovered stage index
+    u8 confirmed[29];   ///< 0x02..0x1E: per-stage confirmed flags
+    u8 state;           ///< 0x1F: animation state machine
+    HSD_JObj* jobjs[6]; ///< 0x20..0x37: six JObj references
+    u32 unk38[2];       ///< 0x38..0x3F: unknown padding
+    HSD_Text* texts[29];///< 0x40..0xB3: text object array
+} MnStageSw_Data;
+
 /// Stage switch positioning data (15 floats)
 static float mnStageSw_803ED488[15] = {
     0.0f, 199.0f, 0.0f, 0.0f, 9.0f,
@@ -87,7 +99,71 @@ static void mnStageSw_8023593C(HSD_GObj* gobj)
 }
 #pragma dont_inline reset
 
-/// #mnStageSw_802359C8
+/// Initialize HSD_Text objects for stage labels on the stage switch screen.
+/// Creates text objects for each stage column using JObj translation data
+/// to position them, and sets the icon index based on unlock status.
+static void mnStageSw_802359C8(HSD_GObj* gobj)
+{
+    extern u8 mn_804D6BB5;
+    s32* ptr;
+    HSD_Text* text;
+    f32 base_y;
+    f32 ref_y;
+    f32 spacing;
+    u8* icon_ptr;
+    u8* icon_ptr2;
+    s32 i;
+
+    base_y = -1.6f + HSD_JObjGetTranslationY((HSD_JObj*) gobj->user_data);
+    ref_y = HSD_JObjGetTranslationY((HSD_JObj*) gobj->user_data);
+    spacing = HSD_JObjGetTranslationY((HSD_JObj*) gobj->user_data_remove_func) - ref_y;
+
+    ptr = (s32*) gobj;
+    icon_ptr = mnStageSw_803ED4C4;
+    i = 0;
+    do {
+        text = HSD_SisLib_803A5ACC(0, (s32) mn_804D6BB5,
+                                   1.0f + HSD_JObjGetTranslationX((HSD_JObj*) gobj->user_data),
+                                   -((spacing * (f32) i) + base_y),
+                                   17.5f, 160.0f, 300.0f);
+        ptr[0x10] = (s32) text;
+        text->font_size.x = 0.0521f;
+        text->font_size.y = 0.0521f;
+        text->default_alignment = 2;
+        text->default_fitting = 1;
+        if (gm_80164430(gm_801641CC(mnStageSw_803ED4C4[(u8) i])) != 0) {
+            HSD_SisLib_803A6368(text, (s32) mnStageSw_stageIcons[*icon_ptr]);
+        } else {
+            HSD_SisLib_803A6368(text, 0x25);
+        }
+        i++;
+        ptr++;
+        icon_ptr++;
+    } while (i < 0xF);
+
+    ptr = (s32*) gobj + 0xF;
+    icon_ptr2 = &mnStageSw_803ED4C4[15];
+    i = 0xF;
+    do {
+        text = HSD_SisLib_803A5ACC(0, (s32) mn_804D6BB5,
+                                   1.0f + HSD_JObjGetTranslationX((HSD_JObj*) gobj->x34_unk),
+                                   -((spacing * (f32) (i - 0xF)) + base_y),
+                                   17.5f, 160.0f, 300.0f);
+        ptr[0x10] = (s32) text;
+        text->font_size.x = 0.0521f;
+        text->font_size.y = 0.0521f;
+        text->default_alignment = 2;
+        text->default_fitting = 1;
+        if (gm_80164430(gm_801641CC(mnStageSw_803ED4C4[(u8) i])) != 0) {
+            HSD_SisLib_803A6368(text, (s32) mnStageSw_stageIcons[*icon_ptr2]);
+        } else {
+            HSD_SisLib_803A6368(text, 0x25);
+        }
+        i++;
+        ptr++;
+        icon_ptr2++;
+    } while ((s32) i < 0x1D);
+}
 
 /// Find the nearest unlocked stage to arg0 within its block.
 /// Block is [0, 14] if arg0 < 15, else [15, 28].
@@ -441,7 +517,150 @@ static void mnStageSw_80236548(HSD_GObj* gobj, u8 arg1, u8 arg2)
     mn_8022ED6C(sp44, (AnimLoopSettings*) mnStageSw_803ED488);
 }
 
-/// #fn_80236998
+/// Update stage switch transition animation and state machine.
+/// Drives enter/exit animations, text cleanup, and hover/confirm tracking.
+static void fn_80236998(HSD_GObj* gobj)
+{
+    HSD_GObj* inner;
+    f32* anim;
+    s32 var_r29;
+    s32 var_r28;
+    s32 var_r27;
+    HSD_JObj* jobj;
+    u8 state;
+
+    var_r29 = 0;
+    var_r28 = 0;
+    var_r27 = 0;
+    inner = (HSD_GObj*) gobj->user_data;
+    state = ((MnStageSw_Data*) inner)->state;
+    if (state == 0 || state == 1 || state == 3) {
+        if (((MnStageSw_Data*) inner)->cur_menu != (u8) mn_804A04F0.cur_menu) {
+            if ((u8) mn_804A04F0.entering_menu != 0) {
+                ((MnStageSw_Data*) inner)->state = 4;
+            } else {
+                ((MnStageSw_Data*) inner)->state = 2;
+            }
+            state = ((MnStageSw_Data*) inner)->state;
+            switch ((s32) state) {
+            case 1:
+                anim = &mnStageSw_803ED488[3];
+                break;
+            case 2:
+                anim = &mnStageSw_803ED488[9];
+                break;
+            case 3:
+                anim = &mnStageSw_803ED488[6];
+                break;
+            case 4:
+                anim = &mnStageSw_803ED488[12];
+                break;
+            }
+            jobj = ((MnStageSw_Data*) inner)->jobjs[1];
+            HSD_JObjReqAnim(jobj, anim[0]);
+            HSD_JObjAnim(jobj);
+            state = ((MnStageSw_Data*) inner)->state;
+            if (state == 0 || state == 1 || state == 3) {
+                var_r29 = 1;
+                var_r28 = 1;
+                var_r27 = 1;
+            }
+        }
+    }
+
+    state = ((MnStageSw_Data*) inner)->state;
+    if (state != 0) {
+        jobj = ((MnStageSw_Data*) inner)->jobjs[1];
+        switch ((s32) state) {
+        case 1:
+            anim = &mnStageSw_803ED488[3];
+            break;
+        case 2:
+            anim = &mnStageSw_803ED488[9];
+            break;
+        case 3:
+            anim = &mnStageSw_803ED488[6];
+            break;
+        case 4:
+            anim = &mnStageSw_803ED488[12];
+            break;
+        }
+        if (mn_8022F298(jobj) >= anim[1]) {
+            state = ((MnStageSw_Data*) inner)->state;
+            switch ((s32) state) {
+            case 3:
+            case 1: {
+                s32 i = 0;
+                ((MnStageSw_Data*) inner)->state = (u8) i;
+                mnStageSw_802359C8(inner);
+                gobj = (HSD_GObj*) gobj->user_data;
+                HSD_JObjClearFlagsAll(
+                    (HSD_JObj*) gobj->user_data, 0x10);
+                HSD_JObjClearFlagsAll(
+                    (HSD_JObj*) gobj->x34_unk, 0x10);
+                do {
+                    HSD_JObj* sp10;
+                    HSD_JObj* j;
+                    j = mnStageSw_802364A0(gobj, (u8) i);
+                    if ((s32) i !=
+                        (s32) ((MnStageSw_Data*) gobj)->stage_idx)
+                    {
+                        lb_80011E24(j, &sp10, 3, -1);
+                        HSD_JObjSetFlagsAll(sp10, 0x10);
+                    }
+                    i++;
+                } while (i < 0x1D);
+                mnStageSw_80236178(
+                    gobj, ((MnStageSw_Data*) gobj)->stage_idx);
+                mnStageSw_804D6BF4 = 0;
+                return;
+            }
+            case 4: {
+                s32 i = 0;
+                s32* p = (s32*) inner + i;
+                do {
+                    HSD_SisLib_803A5CC4((HSD_Text*) p[0x10]);
+                    i++;
+                    p++;
+                } while (i < 0x1D);
+                HSD_GObjPLink_80390228(gobj);
+                return;
+            }
+            }
+        } else {
+            HSD_JObjAnim(jobj);
+        }
+    }
+
+    state = ((MnStageSw_Data*) inner)->state;
+    if (state == 0 || state == 1 || state == 3) {
+        if (((MnStageSw_Data*) inner)->stage_idx !=
+            (u8) mn_804A04F0.hovered_selection)
+        {
+            var_r28 = 1;
+        }
+        if (((MnStageSw_Data*) inner)
+                ->confirmed[(u8) mn_804A04F0.hovered_selection] !=
+            (u8) mn_804A04F0.confirmed_selection)
+        {
+            var_r27 = 1;
+        }
+    }
+    mnStageSw_80236548(gobj, (u8) var_r28, (u8) var_r27);
+    if (var_r29 != 0) {
+        ((MnStageSw_Data*) inner)->cur_menu =
+            (u8) mn_804A04F0.cur_menu;
+    }
+    if (var_r28 != 0) {
+        ((MnStageSw_Data*) inner)->stage_idx =
+            (u8) mn_804A04F0.hovered_selection;
+    }
+    if (var_r27 != 0) {
+        ((MnStageSw_Data*) inner)
+            ->confirmed[(u8) mn_804A04F0.hovered_selection] =
+            (u8) mn_804A04F0.confirmed_selection;
+    }
+}
 
 /// #mnStageSw_80236CBC
 

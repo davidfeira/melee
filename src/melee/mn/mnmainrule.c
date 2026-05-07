@@ -492,20 +492,19 @@ void mn_80230198(s32 arg0, HSD_JObj* jobj, u8 mode)
     }
 
     cur = mn_8022F298(jobj);
-    b = mn_803EC734;
-    a = mn_803EC770;
-    found = a;
+    b = mn_803EC770;
+    a = mn_803EC734;
     for (i = 5; i != 0; i--) {
-        found = a;
-        if (a->start_frame <= cur && cur <= a->end_frame) {
-            break;
-        }
         found = b;
         if (b->start_frame <= cur && cur <= b->end_frame) {
             break;
         }
-        a++;
+        found = a;
+        if (a->start_frame <= cur && cur <= a->end_frame) {
+            break;
+        }
         b++;
+        a++;
     }
     mn_8022ED6C(jobj, found);
 }
@@ -518,6 +517,7 @@ extern s32 mn_804D6BD4;
 
 void mn_802307F8(struct mn_802307F8_t* data, s32 mode, s32 index)
 {
+    u8 disp;
     HSD_Text* text;
 
     if (data->text != NULL) {
@@ -526,12 +526,11 @@ void mn_802307F8(struct mn_802307F8_t* data, s32 mode, s32 index)
     }
 
     if (mode == 1 && data->x2 == 1) {
-        index = mn_804D4B96;
+        disp = mn_804D4B96;
     } else if (mode == 1 || mode == 3 || (u32) (mode - 5) <= 1) {
-        index = mn_803EC818[mode * 5];
+        disp = mn_803EC818[mode * 5];
     } else {
-        s32 off = mode * 5;
-        index = mn_803EC818[off + index];
+        disp = mn_803EC818[index + mode * 5];
     }
 
     text =
@@ -539,7 +538,7 @@ void mn_802307F8(struct mn_802307F8_t* data, s32 mode, s32 index)
     data->text = text;
     text->font_size.x = 0.0521F;
     text->font_size.y = 0.0521F;
-    HSD_SisLib_803A6368(text, (u8) index);
+    HSD_SisLib_803A6368(text, disp);
 }
 
 void mn_802308F0(HSD_GObj* gobj, int arg1, int arg2)
@@ -583,8 +582,6 @@ void mn_802308F0(HSD_GObj* gobj, int arg1, int arg2)
     }
 }
 
-/// #fn_802309F0
-
 struct mn_80230D18_t {
     /* 0x000 */ u8 unk0;
     /* 0x001 */ u8 unk1;
@@ -601,6 +598,135 @@ struct mn_80230D18_t {
     /* 0x034 */ u8 pad34[0x130 - 0x34];
     /* 0x130 */ s32 unk130;
 }; /* size = 0x134 */
+
+void fn_802309F0(HSD_GObj* arg0)
+{
+    struct mn_80230D18_t* panel;
+    struct mn_803EC600_t* ec600;
+    HSD_JObj* jobj;
+    AnimLoopSettings* loop;
+    s32 var_r29;
+    s32 var_r28;
+    s32 var_r27;
+    u8 state;
+    u16 hovered;
+    GameRules* rules;
+
+    panel = arg0->user_data;
+    ec600 = &mn_803EC600;
+    var_r29 = 0;
+    var_r28 = 0;
+    var_r27 = 0;
+
+    state = panel->unkA;
+    if (state == 0 || state == 1 || state == 3) {
+        if ((u8) panel->unk0 != (u8) mn_804A04F0.cur_menu) {
+            if ((u8) (mn_804A04F0.cur_menu - 0xF) <= 1U) {
+                panel->unkA = 4;
+            } else {
+                panel->unkA = 2;
+            }
+            state = panel->unkA;
+            jobj = panel->slots[2];
+            switch ((s32) state) {
+            case 1:
+                loop = &ec600->array_170[5];
+                break;
+            case 2:
+                loop = &ec600->array_170[7];
+                break;
+            case 3:
+                loop = &ec600->array_170[6];
+                break;
+            case 4:
+                loop = &ec600->array_170[8];
+                break;
+            }
+            HSD_JObjReqAnim(jobj, loop->start_frame);
+            HSD_JObjAnim(jobj);
+            state = panel->unkA;
+            if (state == 0 || state == 1 || state == 3) {
+                var_r29 = 1;
+                var_r28 = 1;
+                var_r27 = 1;
+            }
+        }
+    }
+
+    state = panel->unkA;
+    if (state != 0) {
+        jobj = panel->slots[2];
+        switch ((s32) state) {
+        case 1:
+            loop = &ec600->array_170[5];
+            break;
+        case 2:
+            loop = &ec600->array_170[7];
+            break;
+        case 3:
+            loop = &ec600->array_170[6];
+            break;
+        case 4:
+            loop = &ec600->array_170[8];
+            break;
+        }
+        if (mn_8022F298(jobj) >= loop->end_frame) {
+            switch ((s32) panel->unkA) {
+            case 3:
+            case 1:
+                panel->unkA = 0;
+                break;
+            case 2:
+            case 4:
+                HSD_GObjPLink_80390228(arg0);
+                return;
+            }
+        }
+        HSD_JObjAnim(jobj);
+    }
+
+    state = panel->unkA;
+    if (state == 0 || state == 1 || state == 3) {
+        hovered = mn_804A04F0.hovered_selection;
+        var_r28 = (hovered - panel->unk1) != 0;
+        if (hovered == 1 && panel->unk2 == 1) {
+            if (panel->unk9 != (u8) mn_804A04F0.confirmed_selection) {
+                var_r27 = 1;
+            }
+        } else {
+            if (((struct mn_80230D18_t*) ((u8*) panel + hovered))->unk2 !=
+                (u8) mn_804A04F0.confirmed_selection)
+            {
+                var_r27 = 1;
+            }
+        }
+    }
+    mn_80230274(arg0, var_r28, var_r27);
+    mn_802308F0(arg0, var_r28, var_r27);
+    if (var_r29 != 0) {
+        panel->unk0 = (u8) mn_804A04F0.cur_menu;
+    }
+    if (var_r28 != 0) {
+        panel->unk1 = (u8) mn_804A04F0.hovered_selection;
+    }
+    if (var_r27 != 0) {
+        u8 sel = panel->unk1;
+        if (sel == 1 && panel->unk2 == 1) {
+            panel->unk9 = (u8) mn_804A04F0.confirmed_selection;
+        } else {
+            ((struct mn_80230D18_t*) ((u8*) panel + sel))->unk2 =
+                (u8) mn_804A04F0.confirmed_selection;
+        }
+        panel = arg0->user_data;
+        rules = gmMainLib_8015CC34();
+        rules->mode = panel->unk2;
+        rules->time_limit = panel->unk3;
+        rules->handicap = panel->unk4;
+        rules->damage_ratio = panel->unk5;
+        rules->unk_x7 = panel->unk6;
+        rules->stock_count = panel->unk9;
+    }
+}
 
 s32 mn_80230D18(struct mn_80230D18_t* arg0, HSD_JObj* arg1, s8 arg2)
 {

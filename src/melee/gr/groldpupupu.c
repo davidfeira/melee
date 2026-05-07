@@ -425,10 +425,11 @@ void grOldPupupu_80211198(Ground_GObj* arg) {}
 
 void grOldPupupu_8021119C(Ground_GObj* gobj)
 {
-    Ground* gp = gobj->user_data;
     s32 max;
     s32 min;
+    Ground* gp;
 
+    gp = gobj->user_data;
     ftCo_800C06E8(gobj, 0xA, fn_802112F4);
     gp->gv.oldpupupu.xC4 = 0;
     gp->gv.oldpupupu.xC8 = 0;
@@ -439,16 +440,22 @@ void grOldPupupu_8021119C(Ground_GObj* gobj)
 
     if (max > min) {
         s32 range = max - min;
+        s32 rnd;
         if (range != 0) {
-            max = min + HSD_Randi(range);
+            rnd = HSD_Randi(range);
         } else {
-            max = min;
+            rnd = 0;
         }
+        max = min + rnd;
     } else if (max < min) {
         s32 range = min - max;
+        s32 rnd;
         if (range != 0) {
-            max += HSD_Randi(range);
+            rnd = HSD_Randi(range);
+        } else {
+            rnd = 0;
         }
+        max += rnd;
     }
 
     gp->gv.oldpupupu.xD0 = max;

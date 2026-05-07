@@ -665,9 +665,93 @@ void fn_8024FD40(HSD_GObj* gobj)
     }
 }
 
-/// #mnDataDel_8024FE4C
+void mnDataDel_8024FE4C(u8 arg0)
+{
+    HSD_JObj* jobj;
+    HSD_GObj* gobj;
+    HSD_GObjProc* proc;
+    HSD_JObj* child_jobj;
+    HSD_JObj* sp20;
+    HSD_Text* text;
+    struct WarnCmnData* user_data;
+    struct MnDataDelData* mdata;
+    s32 i;
+    s32* idx;
+    f32 frame;
+    u16 sis_id;
 
-extern void* mnDataDel_804A0918[12];
+    mdata = &mnDataDel_803EF870;
+
+    gobj = GObj_Create(6U, 7U, 0x80U);
+    mnDataDel_804D6C68 = gobj;
+
+    jobj = HSD_JObjLoadJoint(mnDataDel_804A0918.joint);
+    HSD_GObjObject_80390A70(gobj, HSD_GObj_804D7849, jobj);
+    GObj_SetupGXLink(gobj, HSD_GObj_JObjCallback, 4U, 0x80U);
+    HSD_JObjAddAnimAll(jobj, mnDataDel_804A0918.animjoint,
+                       mnDataDel_804A0918.matanim_joint,
+                       mnDataDel_804A0918.shapeanim_joint);
+    HSD_JObjReqAnimAll(jobj, 0.0f);
+    HSD_JObjAnimAll(jobj);
+
+    user_data = HSD_MemAlloc(0x30);
+    if (user_data == NULL) {
+        OSReport((char*) mdata + 0x70);
+        __assert((char*) mdata + 0x88, 0x402, (char*) mdata + 0x94);
+    }
+    user_data->x0 = arg0;
+    user_data->visible = 0;
+    user_data->cursor_idx = 0;
+    ((u8*) user_data)[3] = 0;
+    ((u8*) user_data)[4] = 0;
+    ((u8*) user_data)[5] = 0;
+    ((u8*) user_data)[6] = 0;
+    ((u8*) user_data)[7] = 0;
+    ((u8*) user_data)[8] = 0;
+    ((HSD_Text**) user_data)[3] = NULL;
+    GObj_InitUserData(gobj, 0U, HSD_Free, user_data);
+
+    for (i = 0; i < 8; i++) {
+        lb_80011E24(jobj, (HSD_JObj**) ((u8*) user_data + 0x10) + i, i, -1);
+    }
+
+    proc = HSD_GObj_SetupProc(gobj, fn_8024FD40, 0U);
+    proc->flags_3 = HSD_GObj_804D783C;
+
+    idx = &mdata->x3C;
+    for (i = 0; i < 6; i++) {
+        child_jobj = HSD_JObjLoadJoint(mnDataDel_804A0928.joint);
+        HSD_JObjAddAnimAll(child_jobj, mnDataDel_804A0928.animjoint,
+                           mnDataDel_804A0928.matanim_joint,
+                           mnDataDel_804A0928.shapeanim_joint);
+        HSD_JObjReqAnimAll(child_jobj, (f32) i);
+        HSD_JObjAnimAll(child_jobj);
+        HSD_JObjAddChild(((HSD_JObj**) ((u8*) user_data + 0x10))[*idx], child_jobj);
+        mnDataDel_8024EBC8(child_jobj, (u8) i,
+                           (u8) (user_data->x0 == (u8) i), 1U);
+        lb_80011E24(child_jobj, &sp20, 1, -1);
+        frame = mn_8022F298(sp20);
+        HSD_JObjReqAnimAll(sp20, ((u8*) user_data)[i + 3] ? 1.0f : 0.0f);
+        mn_8022F3D8(sp20, 0xFFU, (HSD_TypeMask) 0x80);
+        HSD_JObjAnimAll(sp20);
+        HSD_JObjReqAnimAll(sp20, frame);
+        mn_8022F3D8(sp20, 0xFFU, (HSD_TypeMask) 0x480);
+        HSD_JObjAnimAll(sp20);
+        idx++;
+    }
+
+    user_data = gobj->user_data;
+    text = ((HSD_Text**) user_data)[3];
+    if (text != NULL) {
+        HSD_SisLib_803A5CC4(text);
+    }
+    sis_id = (&mdata->x58)[user_data->x0];
+    text = HSD_SisLib_803A5ACC(0, 0, -9.5f, 9.1f, 17.0f, 364.68332f, 38.38772f);
+    ((HSD_Text**) user_data)[3] = text;
+    text->font_size.x = 0.0521f;
+    text->font_size.y = 0.0521f;
+    HSD_SisLib_803A6368(text, (s32) sis_id);
+}
 
 void mnDataDel_80250170(void)
 {
@@ -682,18 +766,18 @@ void mnDataDel_80250170(void)
 
     lbArchive_LoadSections(
         mn_804D6BB8,
-        &mnDataDel_804A0918[0], (u8*) &mnDataDel_803EF870 + 0xA0,
-        &mnDataDel_804A0918[1], (u8*) &mnDataDel_803EF870 + 0xB8,
-        &mnDataDel_804A0918[2], (u8*) &mnDataDel_803EF870 + 0xD4,
-        &mnDataDel_804A0918[3], (u8*) &mnDataDel_803EF870 + 0xF4,
-        &mnDataDel_804A0918[4], (u8*) &mnDataDel_803EF870 + 0x118,
-        &mnDataDel_804A0918[5], (u8*) &mnDataDel_803EF870 + 0x134,
-        &mnDataDel_804A0918[6], (u8*) &mnDataDel_803EF870 + 0x154,
-        &mnDataDel_804A0918[7], (u8*) &mnDataDel_803EF870 + 0x178,
-        &mnDataDel_804A0918[8], (u8*) &mnDataDel_803EF870 + 0x19C,
-        &mnDataDel_804A0918[9], (u8*) &mnDataDel_803EF870 + 0x1B4,
-        &mnDataDel_804A0918[10], (u8*) &mnDataDel_803EF870 + 0x1D0,
-        &mnDataDel_804A0918[11], (u8*) &mnDataDel_803EF870 + 0x1F0,
+        &mnDataDel_804A0918.joint, (u8*) &mnDataDel_803EF870 + 0xA0,
+        &mnDataDel_804A0918.animjoint, (u8*) &mnDataDel_803EF870 + 0xB8,
+        &mnDataDel_804A0918.matanim_joint, (u8*) &mnDataDel_803EF870 + 0xD4,
+        &mnDataDel_804A0918.shapeanim_joint, (u8*) &mnDataDel_803EF870 + 0xF4,
+        &mnDataDel_804A0928.joint, (u8*) &mnDataDel_803EF870 + 0x118,
+        &mnDataDel_804A0928.animjoint, (u8*) &mnDataDel_803EF870 + 0x134,
+        &mnDataDel_804A0928.matanim_joint, (u8*) &mnDataDel_803EF870 + 0x154,
+        &mnDataDel_804A0928.shapeanim_joint, (u8*) &mnDataDel_803EF870 + 0x178,
+        &mnDataDel_804A0938.joint, (u8*) &mnDataDel_803EF870 + 0x19C,
+        &mnDataDel_804A0938.animjoint, (u8*) &mnDataDel_803EF870 + 0x1B4,
+        &mnDataDel_804A0938.matanim_joint, (u8*) &mnDataDel_803EF870 + 0x1D0,
+        &mnDataDel_804A0938.shapeanim_joint, (u8*) &mnDataDel_803EF870 + 0x1F0,
         NULL);
 
     mnDataDel_8024FE4C(0);

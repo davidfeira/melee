@@ -64,7 +64,9 @@ static u8 lbl_804C4524[0x1C];
 static struct {
     /* 00 */ s32 x0;
     /* 04 */ s32 x4;
-    /* 08 */ char pad[0x18];
+    /* 08 */ u32 x8;
+    /* 0C */ struct { AXPBADPCMLOOP data; u16 _pad; } adpcmloop[2];
+    /* 1C */ u32 pad2;
 } lbl_804C4540[3];
 
 static int hsd_SynthSFXBankNum;

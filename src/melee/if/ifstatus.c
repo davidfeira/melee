@@ -581,7 +581,7 @@ void ifStatus_802F5E50(HSD_GObj* gobj, s32 arg1)
     }
 }
 
-void ifStatus_802F5EC0(void)
+void ifStatus_802F5EC0(IfDamageState* state, u8 player_slot)
 {
     NOT_IMPLEMENTED;
 }
@@ -623,12 +623,55 @@ check_done:
     return gx_cur;
 }
 
-void ifStatus_802F61FC(void)
+void ifStatus_802F61FC(IfDamageState* state, u8 player_slot)
 {
     NOT_IMPLEMENTED;
 }
 
-void ifStatus_802F6508(s32 arg0);
+void ifStatus_802F6508(s32 arg0)
+{
+    IfDamageState* temp_r28;
+    struct StartMeleeRules* temp_r29;
+    int temp_r30;
+    u32 temp_r3;
+
+    if (Player_GetPlayerSlotType(arg0) == Gm_PKind_NA) {
+        return;
+    }
+    if ((s32) ifStatus_804D6D60 <= arg0) {
+        return;
+    }
+    temp_r29 = gm_8016AE50();
+    if (!temp_r29->x2_6) {
+        return;
+    }
+    temp_r30 = (u8) arg0;
+    temp_r28 = &ifStatus_HudInfo.players[temp_r30];
+    temp_r28->damage_percent = -1;
+    temp_r28->old_damage = -1;
+    temp_r28->frames_of_shake_remaining = 0;
+    temp_r28->flags.explode_animation = 0;
+    temp_r28->flags.randomize_velocity = 0;
+    temp_r28->flags.force_digit_shake = 0;
+    temp_r28->flags.unk10 = 0;
+    temp_r28->player_slot = (u8) arg0;
+    temp_r28->unk9 = 0;
+    ifStatus_802F61FC(temp_r28, temp_r30);
+    ifStatus_802F5EC0(temp_r28, temp_r30);
+    if (temp_r29->x3_0 && !gm_8016B238()) {
+        un_802FF364(arg0);
+    }
+    temp_r3 = temp_r29->x0_0;
+    if (temp_r3 == 1 || temp_r29->x4_2) {
+        ifStock_802F98E8(temp_r30, 0);
+        return;
+    }
+    if (temp_r3 == 2) {
+        ifStock_802F98E8(temp_r30, 2);
+        return;
+    }
+    ifStock_802F98E8(temp_r30, 1);
+}
 
 void ifStatus_802F665C(int arg0)
 {

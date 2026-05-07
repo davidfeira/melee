@@ -87,6 +87,8 @@ static struct MnDataDelData mnDataDel_803EF870;
 static AnimLoopSettings mnDataDel_803EF8A0 = {
     0.0f, 9.0f, -0.1f
 }; /// mnDataDel_803EF870[4]
+static StaticModelDesc mnDataDel_804A0918;
+static StaticModelDesc mnDataDel_804A0928;
 static StaticModelDesc mnDataDel_804A0938;
 
 #endif

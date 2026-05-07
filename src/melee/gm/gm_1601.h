@@ -162,7 +162,7 @@ struct lbl_8046B488_t;
 /* 165AC0 */ void fn_80165AC0(MatchEnd*);
 /* 165D60 */ MatchEnd* fn_80165D60(MatchEnd*);
 /* 165E7C */ void fn_80165E7C(MatchEnd*);
-/* 165FA4 */ UNK_RET fn_80165FA4(MatchEnd*);
+/* 165FA4 */ s32 fn_80165FA4(MatchEnd*);
 /* 1661E0 */ s32 fn_801661E0(MatchEnd*);
 /* 166378 */ void gm_80166378(UNK_T);
 /* 166A98 */ long gm_80166A98(MatchEnd*, s32, s8, u8, s8, u8, s8, u8, u8, u8);
@@ -253,7 +253,7 @@ gm_80167BC8(struct VsModeData*); // inits VsModeData from game rules
 /* 16A97C */ void* gm_8016A97C(void);
 /* 16A98C */ struct lbl_8046B668_t* gm_8016A98C(void);
 /* 16A998 */ int gm_8016A998(s8, s8);
-/* 16A9E8 */ void gm_8016A9E8(u8);
+/* 16A9E8 */ int gm_8016A9E8(u8, s8);
 /* 16AC44 */ int gm_8016AC44(s8 ckind, s8 costume_id);
 
 #endif

@@ -502,17 +502,18 @@ void fn_80174920(struct ResultsPlayerData* data)
 
 void fn_801749B8(HSD_GObj* unused)
 {
+    ResultsData* data = &lbl_8046DBE8;
     Vec3 sp24;
     Vec3 sp18;
     Vec3 spC;
     u32 temp_r4;
 
-    if (lbl_8046DBE8.cobj != NULL) {
-        lbVector_WorldToScreen(lbl_8046DBE8.cobj,
-                               &lbl_8046DBE8.player_data[0].stats_position,
+    if (data->cobj != NULL) {
+        lbVector_WorldToScreen(data->cobj,
+                               &data->player_data[0].stats_position,
                                &sp24, 0);
-        lb_8000B1CC(lbl_8046DBE8.player_data[0].jobjs[0xD], NULL, &sp18);
-        lbVector_WorldToScreen(lbl_8046DBE8.cobj, &sp18, &spC, 0);
+        lb_8000B1CC(data->player_data[0].jobjs[0xD], NULL, &sp18);
+        lbVector_WorldToScreen(data->cobj, &sp18, &spC, 0);
         temp_r4 = (s32) sp24.y & 0xFFFC;
         GXSetScissor(0U, temp_r4, 0x27FU,
                      (u16) ((s32) spC.y & 0xFFDC) - temp_r4);

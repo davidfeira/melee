@@ -3083,7 +3083,224 @@ u8 fn_80166CBC(struct fn_80166CBC_arg0_t* arg0, ssize_t index)
     return arg0[index].x5E;
 }
 
-/// #gm_80166CCC
+void gm_80166CCC(MatchEnd* arg0, MatchEnd* arg1)
+{
+    s32 var_r5;
+    s32 var_r6;
+    MatchEnd* r8;
+    MatchEnd* r9;
+    u8 temp;
+
+    var_r5 = 0;
+    var_r6 = 0;
+
+    {
+        u8 result = arg1->result;
+        if (result == 7 || result == 8) {
+            arg0->result = result;
+        }
+    }
+
+    if ((u8)arg1->n_winners > 1U) {
+        if ((u8)arg1->player_standings[0].slot_type != 3) {
+            arg1->player_standings[0].is_big_loser =
+                arg0->player_standings[0].is_big_loser + arg1->player_standings[0].is_small_loser;
+        }
+        r8 = (MatchEnd*)((u8*)arg1 + sizeof(struct MatchPlayerData));
+        if ((u8)arg1->player_standings[1].slot_type != 3) {
+            r9 = (MatchEnd*)((u8*)arg0 + sizeof(struct MatchPlayerData));
+            r8->player_standings[0].is_big_loser =
+                r9->player_standings[0].is_big_loser + r8->player_standings[0].is_small_loser;
+        }
+        r9 = (MatchEnd*)((u8*)arg0 + sizeof(struct MatchPlayerData));
+        r8 = (MatchEnd*)((u8*)r8 + sizeof(struct MatchPlayerData));
+        r9 = (MatchEnd*)((u8*)r9 + sizeof(struct MatchPlayerData));
+        if ((u8)arg1->player_standings[2].slot_type != 3) {
+            r8->player_standings[0].is_big_loser =
+                r9->player_standings[0].is_big_loser + r8->player_standings[0].is_small_loser;
+        }
+        r8 = (MatchEnd*)((u8*)r8 + sizeof(struct MatchPlayerData));
+        r9 = (MatchEnd*)((u8*)r9 + sizeof(struct MatchPlayerData));
+        if ((u8)arg1->player_standings[3].slot_type != 3) {
+            r8->player_standings[0].is_big_loser =
+                r9->player_standings[0].is_big_loser + r8->player_standings[0].is_small_loser;
+        }
+        r8 = (MatchEnd*)((u8*)r8 + sizeof(struct MatchPlayerData));
+        r9 = (MatchEnd*)((u8*)r9 + sizeof(struct MatchPlayerData));
+        if ((u8)arg1->player_standings[4].slot_type != 3) {
+            r8->player_standings[0].is_big_loser =
+                r9->player_standings[0].is_big_loser + r8->player_standings[0].is_small_loser;
+        }
+        r8 = (MatchEnd*)((u8*)r8 + sizeof(struct MatchPlayerData));
+        r9 = (MatchEnd*)((u8*)r9 + sizeof(struct MatchPlayerData));
+        if ((u8)r8->player_standings[0].slot_type != 3) {
+            r8->player_standings[0].is_big_loser =
+                r9->player_standings[0].is_big_loser + r8->player_standings[0].is_small_loser;
+        }
+    }
+
+    if ((u8)arg1->n_team_winners > 1U) {
+        if ((u8)arg1->team_standings[0].active != 0) {
+            arg1->team_standings[0].is_big_loser =
+                arg0->team_standings[0].is_big_loser + arg1->team_standings[0].is_small_loser;
+        }
+        r8 = (MatchEnd*)((u8*)arg1 + sizeof(struct MatchTeamData));
+        r9 = (MatchEnd*)((u8*)arg0 + sizeof(struct MatchTeamData));
+        if ((u8)arg1->team_standings[1].active != 0) {
+            r8->team_standings[0].is_big_loser =
+                r9->team_standings[0].is_big_loser + r8->team_standings[0].is_small_loser;
+        }
+        r8 = (MatchEnd*)((u8*)r8 + sizeof(struct MatchTeamData));
+        r9 = (MatchEnd*)((u8*)r9 + sizeof(struct MatchTeamData));
+        if ((u8)arg1->team_standings[2].active != 0) {
+            r8->team_standings[0].is_big_loser =
+                r9->team_standings[0].is_big_loser + r8->team_standings[0].is_small_loser;
+        }
+        r8 = (MatchEnd*)((u8*)r8 + sizeof(struct MatchTeamData));
+        r9 = (MatchEnd*)((u8*)r9 + sizeof(struct MatchTeamData));
+        if ((u8)arg1->team_standings[3].active != 0) {
+            r8->team_standings[0].is_big_loser =
+                r9->team_standings[0].is_big_loser + r8->team_standings[0].is_small_loser;
+        }
+        r8 = (MatchEnd*)((u8*)r8 + sizeof(struct MatchTeamData));
+        r9 = (MatchEnd*)((u8*)r9 + sizeof(struct MatchTeamData));
+        if ((u8)r8->team_standings[0].active != 0) {
+            r8->team_standings[0].is_big_loser =
+                r9->team_standings[0].is_big_loser + r8->team_standings[0].is_small_loser;
+        }
+    }
+
+    if ((u8)arg1->player_standings[0].slot_type != 3) {
+        var_r5 = 1;
+    }
+    {
+        MatchEnd* r7 = (MatchEnd*)((u8*)arg1 + sizeof(struct MatchPlayerData));
+        if ((u8)arg1->player_standings[1].slot_type != 3) {
+            var_r5 += 1;
+        }
+        if ((u8)r7->player_standings[1].slot_type != 3) {
+            var_r5 += 1;
+        }
+        r7 = (MatchEnd*)((u8*)r7 + sizeof(struct MatchPlayerData));
+        if ((u8)r7->player_standings[1].slot_type != 3) {
+            var_r5 += 1;
+        }
+        r7 = (MatchEnd*)((u8*)r7 + sizeof(struct MatchPlayerData));
+        if ((u8)r7->player_standings[1].slot_type != 3) {
+            var_r5 += 1;
+        }
+        r7 = (MatchEnd*)((u8*)r7 + sizeof(struct MatchPlayerData));
+        if ((u8)r7->player_standings[1].slot_type != 3) {
+            var_r5 += 1;
+        }
+    }
+
+    if ((u8)arg0->n_winners > 1U) {
+        s32 ctr = 2;
+        s32 r10 = 0;
+        r8 = arg0;
+        r9 = arg1;
+        do {
+            if ((u8)r8->player_standings[0].slot_type != 3) {
+                r8->player_standings[0].character_id = (u8)r9->player_standings[0].character_id;
+                r8->player_standings[0].xE += r9->player_standings[0].xE;
+                temp = r8->player_standings[0].is_big_loser;
+                if (temp == 0) {
+                    if ((u8)r9->player_standings[0].slot_type == 3) {
+                        r8->player_standings[0].is_big_loser = temp + var_r5;
+                        r8->player_standings[0].is_small_loser += var_r5;
+                    } else {
+                        r8->player_standings[0].is_big_loser = r9->player_standings[0].is_big_loser;
+                        r8->player_standings[0].is_small_loser = r9->player_standings[0].is_big_loser;
+                    }
+                }
+            }
+            r8 = (MatchEnd*)((u8*)r8 + sizeof(struct MatchPlayerData));
+            r9 = (MatchEnd*)((u8*)r9 + sizeof(struct MatchPlayerData));
+            if ((u8)r8->player_standings[0].slot_type != 3) {
+                r8->player_standings[0].character_id = (u8)r9->player_standings[0].character_id;
+                r8->player_standings[0].xE += r9->player_standings[0].xE;
+                temp = r8->player_standings[0].is_big_loser;
+                if (temp == 0) {
+                    if ((u8)r9->player_standings[0].slot_type == 3) {
+                        r8->player_standings[0].is_big_loser = temp + var_r5;
+                        r8->player_standings[0].is_small_loser += var_r5;
+                    } else {
+                        r8->player_standings[0].is_big_loser = r9->player_standings[0].is_big_loser;
+                        r8->player_standings[0].is_small_loser = r9->player_standings[0].is_big_loser;
+                    }
+                }
+            }
+            r8 = (MatchEnd*)((u8*)r8 + sizeof(struct MatchPlayerData));
+            r9 = (MatchEnd*)((u8*)r9 + sizeof(struct MatchPlayerData));
+            r10 += 1;
+            if ((u8)r8->player_standings[0].slot_type != 3) {
+                r8->player_standings[0].character_id = (u8)r9->player_standings[0].character_id;
+                r8->player_standings[0].xE += r9->player_standings[0].xE;
+                temp = r8->player_standings[0].is_big_loser;
+                if (temp == 0) {
+                    if ((u8)r9->player_standings[0].slot_type == 3) {
+                        r8->player_standings[0].is_big_loser = temp + var_r5;
+                        r8->player_standings[0].is_small_loser += var_r5;
+                    } else {
+                        r8->player_standings[0].is_big_loser = r9->player_standings[0].is_big_loser;
+                        r8->player_standings[0].is_small_loser = r9->player_standings[0].is_big_loser;
+                    }
+                }
+            }
+            r8 = (MatchEnd*)((u8*)r8 + sizeof(struct MatchPlayerData));
+            r9 = (MatchEnd*)((u8*)r9 + sizeof(struct MatchPlayerData));
+            r10 += 1;
+            ctr -= 1;
+        } while (ctr != 0);
+    }
+
+    if ((u8)arg1->team_standings[0].active != 0) {
+        var_r6 = 1;
+    }
+    {
+        MatchEnd* r5t = (MatchEnd*)((u8*)arg1 + sizeof(struct MatchTeamData));
+        if ((u8)arg1->team_standings[1].active != 0) {
+            var_r6 += 1;
+        }
+        if ((u8)r5t->team_standings[1].active != 0) {
+            var_r6 += 1;
+        }
+        r5t = (MatchEnd*)((u8*)r5t + sizeof(struct MatchTeamData));
+        if ((u8)r5t->team_standings[1].active != 0) {
+            var_r6 += 1;
+        }
+        r5t = (MatchEnd*)((u8*)r5t + sizeof(struct MatchTeamData));
+        if ((u8)r5t->team_standings[1].active != 0) {
+            var_r6 += 1;
+        }
+        r5t = (MatchEnd*)((u8*)r5t + sizeof(struct MatchTeamData));
+        if ((u8)r5t->team_standings[1].active != 0) {
+            var_r6 += 1;
+        }
+    }
+
+    if ((u8)arg0->n_team_winners > 1U) {
+        s32 ctr = 5;
+        do {
+            if ((u8)arg0->team_standings[0].active != 0) {
+                u8 big_loser = arg0->team_standings[0].is_big_loser;
+                if (big_loser == 0) {
+                    if ((u8)arg1->team_standings[0].active != 0) {
+                        arg0->team_standings[0].is_big_loser = arg1->team_standings[0].is_big_loser;
+                        arg0->team_standings[0].is_small_loser = arg1->team_standings[0].is_big_loser;
+                    } else {
+                        arg0->team_standings[0].is_big_loser = big_loser + var_r6;
+                        arg0->team_standings[0].is_small_loser += var_r6;
+                    }
+                }
+            }
+            arg0 = (MatchEnd*)((u8*)arg0 + sizeof(struct MatchTeamData));
+            arg1 = (MatchEnd*)((u8*)arg1 + sizeof(struct MatchTeamData));
+            ctr -= 1;
+        } while (ctr != 0);
+    }
+}
 
 bool gm_80167140(MatchEnd* me)
 {

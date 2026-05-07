@@ -565,12 +565,12 @@ s32 it_802BF4A0(ItemLink* link, Vec3* target, itYoyoAttributes* attrs,
 bool it_802BF800(ItemLink* cur, Vec3* pos, itYoyoAttributes* attrs, Item* ip,
                  f32 dist)
 {
+    u8 _padA[16];
     Vec3 dir;
     f32 len;
     f32 step;
     f32 size = attrs->xC_SIZE * ftLib_80086A0C(ip->owner);
     ItemLink* prev = cur->prev;
-    PAD_STACK(0x10);
     while (prev != NULL && !cur->x2C_b0) {
         cur = prev;
         prev = prev->prev;

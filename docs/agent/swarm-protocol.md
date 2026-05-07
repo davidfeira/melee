@@ -1,11 +1,11 @@
 # Swarm Protocol — Mama Claude Reference
 
-The orchestration loop run by mama Claude. Subagent-side rules are codified in `.claude/agents/permuter-attempter.md` and `.claude/agents/plateau-rescuer.md` — when dispatching, those agents auto-load the per-function rules. This file is mama Claude's view.
+The orchestration loop run by mama Claude. Subagent-side rules are codified in `.claude/agents/match-attempter.md` and `.claude/agents/plateau-rescuer.md` — when dispatching, those agents auto-load the per-function rules. This file is mama Claude's view.
 
 ## Dispatch flow
 
 1. **Pick targets** — `python tools/permute.py picker --mode in_progress` (near-misses) or `--mode untouched`
-2. **Spawn ≤3 subagents in parallel** via the Agent tool with `subagent_type=permuter-attempter` (or `plateau-rescuer` for plateau follow-ups)
+2. **Spawn ≤3 subagents in parallel** via the Agent tool with `subagent_type=match-attempter` (or `plateau-rescuer` for plateau follow-ups)
 3. **Periodically:**
    - `python tools/permute.py reap` — kills permuters past 60min wall-clock OR silent for 15min
    - `python tools/permute.py harvest` — reports per-function status:

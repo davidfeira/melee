@@ -1,13 +1,14 @@
 ---
 function: grHomeRun_8021EA30
 tu: src/melee/gr/grhomerun.c
-headline: cross-tu-globals + permuter-false-positive
-tags: [cross-tu-globals, permuter-false-positive, tu-wide-data]
+headline: sdata2-named-floats + regalloc
+tags: [sdata2-named-floats, regalloc, sdata2-float]
 ---
-## grHomeRun_8021EA30 (`src/melee/gr/grhomerun.c`) — cross-tu-globals + permuter-false-positive
+## grHomeRun_8021EA30 (`src/melee/gr/grhomerun.c`) — sdata2-named-floats + regalloc
 
-- **Tags:** `cross-tu-globals`, `permuter-false-positive`, `tu-wide-data`
-- **Best fuzzy:** 99.2%
-- **Diagnosis:** 99.2% fuzzy / 98.6% strict, 11 mismatches. 6 are sdata2 named-vs-anon false-positives (target named grHr_804DBC30/38/50/64/68/70@sda21, base anon @298/@299/@303/@204/@300/@301). 5 remaining are register-allocation diffs (fmuls f5/f2 swap, fmuls operand orders, fmul f31 operand order) that cascade from the literal-pool layout differences. Permuter plateau best score=45 found a new_var reordering (assignment-as-expression) that flips one fmul order locally but does not fix named-vs-anon root cause — strict diff unchanged.
-- **Tried:** Permuter ran to plateau (best=45 across 4 outputs). Permuter's new_var trick at result /= grHr_804D6AE4 * (...) reorders one expression but is permuter-territory polish, not the cause. Confirmed source has zero grHr_804DBC30/38/50/64/68/70 declarations — these globals must be added as named sdata2 statics in symbol-table order before any regalloc fix can land.
-- **Likely fix:** TU-wide sdata2 reconstruction (multi-function refactor, beyond single-function subagent scope). Declare grHr_804DBC30..grHr_804DBC70 as static const float/double sdata2 anchors matching symbols.txt layout, then mwcc emits named lfs <reg>, grHr_804DBC30@sda21 directly and the cascading regalloc diffs should self-resolve. Same blocker family as it_80274DAC, mpGetSpeed, fn_801803FC, un_80317A60.
+- **Tags:** `sdata2-named-floats`, `regalloc`, `sdata2-float`
+- **Best fuzzy:** 98.1%
+- **Diagnosis:** 4 sdata2-float mismatches: target uses named globals grHr_804DBC64 (70.0f), grHr_804DBC30 (160.0f), grHr_804DBC68 (0.304788 double), grHr_804DBC70 (100.0f) while base generates anonymous @N@sda21 entries. Plus 4 FPR allocation mismatches (f2/f5 swap around the int-to-float region) and 1 fmul operand order swap. The FPR layout cascade is tied to the sdata2 symbol load order: replacing the literals with named globals also disturbs the int-to-float bias load (grHr_804DBC50) register, making things worse (9->13 mismatches).
+- **Tried:** Attempt 1: Added extern declarations for grHr_804DBC30, grHr_804DBC38, grHr_804DBC64, grHr_804DBC68, grHr_804DBC70 and replaced all float literals with named globals. This fixed the 4 sdata2 mismatches but introduced 4 new ones (the int-to-float bias grHr_804DBC50 now also mismatches since its FPR changed from f3 to f4 due to reordering). Net result: 13 mismatches vs original 9 — worse.
+- **Likely fix:** Need a source expression that simultaneously produces named-global sdata2 loads for the 4 float constants AND keeps the correct FPR assignment for grHr_804DBC50 (int-to-float bias). Might require also declaring grHr_804DBC50 as extern f64 AND using it explicitly. Permuter with sdata2-aware scoring would be needed.
+

@@ -1378,41 +1378,41 @@ s32 mnNameNew_8023DA08(NameNewEntry* arg0)
 
 void fn_8023DAEC(HSD_GObj* arg0)
 {
-    HSD_Text* text;
+    AnimLoopSettings* settings;
     s32 var_r30;
     NameNewEntry* data;
+    f32* end_frame;
 
     PAD_STACK(8);
 
+    settings = mnNameNew_803EDA58;
     data = arg0->user_data;
-    text = data->key_text;
-    if (text != NULL) {
-        HSD_SisLib_803A5CC4(text);
+    if (data->key_text != NULL) {
+        HSD_SisLib_803A5CC4(data->key_text);
         data->key_text = NULL;
     }
-    text = data->name_disp_text;
-    if (text != NULL) {
-        HSD_SisLib_803A5CC4(text);
+    if (data->name_disp_text != NULL) {
+        HSD_SisLib_803A5CC4(data->name_disp_text);
         data->name_disp_text = NULL;
     }
-    text = data->desc_text;
-    if (text != NULL) {
-        HSD_SisLib_803A5CC4(text);
+    if (data->desc_text != NULL) {
+        HSD_SisLib_803A5CC4(data->desc_text);
         data->desc_text = NULL;
     }
     var_r30 = 1;
-    if (mn_8022EFD8(data->jobjs[4], &mnNameNew_803EDA58[1]) <
-        mnNameNew_803EDA58[1].end_frame)
+    if (mn_8022EFD8(data->jobjs[4], &settings[1]) <
+        settings[1].end_frame)
     {
         var_r30 = 0;
     }
-    if (mn_8022EFD8(data->jobjs[2], &mnNameNew_803EDA58[1]) <
-        mnNameNew_803EDA58[1].end_frame)
+    end_frame = &settings[1].end_frame;
+    if (mn_8022EFD8(data->jobjs[2], &settings[1]) <
+        *end_frame)
     {
         var_r30 = 0;
     }
-    if (mn_8022EFD8(data->jobjs[6], &mnNameNew_803EDA58[1]) <
-        mnNameNew_803EDA58[1].end_frame)
+    if (mn_8022EFD8(data->jobjs[6], &settings[1]) <
+        *end_frame)
     {
         var_r30 = 0;
     }

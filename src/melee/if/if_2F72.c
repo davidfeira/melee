@@ -184,8 +184,7 @@ void fn_802F770C(HSD_GObj* gobj, int callback)
         slot = 0;
     } else {
         ptr += 2;
-        temp = ptr[1];
-        if (temp == gobj) {
+        if (ptr[1] == gobj) {
             slot = 1;
         } else {
             temp = ptr[3];

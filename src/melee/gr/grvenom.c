@@ -977,7 +977,48 @@ bool grVenom_80204EFC(Ground_GObj* arg)
 
 void grVenom_80204F1C(Ground_GObj* arg) {}
 
-/// #grVenom_80204F20
+void grVenom_80204F20(Ground_GObj* arg0)
+{
+    s32* base = (s32*) &grVe_803E5348;
+    Ground* gp = arg0->user_data;
+    HSD_JObj* jobj = arg0->hsd_obj;
+    u32 idx = grVe_804D6A34;
+    HSD_GObj* other;
+    f32 scale;
+    s32 state;
+
+    gp->gv.venom.xC8 = idx;
+    base[idx + 8] = (s32) arg0;
+
+    other = grVenom_80203EAC(base[base[idx + 14] + 170]);
+    if (other != NULL) {
+        Ground* other_gp = other->user_data;
+        other_gp->x10_flags.b2 = 0;
+        other_gp = other->user_data;
+        if (other_gp != NULL) {
+            other_gp->gv.venom.xC8 = gp->gv.venom.xC8;
+        } else {
+            OSReport((char*) ((u8*) base + 0x2BC), other_gp, 0);
+        }
+    }
+
+    scale = Ground_801C0498();
+    state = base[idx + 11];
+    if (state < 8) {
+        if (state >= 1) {
+            HSD_JObjSetScaleX(jobj, scale);
+            HSD_JObjSetScaleY(jobj, scale);
+            HSD_JObjSetScaleZ(jobj, scale * *(f32*) ((u8*) grVe_804D6A30 + 0x34));
+        }
+    } else if (state < 12) {
+        HSD_JObjSetScaleX(jobj, scale);
+        HSD_JObjSetScaleY(jobj, scale);
+        HSD_JObjSetScaleZ(jobj, scale);
+    }
+
+    gp->gv.venom.xD4 = 1;
+    gp->gv.venom.xD8 = 0;
+}
 
 bool grVenom_802052D8(Ground_GObj* arg)
 {

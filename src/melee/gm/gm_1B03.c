@@ -455,6 +455,7 @@ void gm_801B07B4(CSSData* css_data, s8 c_kind, s8 stocks, s8 color, u8 arg4,
     css_data->data.data.players[var_r0].xA = arg4;
 }
 
+#pragma dont_inline on
 void gm_801B07E8(CSSData* css_data, s8* c_kind, s8* stocks, s8* color,
                  s8* arg4, u8* level)
 {
@@ -481,6 +482,7 @@ void gm_801B07E8(CSSData* css_data, s8* c_kind, s8* stocks, s8* color,
         *arg4 = css_data->data.data.players[slot].xA;
     }
 }
+#pragma dont_inline reset
 
 void gm_801B087C(MinorScene* arg0)
 {
@@ -1543,7 +1545,83 @@ void gm_801B1B74(MinorScene* arg0)
 }
 #pragma dont_inline reset
 
-/// #gm_801B1C24
+void gm_801B1C24(MinorScene* arg0)
+{
+    VsModeData* new_var;
+    VsModeData* vs_data;
+    CSSData* css;
+    u64 accum;
+    int i;
+    PAD_STACK(16);
+
+    vs_data = &gmMainLib_804D3EE0->unk_D10;
+    css = gm_801A4284(arg0);
+    if ((u8) css->pending_scene_change == 2) {
+        gm_801A42F8(1);
+        return;
+    }
+    new_var = vs_data;
+    gm_80167A14(new_var->data.players);
+    gm_801B0730(css, &new_var->data.players[0].c_kind, NULL,
+                &new_var->data.players[0].color,
+                &new_var->data.players[0].xA, NULL);
+    gm_801B07E8(css, &new_var->data.players[1].c_kind, NULL,
+                (s8*) &new_var->data.players[1].color,
+                (s8*) &new_var->data.players[1].xA, NULL);
+    new_var->data.players[1].xE = 0;
+    for (i = 2; i < 4; i++) {
+        new_var->data.players[i] = new_var->data.players[1];
+        new_var->data.players[i].color =
+            (new_var->data.players[i - 1].color + 1) %
+            gm_80169238(new_var->data.players[i].c_kind);
+        if (new_var->data.players[i].color ==
+            new_var->data.players[0].color)
+        {
+            new_var->data.players[i].color =
+                (new_var->data.players[i].color + 1) %
+                gm_80169238(new_var->data.players[i].c_kind);
+        }
+        new_var->data.players[i].slot_type = 3;
+    }
+    if ((u8) gm_804D68C0 == 0) {
+        new_var->data.players[1].slot = 0;
+        new_var->data.players[2].slot = 0;
+        new_var->data.players[3].slot = 0;
+    } else {
+        PlayerInitData* p = &new_var->data.players[1];
+        if (gm_804D68C0 != 0) {
+            p->slot = 1;
+            p++;
+        }
+        if (gm_804D68C0 != 1) {
+            p->slot = 2;
+            p++;
+        }
+        if (gm_804D68C0 != 2) {
+            p->slot = 3;
+            p++;
+        }
+        if (gm_804D68C0 != 3) {
+            p->slot = 4;
+        }
+    }
+    {
+        struct GameCache* gc = &lbDvd_8001822C()->game_cache;
+        gc->entries[2].char_id = (s32)(s8) new_var->data.players[2].c_kind;
+        gc->entries[2].color = new_var->data.players[2].color;
+        gc->entries[3].char_id = (s32)(s8) new_var->data.players[3].c_kind;
+        gc->entries[3].color = new_var->data.players[3].color;
+    }
+    lbDvd_80018254();
+    accum = 0;
+    for (i = 0; i < 4; i++) {
+        accum |= lbAudioAx_80026E84(
+            (CharacterKind)(s8) new_var->data.players[i].c_kind);
+    }
+    lbAudioAx_80026F2C(0x14);
+    lbAudioAx_8002702C(4, accum);
+    lbAudioAx_80027168();
+}
 
 void gm_801B1EB8(MinorScene* arg0)
 {

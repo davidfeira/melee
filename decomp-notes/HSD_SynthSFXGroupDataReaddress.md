@@ -1,14 +1,14 @@
 ---
 function: HSD_SynthSFXGroupDataReaddress
 tu: src/sysdolphin/baselib/synth.c
-headline: permuter-queued + regalloc
-tags: [permuter-queued, regalloc, instruction-scheduling]
+headline: regalloc + instruction-scheduling
+tags: [regalloc, instruction-scheduling]
 ---
-## HSD_SynthSFXGroupDataReaddress (`src/sysdolphin/baselib/synth.c`) — permuter-queued + regalloc
+## HSD_SynthSFXGroupDataReaddress (`src/sysdolphin/baselib/synth.c`) — regalloc + instruction-scheduling
 
-- **Tags:** `permuter-queued`, `regalloc`, `instruction-scheduling`
-- **Best fuzzy:** (unknown)
-- **Diagnosis:** At 94.1% (19 mismatches). Source shape is correct: outer loop walks p=&vpb->index, inner loop processes count=p[2] entries of stride 0x40 modifying offsets 0x14/0x18/0x1C, then advances p by (count<<6)+0x10. Remaining diffs are pure register allocation: outer counter i in r5 vs target r4, inner pointer q in r4 vs target r3, count in r3 vs target r5. Also (count<<6)+0x10 collapses to one addi in base but stays two ops (slwi + addi r29,r29,0x10) in target, and add operands are reversed (add r29,r0,r29 vs r29,r29,r0). Classic permuter territory.
-- **Tried:** form 1: do/while with --count, missed mtctr. form 2: for(j=count;j>0;j--) inner, for(i=0;...) outer with p=&vpb->index hoisted before HSD_DevComRequest call.
-- **Likely fix:** Permuter to swap r3/r4/r5 register choices for the loop counter/pointer/count triple and tweak the (count<<6)+0x10 expression form (e.g. (s32)(count*64+16) cast or temp variable).
+- **Tags:** `regalloc`, `instruction-scheduling`
+- **Best fuzzy:** 94.0984%
+- **Diagnosis:** At 97.3% (18 mismatches) after splitting the p-advance into two steps (count<<6 then +0x10). All remaining mismatches are a pure r3/r4/r5 swap: compiler emits i=r5, count=r3, q=r4 but target wants i=r4, count=r5, q=r3. Also causes base to use mr./r0 idiom for count-to-CTR and r3 as temp for p-advance, while target uses cmpwi/mtctr directly and updates r29 in-place.
+- **Tried:** (1) swapped q=p before count=p[2]: no effect. (2) changed count=p[2] to count=q[2]: no effect. (3) split p=(u8*)p+(count<<6) then p=(u8*)p+0x10: fixed the structural DIFF_INSERT/DIFF_DELETE, improved from 94.1% to 97.3%. (4) register keywords on q/i/count: no effect. CodeWarrior ignores register hints for these variables.
+- **Likely fix:** Permuter needed to swap r3/r4/r5 allocation for i/q/count triple. The split p-advance is now in source and structurally correct. Remaining 18 mismatches are pure regalloc shuffles.
 

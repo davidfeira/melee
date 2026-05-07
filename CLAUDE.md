@@ -72,7 +72,7 @@ The decomp project is hot — Jj/* PRs land daily. **Always check upstream befor
 
 ## Multi-agent / swarm protocol
 
-Subagent-side rules live in `.claude/agents/permuter-attempter.md` and `.claude/agents/plateau-rescuer.md`. When dispatching, the Agent tool auto-loads them — you don't need to re-explain the protocol in the prompt.
+Subagent-side rules live in `.claude/agents/match-attempter.md` and `.claude/agents/plateau-rescuer.md`. When dispatching, the Agent tool auto-loads them — you don't need to re-explain the protocol in the prompt.
 
 Mama Claude's orchestration loop, CPU budget rules, harvest/reap flow, and the permuter false-positive class are documented in `docs/agent/swarm-protocol.md`.
 

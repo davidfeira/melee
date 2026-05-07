@@ -579,8 +579,9 @@ HSD_GObj* grHomeRun_8021E500(int arg)
 void fn_8021E994(Ground* gp_unused, s32 arg1, CollData* coll, s32 arg3,
                  mpLib_GroundEnum env, f32 arg5)
 {
+    HSD_GObj* gobj;
     s32 kind = coll->x34_flags.b1234;
-    HSD_GObj* gobj = Ground_801C2BA4(0xA);
+    gobj = Ground_801C2BA4(0xA);
     if (gobj != NULL) {
         Ground* gp = GET_GROUND(gobj);
         if (gp != NULL) {

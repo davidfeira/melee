@@ -1,0 +1,1698 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Melee Decomp Town</title>
+<style>
+:root {
+  --grass: #7fc36b;
+  --grass-dark: #5fa54e;
+  --road: #c9b78c;
+  --ink: #2c2417;
+  --ink-soft: #5b4d36;
+  --paper: #fff7e6;
+  --bucket: #f3c14a;
+  --permuter: #4f8fdc;
+  --stuck: #d57a4b;
+  --picker: #b893dc;
+  --shadow: rgba(0,0,0,0.18);
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; height: 100%; font-family: ui-rounded, -apple-system, "Segoe UI", system-ui, sans-serif; color: var(--ink); }
+body {
+  background:
+    radial-gradient(circle at 20% 20%, #a3df90 0%, transparent 40%),
+    radial-gradient(circle at 80% 80%, #a3df90 0%, transparent 40%),
+    var(--grass);
+  overflow: hidden;
+}
+#hud {
+  position: fixed; top: 12px; left: 12px; right: 12px;
+  display: flex; gap: 16px; align-items: center; pointer-events: none;
+  z-index: 20;
+}
+.pill {
+  background: var(--paper); border: 2px solid var(--ink);
+  border-radius: 999px; padding: 6px 14px;
+  box-shadow: 0 3px 0 var(--shadow);
+  font-weight: 600; font-size: 14px;
+}
+#cpu-gauge {
+  background: var(--paper); border: 2px solid var(--ink); border-radius: 12px;
+  padding: 6px 12px; box-shadow: 0 3px 0 var(--shadow);
+  display: flex; align-items: center; gap: 10px;
+  font-family: ui-monospace, "Cascadia Mono", monospace;
+}
+#cpu-gauge .cpu-label {
+  font-weight: 700; font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  min-width: 70px;
+}
+#cpu-gauge .cpu-bars {
+  display: flex; gap: 2px; align-items: end;
+  height: 28px;
+}
+#cpu-gauge .core {
+  width: 8px; background: linear-gradient(to top, #6b8e23, #f0b048 70%, #b04545 100%);
+  border: 1px solid var(--ink); border-radius: 2px 2px 0 0;
+  position: relative;
+  transition: height 0.4s ease;
+}
+#hud h1 {
+  margin: 0; font-size: 22px; letter-spacing: 0.5px;
+  background: var(--paper); border: 2px solid var(--ink);
+  border-radius: 12px; padding: 6px 14px;
+  box-shadow: 0 3px 0 var(--shadow);
+}
+#stage {
+  position: relative; width: 100vw; height: 100vh;
+  overflow: hidden;
+}
+
+/* zones */
+.zone {
+  position: absolute;
+  background: var(--paper);
+  border: 3px solid var(--ink);
+  border-radius: 18px;
+  padding: 10px 14px 14px;
+  box-shadow: 0 5px 0 var(--shadow);
+  min-width: 180px;
+}
+.zone h2 {
+  margin: 0 0 6px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;
+  display: flex; align-items: center; gap: 6px;
+}
+.zone .body { font-size: 12px; color: var(--ink-soft); }
+
+#picker  { left: 24px; top: 70px; border-color: var(--ink); }
+#picker  h2 { color: var(--picker); }
+#worklog { left: 24px; top: 240px; border-color: var(--ink); min-width: 320px; max-width: 320px; }
+#worklog h2 { color: var(--ink); }
+#worklog-pills {
+  display: flex; flex-wrap: wrap; gap: 4px;
+  margin-bottom: 6px;
+}
+#worklog-pills .pill {
+  font-size: 10px; padding: 2px 8px;
+}
+#worklog-pills #master-btn { font-weight: 700; }
+#match   { right: 24px; top: 70px; border-color: var(--ink); min-width: 220px; }
+#match   h2 { color: #b88018; }
+#farm    { left: 50%; bottom: 24px; transform: translateX(-50%); min-width: 380px; }
+#farm    h2 { color: var(--permuter); }
+#queue   { right: 24px; top: 240px; min-width: 220px; max-width: 240px; }
+#queue   h2 { color: var(--permuter); }
+#stuck   { right: 24px; bottom: 24px; min-width: 220px; max-width: 240px; }
+#stuck   h2 { color: var(--stuck); }
+
+/* mama */
+#mama {
+  position: absolute; left: 50%; top: 42%;
+  transform: translate(-50%, -50%);
+  width: 96px; height: 96px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 64px;
+  filter: drop-shadow(0 4px 0 var(--shadow));
+}
+#mama::after {
+  content: "Mama Claude"; position: absolute; bottom: -22px;
+  font-size: 12px; font-weight: 700;
+  background: var(--paper); border: 2px solid var(--ink);
+  border-radius: 999px; padding: 2px 8px;
+  white-space: nowrap;
+}
+#mama-activity {
+  position: absolute; left: 50%; top: calc(42% - 80px);
+  transform: translateX(-50%);
+  background: var(--paper); border: 2px solid var(--ink);
+  border-radius: 8px; padding: 3px 8px;
+  font-size: 11px; font-family: ui-monospace, "Cascadia Mono", monospace;
+  white-space: nowrap; max-width: 360px;
+  overflow: hidden; text-overflow: ellipsis;
+  box-shadow: 0 3px 0 var(--shadow);
+  opacity: 0;
+  transition: opacity .25s;
+  pointer-events: none;
+  z-index: 10;
+}
+#mama-activity.show { opacity: 1; }
+#mama-activity::after {
+  content: ""; position: absolute; left: 50%; top: 100%;
+  transform: translateX(-50%);
+  border: 5px solid transparent; border-top-color: var(--ink);
+}
+
+/* agent sprites */
+.agent {
+  position: absolute;
+  width: 56px; height: 80px;
+  display: flex; flex-direction: column; align-items: center;
+  transition: left 1.6s cubic-bezier(.4,.7,.4,1), top 1.6s cubic-bezier(.4,.7,.4,1), opacity .6s;
+  pointer-events: none;
+  z-index: 5;
+}
+.agent .body {
+  font-size: 38px;
+  filter: drop-shadow(0 3px 0 var(--shadow));
+  animation: bob 1.4s ease-in-out infinite;
+}
+.agent .nametag {
+  font-size: 10px; font-weight: 700;
+  background: var(--paper); border: 1.5px solid var(--ink);
+  border-radius: 6px; padding: 1px 5px;
+  margin-top: -4px;
+  white-space: nowrap; max-width: 140px;
+  overflow: hidden; text-overflow: ellipsis;
+}
+.agent .scroll {
+  position: absolute; left: 38px; top: 16px;
+  background: var(--paper); border: 1.5px solid var(--ink);
+  border-radius: 4px; padding: 2px 5px;
+  font-size: 9px; font-weight: 700; color: var(--ink);
+  max-width: 130px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  box-shadow: 0 2px 0 var(--shadow);
+  transform: rotate(-6deg);
+}
+.agent.attempter  .body::after { content: var(--emoji-attempter, "🐰"); }
+.agent.rescuer    .body::after { content: var(--emoji-rescuer, "🦊"); }
+.agent.subagent   .body::after { content: var(--emoji-subagent, "🐿️"); }
+.agent.fading     { opacity: 0; }
+.agent .timer {
+  font-size: 9px; font-weight: 700; color: var(--ink-soft);
+  background: rgba(255, 247, 230, 0.8);
+  border-radius: 4px; padding: 0 4px;
+  margin-top: 1px;
+  font-variant-numeric: tabular-nums;
+}
+.agent .activity {
+  position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
+  margin-bottom: 4px;
+  background: var(--paper); border: 1.5px solid var(--ink);
+  border-radius: 6px; padding: 2px 6px;
+  font-size: 9px; font-family: ui-monospace, "Cascadia Mono", monospace;
+  white-space: nowrap; max-width: 240px;
+  overflow: hidden; text-overflow: ellipsis;
+  box-shadow: 0 2px 0 var(--shadow);
+  opacity: 0;
+  transition: opacity .25s;
+  pointer-events: none;
+}
+.agent .activity.show { opacity: 1; }
+.agent .activity::after {
+  content: ""; position: absolute; left: 50%; top: 100%; transform: translateX(-50%);
+  border: 4px solid transparent; border-top-color: var(--ink);
+}
+
+@keyframes bob {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-3px); }
+}
+
+/* permuter machines */
+.machine {
+  display: inline-flex; flex-direction: column; align-items: center;
+  background: #e9f1ff; border: 2px solid var(--permuter);
+  border-radius: 10px; padding: 6px 8px;
+  margin: 4px;
+  min-width: 110px;
+  position: relative;
+}
+.machine .head { font-size: 22px; animation: spin 2.4s linear infinite; }
+.machine.cluster .head { animation-duration: 1.2s; }
+.machine .func { font-size: 10px; font-weight: 700; max-width: 110px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.machine .score { font-size: 10px; color: var(--ink-soft); }
+.machine.cluster::before {
+  content: var(--emoji-cloud, "☁"); position: absolute; right: 4px; top: 2px; font-size: 12px;
+}
+.machine.win { background: #fff3c2; border-color: #d4a93b; }
+.machine.win .head { animation: none; }
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* match bucket trophies */
+#match .pile {
+  display: flex; flex-wrap: wrap; gap: 2px;
+  max-height: 120px; overflow-y: auto; overflow-x: hidden;
+  scrollbar-width: thin;
+}
+#match .trophy { font-size: 18px; animation: pop .4s ease-out; }
+#match .count { font-size: 28px; font-weight: 800; color: #b88018; }
+@keyframes pop {
+  from { transform: scale(0.2); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
+/* picker queue scrolls */
+#picker .pile {
+  display: flex; flex-wrap: wrap; gap: 3px; max-width: 170px;
+  max-height: 120px; overflow-y: auto; scrollbar-width: thin;
+}
+#picker .scroll {
+  background: var(--paper); border: 1.5px solid var(--ink);
+  border-radius: 4px; padding: 1px 5px;
+  font-size: 10px; font-weight: 700;
+  max-width: 80px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* stuck shelf entries */
+#stuck #stuck-list, #queue #queue-list {
+  max-height: 220px; overflow-y: auto; scrollbar-width: thin;
+}
+#stuck .item, #queue .item {
+  font-size: 11px; padding: 3px 0; border-top: 1px dashed var(--ink-soft);
+}
+#stuck .item:first-child, #queue .item:first-child { border-top: 0; }
+#stuck .item .tags, #queue .item .tags { color: var(--ink-soft); font-size: 10px; }
+
+#worklog #worklog-list {
+  max-height: 280px; overflow-y: auto; scrollbar-width: thin;
+  font-size: 11px; font-family: ui-monospace, "Cascadia Mono", monospace;
+}
+#worklog .row {
+  display: flex; gap: 6px; padding: 2px 0;
+  border-top: 1px dashed var(--ink-soft);
+  white-space: nowrap;
+}
+#worklog .row:first-child { border-top: 0; }
+#worklog .row .icon { width: 14px; flex-shrink: 0; text-align: center; }
+#worklog .row .name { flex: 1; overflow: hidden; text-overflow: ellipsis; }
+#worklog .row .pct { color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+#worklog .row.matched .name { color: #6b8e23; }
+#worklog .row.matched .icon::before { content: "✅"; }
+#worklog .row.queued .icon::before { content: "⏳"; }
+#worklog .row.stuck .icon::before { content: "🚧"; }
+#worklog .row.in-progress .icon::before { content: "🐰"; }
+
+#log {
+  position: fixed; left: 12px; bottom: 12px; max-width: 360px; max-height: 140px;
+  overflow-y: auto; scrollbar-width: thin;
+  background: rgba(255,247,230,0.85); border: 2px solid var(--ink);
+  border-radius: 10px; padding: 6px 10px;
+  font-size: 11px; font-family: ui-monospace, "Cascadia Mono", monospace;
+  box-shadow: 0 3px 0 var(--shadow);
+  pointer-events: auto; z-index: 30;
+}
+#log .line { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* farm-row scrolls horizontally for many active permuters */
+#farm-row {
+  display: flex; flex-wrap: wrap; gap: 4px;
+  max-height: 180px; overflow-y: auto; scrollbar-width: thin;
+}
+.muted { color: var(--ink-soft); }
+
+/* master-log modal */
+#master-btn {
+  cursor: pointer; user-select: none;
+}
+#master-btn:hover { background: rgba(255, 230, 180, 0.6); }
+#modal-backdrop {
+  position: fixed; inset: 0; background: rgba(0, 0, 0, 0.45);
+  z-index: 100; display: none;
+  align-items: center; justify-content: center;
+}
+#modal-backdrop.show { display: flex; }
+#modal {
+  background: var(--paper); border: 3px solid var(--ink); border-radius: 14px;
+  width: min(90vw, 1100px); max-height: 86vh;
+  display: flex; flex-direction: column;
+  box-shadow: 0 6px 0 var(--shadow);
+  font-family: system-ui, sans-serif;
+}
+#modal-header {
+  padding: 12px 16px; border-bottom: 2px solid var(--ink);
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+}
+#modal-header h2 { margin: 0; font-size: 18px; }
+#modal-search {
+  flex: 1; min-width: 180px;
+  border: 2px solid var(--ink); border-radius: 8px;
+  padding: 5px 10px; font-size: 13px; font-family: inherit;
+}
+#modal-close, #modal-refresh {
+  border: 2px solid var(--ink); background: var(--paper);
+  border-radius: 6px; padding: 4px 10px; cursor: pointer;
+  font-weight: 700;
+}
+#modal-refresh.spinning { opacity: 0.5; pointer-events: none; }
+#modal-filters { display: flex; gap: 6px; flex-wrap: wrap; padding: 8px 16px 0; }
+.filter-chip {
+  border: 2px solid var(--ink); border-radius: 999px;
+  padding: 3px 10px; font-size: 11px; cursor: pointer;
+  background: var(--paper); user-select: none;
+}
+.filter-chip.active { background: var(--ink); color: var(--paper); }
+#modal-stats { padding: 4px 16px; font-size: 11px; color: var(--ink-soft); }
+#modal-body {
+  flex: 1; overflow-y: auto; padding: 0 16px 16px;
+  font-family: ui-monospace, "Cascadia Mono", monospace; font-size: 12px;
+}
+#modal-table {
+  width: 100%; border-collapse: collapse;
+}
+#modal-table th, #modal-table td {
+  text-align: left; padding: 4px 8px;
+  border-bottom: 1px solid var(--ink-soft);
+  vertical-align: top;
+}
+#modal-table th {
+  position: sticky; top: 0; background: var(--paper);
+  border-bottom: 2px solid var(--ink); cursor: pointer;
+  font-family: system-ui, sans-serif; font-size: 11px;
+  text-transform: uppercase; letter-spacing: 0.4px;
+}
+#modal-table tr.matched-upstream td:first-child { color: #2e7d32; font-weight: 700; }
+#modal-table tr.matched-local    td:first-child { color: #6b8e23; font-weight: 700; }
+#modal-table tr.improved         td:first-child { color: #b88018; }
+#modal-table tr.queued           td:first-child { color: #4a6fb8; }
+#modal-table tr.stuck            td:first-child { color: #b04545; }
+#modal-table tr:hover            { background: rgba(255, 230, 180, 0.4); }
+#modal-table tr.session          { background: rgba(255, 235, 100, 0.15); }
+#modal-table tr.session:hover    { background: rgba(255, 235, 100, 0.35); }
+#modal-table tr.mine td:nth-child(4) { font-weight: 700; }
+#modal-table .pct { font-variant-numeric: tabular-nums; }
+#modal-table .when { color: var(--ink-soft); font-size: 11px; white-space: nowrap; }
+#modal-table .commit { color: var(--ink-soft); }
+#modal-table .tags   { color: var(--ink-soft); font-size: 11px; }
+
+/* emoji settings modal */
+#emoji-backdrop {
+  position: fixed; inset: 0; background: rgba(0, 0, 0, 0.45);
+  z-index: 105; display: none;
+  align-items: center; justify-content: center;
+}
+#emoji-backdrop.show { display: flex; }
+#emoji-modal {
+  background: var(--paper); border: 3px solid var(--ink); border-radius: 14px;
+  width: min(90vw, 560px); max-height: 86vh;
+  display: flex; flex-direction: column;
+  padding: 14px 18px;
+  box-shadow: 0 6px 0 var(--shadow);
+}
+#emoji-header {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
+  border-bottom: 2px solid var(--ink); padding-bottom: 10px;
+}
+#emoji-header h2 { margin: 0; font-size: 18px; flex: 1; }
+#emoji-header .emoji-action {
+  border: 2px solid var(--ink); background: var(--paper);
+  border-radius: 6px; padding: 4px 10px; cursor: pointer;
+  font-weight: 700;
+}
+#emoji-grid {
+  display: grid;
+  grid-template-columns: 1fr 50px 50px;
+  gap: 6px 10px;
+  align-items: center;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+#emoji-grid label { font-size: 12px; }
+#emoji-grid .current {
+  font-size: 22px; text-align: center;
+  border: 2px solid var(--ink); border-radius: 6px;
+  padding: 2px 4px; min-height: 30px;
+  background: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+}
+#emoji-grid .current:hover { background: rgba(255, 230, 180, 0.7); }
+#emoji-grid .pick-btn {
+  border: 2px solid var(--ink); background: var(--paper);
+  border-radius: 6px; padding: 4px; cursor: pointer;
+  font-size: 14px;
+}
+
+/* picker popup */
+#emoji-picker-pop {
+  position: fixed; z-index: 120;
+  background: var(--paper); border: 2px solid var(--ink); border-radius: 10px;
+  box-shadow: 0 4px 0 var(--shadow);
+  padding: 8px; display: none;
+  width: 360px; max-height: 320px;
+  display: none; flex-direction: column;
+}
+#emoji-picker-pop.show { display: flex; }
+#emoji-picker-pop input {
+  border: 2px solid var(--ink); border-radius: 6px;
+  padding: 4px 8px; font-size: 13px;
+  margin-bottom: 6px; width: 100%; box-sizing: border-box;
+}
+#emoji-picker-pop .grid {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 2px;
+  overflow-y: auto;
+  flex: 1;
+}
+#emoji-picker-pop .grid span {
+  cursor: pointer; text-align: center;
+  font-size: 20px; padding: 4px;
+  border-radius: 4px;
+}
+#emoji-picker-pop .grid span:hover { background: rgba(255, 230, 180, 0.6); }
+#emoji-picker-pop .group-label {
+  grid-column: 1 / -1; font-size: 10px; color: var(--ink-soft);
+  font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px;
+  padding: 4px 0 2px;
+}
+
+/* drill-down detail panel */
+#detail-panel {
+  position: fixed; right: 12px; top: 12px; bottom: 12px;
+  width: min(40vw, 480px);
+  background: var(--paper); border: 3px solid var(--ink); border-radius: 12px;
+  box-shadow: 0 6px 0 var(--shadow);
+  display: none; flex-direction: column;
+  padding: 12px 14px; gap: 8px;
+  z-index: 110;
+  font-family: system-ui, sans-serif;
+}
+#detail-panel.show { display: flex; }
+#detail-panel .detail-head { display: flex; justify-content: space-between; align-items: center; }
+#detail-panel .detail-head h3 { margin: 0; font-size: 16px; word-break: break-all; }
+#detail-panel .detail-close {
+  border: 2px solid var(--ink); background: var(--paper);
+  border-radius: 6px; padding: 2px 8px; cursor: pointer; font-weight: 700;
+}
+#detail-panel .detail-meta {
+  display: flex; gap: 8px; flex-wrap: wrap; font-size: 11px; color: var(--ink-soft);
+}
+#detail-panel .detail-meta .badge {
+  border: 1.5px solid var(--ink); border-radius: 999px; padding: 1px 8px;
+  font-weight: 700; color: var(--ink); background: var(--paper);
+}
+#detail-panel .detail-tu { font-size: 11px; }
+#detail-panel .detail-headline { font-size: 12px; font-weight: 600; }
+#detail-panel .detail-tags { display: flex; gap: 4px; flex-wrap: wrap; }
+#detail-panel .detail-tags .tag {
+  font-size: 10px; border: 1px dashed var(--ink-soft); border-radius: 4px;
+  padding: 1px 5px; color: var(--ink-soft);
+}
+#detail-panel #detail-body {
+  flex: 1; overflow-y: auto;
+  background: rgba(255, 255, 255, 0.6); border: 1px solid var(--ink-soft);
+  border-radius: 6px; padding: 8px;
+  font-family: ui-monospace, "Cascadia Mono", monospace;
+  font-size: 11px; white-space: pre-wrap; line-height: 1.4;
+}
+</style>
+</head>
+<body>
+<div id="hud">
+  <div id="cpu-gauge" title="per-core CPU% — polled every 2s">
+    <div class="cpu-label">CPU <span id="cpu-total">0</span>%</div>
+    <div class="cpu-bars" id="cpu-bars"></div>
+  </div>
+</div>
+
+<div id="stage">
+  <div id="mama">🧙‍♀️</div>
+  <div id="mama-activity"></div>
+
+  <div id="picker" class="zone">
+    <h2>📜 Picker Queue</h2>
+    <div class="body">funcs waiting for an agent</div>
+    <div class="pile" id="picker-pile"></div>
+  </div>
+
+  <div id="match" class="zone">
+    <h2>✅ Match Bucket</h2>
+    <div class="count" id="match-count">0</div>
+    <div class="pile" id="match-pile"></div>
+  </div>
+
+  <div id="farm" class="zone">
+    <h2>⚙️ Permuter Farm</h2>
+    <div class="body" id="farm-body">no permuters running</div>
+    <div id="farm-row"></div>
+  </div>
+
+  <div id="queue" class="zone">
+    <h2>⏳ Permuter Queue</h2>
+    <div class="body" id="queue-body">no queued funcs</div>
+    <div id="queue-list"></div>
+  </div>
+
+  <div id="stuck" class="zone">
+    <h2>🚧 Stuck Shelf</h2>
+    <div class="body" id="stuck-body">no stuck funcs</div>
+    <div id="stuck-list"></div>
+  </div>
+
+  <div id="worklog" class="zone">
+    <h2>📒 Work Log</h2>
+    <div id="worklog-pills">
+      <div class="pill">matched: <span id="hud-matched">0</span></div>
+      <div class="pill">in flight: <span id="hud-agents">0</span></div>
+      <div class="pill">permuters: <span id="hud-permuters">0</span></div>
+      <div class="pill">stuck: <span id="hud-stuck">0</span></div>
+      <div class="pill" id="master-btn" onclick="openMasterLog()">📒 open master log</div>
+      <div class="pill" id="permuter-toggle" onclick="togglePermuterMode()" title="when off, near-misses log-stuck with permuter-queued instead of dispatching">🤖 permuter: …</div>
+      <div class="pill" id="emoji-btn" onclick="openEmojiSettings()" title="customize sprite/icon emojis">🎨 emojis</div>
+    </div>
+    <div class="body" id="worklog-body">no functions worked yet</div>
+    <div id="worklog-list"></div>
+  </div>
+</div>
+
+<div id="log"></div>
+
+<div id="emoji-backdrop" onclick="if(event.target.id==='emoji-backdrop') closeEmojiSettings()">
+  <div id="emoji-modal">
+    <div id="emoji-header">
+      <h2>🎨 Customize emojis</h2>
+      <button onclick="resetEmojis()" class="emoji-action">↩ defaults</button>
+      <button onclick="closeEmojiSettings()" class="emoji-action">✕ close</button>
+    </div>
+    <div id="emoji-grid"></div>
+  </div>
+</div>
+<div id="emoji-picker-pop">
+  <input id="emoji-picker-search" type="text" placeholder="search…" oninput="renderEmojiPicker()" />
+  <div class="grid" id="emoji-picker-grid"></div>
+</div>
+
+<div id="modal-backdrop" onclick="if(event.target.id==='modal-backdrop') closeMasterLog()">
+  <div id="modal">
+    <div id="modal-header">
+      <h2>📒 Master Log</h2>
+      <input id="modal-search" type="text" placeholder="filter by func name…" oninput="renderMasterLog()" />
+      <button id="modal-refresh" onclick="refreshMasterLog()" title="git fetch upstream master + reload">🔄 refresh</button>
+      <button id="modal-close" onclick="closeMasterLog()">✕ close</button>
+    </div>
+    <div id="detail-panel"></div>
+    <div id="modal-filters"></div>
+    <div id="modal-stats"></div>
+    <div id="modal-body">
+      <table id="modal-table">
+        <thead><tr>
+          <th data-sort="state">State</th>
+          <th data-sort="name">Function</th>
+          <th data-sort="fuzzy">Match%</th>
+          <th data-sort="author">Author</th>
+          <th data-sort="ts">When</th>
+          <th data-sort="commit">Commit</th>
+          <th data-sort="headline">Headline</th>
+          <th data-sort="tags">Tags</th>
+        </tr></thead>
+        <tbody id="modal-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+"use strict";
+
+const STAGE = () => ({ w: window.innerWidth, h: window.innerHeight });
+
+function zoneCenter(id) {
+  const el = document.getElementById(id);
+  const r = el.getBoundingClientRect();
+  return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+}
+function mamaPos() {
+  const r = document.getElementById("mama").getBoundingClientRect();
+  return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+}
+
+const state = {
+  agents: new Map(),       // id -> {el, func, subagent, toolUseId}
+  byFunc: new Map(),       // func -> agent id (most recent)
+  byToolUseId: new Map(),  // tool_use_id (PreToolUse Agent) -> agent id
+  byAgentId: new Map(),    // agent_id (SubagentStop) -> agent id (viz internal)
+  // Cumulative session totals (HUD pills). Never decrement — they reflect
+  // what *happened* this session, decoupled from current rendered state so
+  // the count stays accurate even when piles cap their DOM.
+  matched: 0,
+  stuckTotal: 0,
+  queuedTotal: 0,
+  permutersStarted: 0,
+  matchedFuncs: [],
+  stuckFuncs: [],          // {func, tags}
+  queuedFuncs: [],         // {func, tags}
+  pickedFuncs: new Set(),  // shown in picker pile (best-effort)
+  pickedFuncEls: new Map(), // func -> span el, for removal on dispatch
+  machines: new Map(),     // func -> {el, cluster, score}
+  // Per-function lifecycle log: shown in the Work Log panel.
+  workLog: new Map(),      // func -> {state, fuzzy, tags, t}
+  workLogOrder: [],        // most-recent-first list of funcs (insertion order)
+};
+
+// Tags that mean "structurally fine, just needs permuter cycles" — those go
+// to the Permuter Queue zone (waiting on cluster/Modal/local CPU). Anything
+// else is a real structural blocker, goes to Stuck Shelf.
+const PERMUTER_TAG_RX = /\bpermuter-(?:dispatched|queued|queued-cluster|territory|blocked|ready)\b/;
+
+let agentSeq = 0;
+
+function spawnAgent({ subagent, func, toolUseId, startTime }) {
+  const id = "a" + (++agentSeq);
+  const el = document.createElement("div");
+  const cls = (subagent || "subagent")
+    .toLowerCase()
+    .includes("rescuer") ? "rescuer"
+    : (subagent || "").toLowerCase().includes("attempter") ? "attempter"
+    : "subagent";
+  el.className = "agent " + cls;
+  el.innerHTML = `
+    <div class="activity"></div>
+    <div class="body"></div>
+    <div class="nametag">${escapeHtml(shortName(subagent || "agent"))}</div>
+    ${func ? `<div class="scroll">${escapeHtml(shortFunc(func))}</div>` : ""}
+    <div class="timer">0:00</div>
+  `;
+  document.getElementById("stage").appendChild(el);
+  // Spawn at mama and immediately wander outward to a unique patrol orbit.
+  const m = mamaPos();
+  el.style.left = (m.x - 28) + "px";
+  el.style.top  = (m.y - 40) + "px";
+
+  // Each agent gets a unique orbit: starting angle, radius, and angular
+  // velocity. Continuously incrementing the angle makes them circle Mama
+  // smoothly; different speeds and radii prevent clumping.
+  const a = {
+    el, func, subagent, toolUseId,
+    // Wall-clock start used for the on-sprite elapsed-time readout. Falls
+    // back to "now" if the dispatch event didn't carry t (synthetic emits).
+    startTime: startTime || (Date.now() / 1000),
+    redirected: false,                              // true once a terminal walk takes over
+    wanderAngle: Math.random() * Math.PI * 2,       // current orbit angle
+    wanderRadius: 140 + Math.random() * 120,        // 140..260px — close orbit around Mama
+    // Half complete one orbit per 12-22s; sign randomized so some go CW, some CCW.
+    wanderOmega: (0.28 + Math.random() * 0.24) * (Math.random() < 0.5 ? -1 : 1),
+  };
+  state.agents.set(id, a);
+  updateAgentTimer(a);
+  if (func) state.byFunc.set(func, id);
+  if (toolUseId) state.byToolUseId.set(toolUseId, id);
+  setTimeout(() => moveToWander(id), 50);
+  refreshHud();
+  return id;
+}
+
+function moveToWander(id) {
+  const a = state.agents.get(id);
+  if (!a || a.redirected) return;
+  const m = mamaPos();
+  // Continuous orbit: advance by wanderOmega each tick, with a tiny random
+  // wobble on radius (±40px) so the path isn't a perfect circle.
+  a.wanderAngle += a.wanderOmega;
+  const r = a.wanderRadius + (Math.random() - 0.5) * 80;
+  const sw = window.innerWidth, sh = window.innerHeight;
+  let x = m.x + Math.cos(a.wanderAngle) * r - 28;
+  let y = m.y + Math.sin(a.wanderAngle) * r - 40;
+  // Keep inside the stage; reserve margin for HUD/log/zone widgets.
+  x = Math.max(20, Math.min(sw - 80, x));
+  y = Math.max(120, Math.min(sh - 200, y));
+  a.el.style.left = x + "px";
+  a.el.style.top  = y + "px";
+}
+
+// Global wander tick — 1.6s matches the agent's CSS transition so motion is
+// continuous (no pause between steps). Faster rate would race the transition.
+setInterval(() => {
+  for (const id of state.agents.keys()) moveToWander(id);
+}, 1600);
+
+function fmtElapsed(secs) {
+  if (secs < 0) secs = 0;
+  const s = Math.floor(secs % 60);
+  const m = Math.floor(secs / 60) % 60;
+  const h = Math.floor(secs / 3600);
+  const pad = (n) => String(n).padStart(2, "0");
+  return h > 0 ? `${h}:${pad(m)}:${pad(s)}` : `${m}:${pad(s)}`;
+}
+
+function updateAgentTimer(a) {
+  const t = a.el.querySelector(".timer");
+  if (!t) return;
+  t.textContent = fmtElapsed(Date.now() / 1000 - a.startTime);
+}
+
+function setAgentActivity(id, summary) {
+  const a = state.agents.get(id);
+  if (!a) return;
+  const bubble = a.el.querySelector(".activity");
+  if (!bubble) return;
+  bubble.textContent = summary || "";
+  bubble.classList.toggle("show", !!summary);
+  if (a.activityHideTimer) clearTimeout(a.activityHideTimer);
+  // Fade out after 8s of inactivity so a stale command doesn't linger.
+  a.activityHideTimer = setTimeout(() => bubble.classList.remove("show"), 8000);
+}
+
+let mamaActivityHideTimer = null;
+function addToPicker(func) {
+  state.pickedFuncs.add(func);
+  const pile = document.getElementById("picker-pile");
+  const s = document.createElement("span");
+  s.className = "scroll";
+  s.title = func;
+  s.textContent = shortFunc(func);
+  pile.prepend(s);
+  state.pickedFuncEls.set(func, s);
+  while (pile.children.length > 14) {
+    const drop = pile.lastElementChild;
+    pile.removeChild(drop);
+    // Drop matching map entry to keep state in sync
+    for (const [k, v] of state.pickedFuncEls) {
+      if (v === drop) { state.pickedFuncEls.delete(k); state.pickedFuncs.delete(k); break; }
+    }
+  }
+}
+
+function removeFromPicker(func) {
+  const el = state.pickedFuncEls.get(func);
+  if (el) el.remove();
+  state.pickedFuncEls.delete(func);
+  state.pickedFuncs.delete(func);
+}
+
+function setMamaActivity(summary) {
+  const bubble = document.getElementById("mama-activity");
+  if (!bubble) return;
+  bubble.textContent = summary || "";
+  bubble.classList.toggle("show", !!summary);
+  if (mamaActivityHideTimer) clearTimeout(mamaActivityHideTimer);
+  mamaActivityHideTimer = setTimeout(() => bubble.classList.remove("show"), 12000);
+}
+
+// Per-second timer tick — updates every agent's elapsed-time readout.
+setInterval(() => {
+  for (const a of state.agents.values()) updateAgentTimer(a);
+}, 1000);
+
+function findAgentForFunc(func) {
+  if (!func) return null;
+  const id = state.byFunc.get(func);
+  if (id && state.agents.has(id)) return id;
+  return null;
+}
+
+function oldestAgentId() {
+  const ids = [...state.agents.keys()];
+  return ids.length ? ids[0] : null;
+}
+
+function walkAgentTo(id, target, then) {
+  const a = state.agents.get(id);
+  if (!a) return;
+  a.redirected = true;  // freeze wander — terminal animations take over
+  a.el.style.left = (target.x - 28) + "px";
+  a.el.style.top  = (target.y - 40) + "px";
+  if (then) setTimeout(then, 1700);
+}
+
+function retireAgent(id) {
+  const a = state.agents.get(id);
+  if (!a) return;
+  a.el.classList.add("fading");
+  setTimeout(() => {
+    a.el.remove();
+    state.agents.delete(id);
+    if (a.func && state.byFunc.get(a.func) === id) state.byFunc.delete(a.func);
+    if (a.toolUseId && state.byToolUseId.get(a.toolUseId) === id) state.byToolUseId.delete(a.toolUseId);
+    if (a.agentId && state.byAgentId.get(a.agentId) === id) state.byAgentId.delete(a.agentId);
+    refreshHud();
+  }, 700);
+}
+
+function shortFunc(f) {
+  if (!f) return "";
+  return f.length > 18 ? f.slice(0, 16) + "…" : f;
+}
+function shortName(s) {
+  s = String(s);
+  if (s.length > 18) return s.slice(0, 16) + "…";
+  return s;
+}
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"
+  }[c]));
+}
+
+function addTrophy(func) {
+  state.matched++;
+  state.matchedFuncs.push(func || "");
+  document.getElementById("match-count").textContent = state.matched;
+  const pile = document.getElementById("match-pile");
+  const t = document.createElement("span");
+  t.className = "trophy";
+  t.title = func || "";
+  t.textContent = emojis.trophy;
+  pile.prepend(t);
+  // DOM cap is generous but bounded — the HUD pill (state.matched) is the
+  // unbounded session total.
+  while (pile.children.length > 200) pile.lastElementChild.remove();
+  refreshHud();
+}
+
+function setMachine(func, { score, cluster }) {
+  let m = state.machines.get(func);
+  if (!m) {
+    state.permutersStarted++;
+    const el = document.createElement("div");
+    el.className = "machine" + (cluster ? " cluster" : "");
+    el.innerHTML = `
+      <div class="head">${emojis.cog}</div>
+      <div class="func">${escapeHtml(shortFunc(func))}</div>
+      <div class="score muted">…</div>
+    `;
+    document.getElementById("farm-row").appendChild(el);
+    m = { el, cluster: !!cluster, score: null };
+    state.machines.set(func, m);
+  }
+  if (cluster !== undefined) {
+    m.cluster = !!cluster;
+    m.el.classList.toggle("cluster", m.cluster);
+  }
+  if (score !== undefined && score !== null && score !== "") {
+    const n = Number(score);
+    m.score = n;
+    const scoreEl = m.el.querySelector(".score");
+    scoreEl.textContent = (n === 0 ? "★ MATCH ★" : `score ${n}`);
+    m.el.classList.toggle("win", n === 0);
+  }
+  document.getElementById("farm-body").style.display =
+    state.machines.size ? "none" : "";
+  refreshHud();
+}
+
+function removeMachine(func) {
+  const m = state.machines.get(func);
+  if (!m) return;
+  // Synchronous removal — no setTimeout. The previous fade-out raced with
+  // /history replay (multiple start/stop pairs for the same func resurrected
+  // the soft-deleted element). Synchronous keeps state and DOM in lockstep.
+  m.el.remove();
+  state.machines.delete(func);
+  document.getElementById("farm-body").style.display =
+    state.machines.size ? "none" : "";
+  refreshHud();
+}
+
+// Defensive sweep: drop any DOM children of farm-row not tracked by
+// state.machines. Catches anything we missed (e.g. an old buggy event flow
+// left orphans). Cheap to run on every farm change.
+function reconcileFarmDom() {
+  const row = document.getElementById("farm-row");
+  const tracked = new Set();
+  for (const m of state.machines.values()) tracked.add(m.el);
+  for (const child of [...row.children]) {
+    if (!tracked.has(child)) child.remove();
+  }
+}
+
+function addStuck(func, tags) {
+  // Route by tags: permuter-dispatched/queued goes to the queue bucket
+  // (waiting for permuter cycles), everything else to the stuck shelf
+  // (structural blockers needing different work).
+  const tagStr = (tags || []).join(",");
+  if (PERMUTER_TAG_RX.test(tagStr)) {
+    addQueued(func, tags);
+    setWorkLog(func, "queued", tags);
+    return;
+  }
+  state.stuckTotal++;
+  state.stuckFuncs.unshift({ func, tags: tags || [] });
+  state.stuckFuncs = state.stuckFuncs.slice(0, 200);
+  const list = document.getElementById("stuck-list");
+  const item = document.createElement("div");
+  item.className = "item";
+  item.innerHTML =
+    `<div><b>${escapeHtml(shortFunc(func))}</b></div>` +
+    `<div class="tags">${escapeHtml((tags || []).join(", "))}</div>`;
+  list.prepend(item);
+  while (list.children.length > 200) list.lastElementChild.remove();
+  document.getElementById("stuck-body").style.display =
+    state.stuckFuncs.length ? "none" : "";
+  setWorkLog(func, "stuck", tags);
+  refreshHud();
+}
+
+function addQueued(func, tags) {
+  state.queuedTotal++;
+  state.queuedFuncs.unshift({ func, tags: tags || [] });
+  state.queuedFuncs = state.queuedFuncs.slice(0, 200);
+  const list = document.getElementById("queue-list");
+  const item = document.createElement("div");
+  item.className = "item";
+  item.innerHTML =
+    `<div><b>${escapeHtml(shortFunc(func))}</b></div>` +
+    `<div class="tags">${escapeHtml((tags || []).join(", "))}</div>`;
+  list.prepend(item);
+  while (list.children.length > 200) list.lastElementChild.remove();
+  document.getElementById("queue-body").style.display =
+    state.queuedFuncs.length ? "none" : "";
+  refreshHud();
+}
+
+function setWorkLog(func, lifecycleState, tags, fuzzy) {
+  if (!func) return;
+  const prev = state.workLog.get(func);
+  const entry = {
+    state: lifecycleState,
+    fuzzy: fuzzy != null ? fuzzy : (prev ? prev.fuzzy : null),
+    tags: tags || (prev ? prev.tags : []),
+    t: Date.now() / 1000,
+  };
+  state.workLog.set(func, entry);
+  // Bump to top of order. Single source of truth: lookup map + ordered list.
+  const idx = state.workLogOrder.indexOf(func);
+  if (idx !== -1) state.workLogOrder.splice(idx, 1);
+  state.workLogOrder.unshift(func);
+  if (state.workLogOrder.length > 200) {
+    const dropped = state.workLogOrder.pop();
+    state.workLog.delete(dropped);
+  }
+  renderWorkLog();
+}
+
+function renderWorkLog() {
+  const list = document.getElementById("worklog-list");
+  const body = document.getElementById("worklog-body");
+  if (!list || !body) return;
+  body.style.display = state.workLogOrder.length ? "none" : "";
+  list.innerHTML = "";
+  for (const func of state.workLogOrder) {
+    const e = state.workLog.get(func);
+    if (!e) continue;
+    const row = document.createElement("div");
+    row.className = `row ${e.state}`;
+    const pct = e.fuzzy != null ? `${e.fuzzy}` : "";
+    row.innerHTML =
+      `<span class="icon"></span>` +
+      `<span class="name" title="${escapeHtml(func)}">${escapeHtml(shortFunc(func))}</span>` +
+      `<span class="pct">${escapeHtml(pct)}</span>`;
+    list.appendChild(row);
+  }
+}
+
+function refreshHud() {
+  // Pills show session totals (cumulative event counts) — except in-flight,
+  // which is naturally a current count. Cumulative counters never decrement
+  // even when piles cap their DOM, so the HUD reflects what *happened* this
+  // session, not what's currently rendered.
+  document.getElementById("hud-matched").textContent = state.matched;
+  document.getElementById("hud-agents").textContent = state.agents.size;
+  document.getElementById("hud-permuters").textContent = state.permutersStarted;
+  document.getElementById("hud-stuck").textContent = state.stuckTotal;
+}
+
+function logLine(text) {
+  const el = document.getElementById("log");
+  const d = document.createElement("div");
+  d.className = "line";
+  const t = new Date().toLocaleTimeString();
+  d.innerHTML = `<span class="muted">${t}</span> ${escapeHtml(text)}`;
+  el.prepend(d);
+  while (el.children.length > 8) el.lastElementChild.remove();
+}
+
+// User-customizable emoji set. Persisted in localStorage. Surfaced via the
+// "🎨 emojis" settings panel.
+const EMOJI_DEFAULTS = {
+  mama:        "🧙‍♀️",
+  attempter:   "🐰",
+  rescuer:     "🦊",
+  subagent:    "🐿️",
+  cog:         "⚙️",
+  cloud:       "☁",
+  trophy:      "🏆",
+  picker:      "📜",
+  match:       "✅",
+  farm:        "⚙️",
+  stuck:       "🚧",
+  queue:       "⏳",
+  worklog:     "📒",
+  masterlog:   "📒",
+  toggle:      "🤖",
+  session:     "✨",
+  speak:       "💬",
+};
+const EMOJI_LABELS = {
+  mama: "Mama Claude", attempter: "Attempter agent", rescuer: "Plateau-rescuer",
+  subagent: "Generic subagent", cog: "Permuter machine", cloud: "Cluster marker",
+  trophy: "Match trophy", picker: "Picker queue", match: "Match bucket",
+  farm: "Permuter farm", stuck: "Stuck shelf", queue: "Permuter queue",
+  worklog: "Work log", masterlog: "Master log button", toggle: "Permuter toggle",
+  session: "This-session marker", speak: "Last-message log",
+};
+let emojis = { ...EMOJI_DEFAULTS };
+try {
+  const saved = JSON.parse(localStorage.getItem("viz-emojis") || "{}");
+  emojis = { ...EMOJI_DEFAULTS, ...saved };
+} catch {}
+
+function applyEmojis() {
+  // CSS vars drive ::after / ::before pseudo-elements
+  const root = document.documentElement.style;
+  root.setProperty("--emoji-attempter", `"${emojis.attempter}"`);
+  root.setProperty("--emoji-rescuer",   `"${emojis.rescuer}"`);
+  root.setProperty("--emoji-subagent",  `"${emojis.subagent}"`);
+  root.setProperty("--emoji-cloud",     `"${emojis.cloud}"`);
+  // Direct DOM updates for everything else
+  const setText = (sel, txt) => {
+    const el = document.querySelector(sel); if (el) el.textContent = txt;
+  };
+  setText("#mama", emojis.mama);
+  setText("#picker h2", `${emojis.picker} Picker Queue`);
+  setText("#match h2", `${emojis.match} Match Bucket`);
+  setText("#farm h2", `${emojis.farm} Permuter Farm`);
+  setText("#queue h2", `${emojis.queue} Permuter Queue`);
+  setText("#stuck h2", `${emojis.stuck} Stuck Shelf`);
+  setText("#worklog h2", `${emojis.worklog} Work Log`);
+  const masterBtn = document.getElementById("master-btn");
+  if (masterBtn) masterBtn.innerHTML = `${emojis.masterlog} open master log`;
+  // Live machines: refresh their ⚙️ head text
+  for (const m of state.machines.values()) {
+    const head = m.el.querySelector(".head");
+    if (head) head.textContent = emojis.cog;
+  }
+  // Live trophies
+  for (const t of document.querySelectorAll("#match-pile .trophy")) {
+    t.textContent = emojis.trophy;
+  }
+  // Permuter toggle pill keeps its on/off state, just swap the lead emoji
+  const toggle = document.getElementById("permuter-toggle");
+  if (toggle) {
+    const cur = (toggle.textContent.match(/permuter:\s*(\w+)/) || [, "on"])[1];
+    toggle.textContent = `${emojis.toggle} permuter: ${cur}`;
+  }
+}
+
+function saveEmojis() {
+  try { localStorage.setItem("viz-emojis", JSON.stringify(emojis)); } catch {}
+}
+
+// `replaying` flag is set during /history bulk replay so permuter_start /
+// match / stuck handlers skip the walk-to-zone setTimeout animations and
+// apply state changes synchronously. Otherwise replay-order is lost: a stop
+// event arriving before the deferred start callback fires leaves a phantom.
+let replaying = false;
+
+function handleEvent(e) {
+  switch (e.event) {
+    case "dispatch": {
+      spawnAgent({
+        subagent: e.subagent, func: e.func,
+        toolUseId: e.tool_use_id,
+        startTime: e.t,  // server timestamp from emit.py — survives /history replay
+      });
+      if (e.func) {
+        setWorkLog(e.func, "in-progress", null, null);
+        removeFromPicker(e.func);  // queue → in-flight transition
+      }
+      logLine(`mama → ${e.subagent || "agent"}` + (e.func ? ` (${shortFunc(e.func)})` : ""));
+      break;
+    }
+    case "agent_link": {
+      // PostToolUse(Agent) for a backgrounded subagent. Records the
+      // tool_use_id → agent_id bridge so the eventual SubagentStop (which
+      // only carries agent_id) can be matched back to the right viz agent.
+      const id = e.tool_use_id ? state.byToolUseId.get(e.tool_use_id) : null;
+      if (id && e.agent_id) {
+        const a = state.agents.get(id);
+        if (a) a.agentId = e.agent_id;
+        state.byAgentId.set(e.agent_id, id);
+      }
+      break;
+    }
+    case "agent_done": {
+      // Terminal: PostToolUse(Agent) for foreground OR SubagentStop for
+      // backgrounded. Match by tool_use_id first, fall back to agent_id.
+      let id = e.tool_use_id ? state.byToolUseId.get(e.tool_use_id) : null;
+      if (!id && e.agent_id) id = state.byAgentId.get(e.agent_id);
+      if (id) {
+        const a = state.agents.get(id);
+        const lbl = a ? (a.func || a.subagent || "agent") : "agent";
+        if (e.last_message) logLine(`💬 ${shortFunc(lbl)}: ${e.last_message}`);
+        const m = mamaPos();
+        walkAgentTo(id, m, () => retireAgent(id));
+      }
+      break;
+    }
+    case "agent_activity": {
+      // Subagent ran a tool. Show a brief summary above its sprite.
+      const id = e.agent_id ? state.byAgentId.get(e.agent_id) : null;
+      if (id && e.summary) setAgentActivity(id, e.summary);
+      break;
+    }
+    case "mama_activity": {
+      // Main-thread tool call. Show in mama's bubble.
+      if (e.summary) setMamaActivity(e.summary);
+      break;
+    }
+    case "subagent_stop": {
+      // Legacy event — pre-PostToolUse(Agent) history. Intentional no-op.
+      break;
+    }
+    case "match": {
+      const target = zoneCenter("match");
+      let id = findAgentForFunc(e.func);
+      if (!id) id = spawnAgent({ subagent: "courier", func: e.func });
+      if (replaying) {
+        addTrophy(e.func);
+        retireAgent(id);
+      } else {
+        walkAgentTo(id, target, () => {
+          addTrophy(e.func);
+          retireAgent(id);
+        });
+      }
+      if (e.func) {
+        removeMachine(e.func);
+        setWorkLog(e.func, "matched", null, "100%");
+      }
+      logLine(`✅ match ${e.func || ""}`);
+      break;
+    }
+    case "permuter_start": {
+      const target = zoneCenter("farm");
+      let id = findAgentForFunc(e.func);
+      if (id && !replaying) {
+        walkAgentTo(id, target, () => {
+          setMachine(e.func, { cluster: e.cluster === "1", score: null });
+          retireAgent(id);
+        });
+      } else {
+        setMachine(e.func, { cluster: e.cluster === "1", score: null });
+        if (id) retireAgent(id);
+      }
+      logLine(`⚙️ permuter start ${e.func || ""}` + (e.cluster === "1" ? " ☁" : ""));
+      break;
+    }
+    case "permuter_state": {
+      if (e.func) setMachine(e.func, {
+        cluster: e.cluster === "1",
+        score: e.best_score === "" ? null : e.best_score,
+      });
+      break;
+    }
+    case "permuter_stop": {
+      if (e.func) removeMachine(e.func);
+      logLine(`⚙️ permuter stop ${e.func || ""}`);
+      break;
+    }
+    case "log_stuck":
+    case "stuck": {
+      const target = zoneCenter(PERMUTER_TAG_RX.test(String(e.tags || "")) ? "queue" : "stuck");
+      let id = findAgentForFunc(e.func);
+      let tags = [];
+      try {
+        if (e.tags) {
+          tags = Array.isArray(e.tags) ? e.tags
+               : String(e.tags).replace(/^\[|\]$/g, "").split(",").map(s => s.trim().replace(/^['"]|['"]$/g, ""));
+        }
+      } catch {}
+      // Capture the percentage for the work log so the row shows progress.
+      if (e.func) {
+        const pct = e.fuzzy ? String(e.fuzzy).replace(/%$/, "") + "%" : null;
+        // setWorkLog runs inside addStuck/addQueued, but pre-set fuzzy here so
+        // those handlers don't clobber it with null.
+        const lifecycleState = PERMUTER_TAG_RX.test(tags.join(",")) ? "queued" : "stuck";
+        setWorkLog(e.func, lifecycleState, tags, pct);
+      }
+      if (id && !replaying) {
+        walkAgentTo(id, target, () => {
+          addStuck(e.func, tags);
+          retireAgent(id);
+        });
+      } else {
+        addStuck(e.func, tags);
+        if (id) retireAgent(id);
+      }
+      logLine(`🚧 stuck ${e.func || ""} ${tags.join(",")}`);
+      break;
+    }
+    case "brief":
+    case "picked": {
+      // surface the func in the picker queue
+      if (e.func && !state.pickedFuncs.has(e.func)) addToPicker(e.func);
+      break;
+    }
+    default:
+      break;
+  }
+}
+
+function connect() {
+  const es = new EventSource("/events");
+  es.onerror = () => console.warn("[viz] SSE reconnecting");
+  es.onmessage = (m) => {
+    try {
+      const e = JSON.parse(m.data);
+      console.log("[viz][live]", e);
+      handleEvent(e);
+    } catch (err) { console.warn("[viz] bad event", err, m.data); }
+  };
+}
+
+// Master Log modal — pulls /master-log on demand. Aggregates all funcs ever
+// touched (decomp-notes + git history); filterable by state and name.
+const masterLog = {
+  funcs: [],
+  me: null,                  // {email, name} of current user
+  filters: new Set(["matched-upstream", "matched-local", "improved", "queued", "stuck"]),
+  sortKey: "ts",             // default: most-recent-activity first
+  sortDir: -1,
+  mineOnly: false,
+  sessionOnly: false,
+};
+
+async function openMasterLog() {
+  document.getElementById("modal-backdrop").classList.add("show");
+  try {
+    const r = await fetch("/master-log");
+    const d = await r.json();
+    masterLog.funcs = d.funcs || [];
+    masterLog.me = d.me || null;
+  } catch (err) {
+    console.warn("[viz] /master-log failed", err);
+    masterLog.funcs = [];
+  }
+  buildFilterChips();
+  renderMasterLog();
+}
+
+function closeMasterLog() {
+  document.getElementById("modal-backdrop").classList.remove("show");
+}
+
+async function refreshMasterLog() {
+  const btn = document.getElementById("modal-refresh");
+  btn.classList.add("spinning");
+  btn.textContent = "🔄 fetching…";
+  try {
+    const r = await fetch("/refresh-upstream");
+    const d = await r.json();
+    if (!d.ok) throw new Error(d.error || "fetch failed");
+    btn.textContent = `🔄 fetched in ${d.took_s}s`;
+  } catch (err) {
+    btn.textContent = "🔄 fetch failed";
+    console.warn("[viz] upstream fetch failed", err);
+  }
+  // Re-pull master-log to reflect newly-fetched commits.
+  try {
+    const r = await fetch("/master-log");
+    const d = await r.json();
+    masterLog.funcs = d.funcs || [];
+    masterLog.me = d.me || null;
+  } catch {}
+  renderMasterLog();
+  setTimeout(() => {
+    btn.classList.remove("spinning");
+    btn.textContent = "🔄 refresh";
+  }, 1500);
+}
+
+function buildFilterChips() {
+  const states = ["matched-upstream", "matched-local", "improved", "queued", "stuck"];
+  const labels = {
+    "matched-upstream": "✅ upstream",
+    "matched-local":    "✅ local",
+    "improved":         "📈 improved",
+    "queued":           "⏳ queued",
+    "stuck":            "🚧 stuck",
+  };
+  const ctr = document.getElementById("modal-filters");
+  ctr.innerHTML = "";
+  for (const s of states) {
+    const chip = document.createElement("span");
+    chip.className = "filter-chip" + (masterLog.filters.has(s) ? " active" : "");
+    chip.textContent = labels[s];
+    chip.onclick = () => {
+      if (masterLog.filters.has(s)) masterLog.filters.delete(s);
+      else masterLog.filters.add(s);
+      buildFilterChips();
+      renderMasterLog();
+    };
+    ctr.appendChild(chip);
+  }
+  // Quick toggles: Mine-only, This-session-only, Queued-only shortcut
+  const quick = (label, onclick, active) => {
+    const c = document.createElement("span");
+    c.className = "filter-chip" + (active ? " active" : "");
+    c.textContent = label;
+    c.onclick = onclick;
+    ctr.appendChild(c);
+  };
+  ctr.appendChild(document.createElement("span")).innerHTML = "│";
+  quick(`👤 mine only${masterLog.me ? " (" + masterLog.me.name + ")" : ""}`, () => {
+    masterLog.mineOnly = !masterLog.mineOnly;
+    buildFilterChips();
+    renderMasterLog();
+  }, masterLog.mineOnly);
+  quick("✨ this session", () => {
+    masterLog.sessionOnly = !masterLog.sessionOnly;
+    buildFilterChips();
+    renderMasterLog();
+  }, masterLog.sessionOnly);
+  quick("⏳ queued only", () => {
+    masterLog.filters = new Set(["queued"]);
+    buildFilterChips();
+    renderMasterLog();
+  }, masterLog.filters.size === 1 && masterLog.filters.has("queued"));
+}
+
+function fmtRelTime(ts) {
+  if (!ts) return "";
+  const dt = Date.now() / 1000 - ts;
+  if (dt < 60) return "just now";
+  if (dt < 3600) return `${Math.floor(dt / 60)}m ago`;
+  if (dt < 86400) return `${Math.floor(dt / 3600)}h ago`;
+  if (dt < 86400 * 7) return `${Math.floor(dt / 86400)}d ago`;
+  if (dt < 86400 * 30) return `${Math.floor(dt / 86400 / 7)}w ago`;
+  return `${Math.floor(dt / 86400 / 30)}mo ago`;
+}
+
+function renderMasterLog() {
+  const q = (document.getElementById("modal-search").value || "").toLowerCase();
+  const meName = masterLog.me && masterLog.me.name;
+  const rows = masterLog.funcs.filter(f => {
+    if (!masterLog.filters.has(f.state)) return false;
+    if (q && !f.name.toLowerCase().includes(q)) return false;
+    if (masterLog.mineOnly && (!meName || f.author !== meName)) return false;
+    if (masterLog.sessionOnly && !f.this_session) return false;
+    return true;
+  });
+  const k = masterLog.sortKey, d = masterLog.sortDir;
+  const stateOrder = {
+    "matched-upstream": 0, "matched-local": 1, "improved": 2, "queued": 3, "stuck": 4,
+  };
+  rows.sort((a, b) => {
+    let av = a[k] ?? "", bv = b[k] ?? "";
+    if (k === "state") { av = stateOrder[av] ?? 9; bv = stateOrder[bv] ?? 9; }
+    if (k === "fuzzy") {
+      av = parseFloat(String(av).replace(/%/, "")) || 0;
+      bv = parseFloat(String(bv).replace(/%/, "")) || 0;
+    }
+    if (k === "ts") { av = a.ts || 0; bv = b.ts || 0; }
+    if (k === "tags") { av = (a.tags || []).join(","); bv = (b.tags || []).join(","); }
+    if (av < bv) return -1 * d;
+    if (av > bv) return  1 * d;
+    return 0;
+  });
+  // Stats: per-state counts + per-author "you" stats
+  const counts = {}, mineCounts = {};
+  for (const f of masterLog.funcs) {
+    counts[f.state] = (counts[f.state] || 0) + 1;
+    if (meName && f.author === meName) {
+      mineCounts[f.state] = (mineCounts[f.state] || 0) + 1;
+    }
+  }
+  const total = masterLog.funcs.length;
+  const mineTotal = Object.values(mineCounts).reduce((a, b) => a + b, 0);
+  const mineSummary = meName
+    ? ` · you: ${mineTotal} (${["matched-upstream","matched-local","improved","queued","stuck"]
+        .map(s => `${s.replace("matched-","").replace("upstream","up").replace("local","loc")}:${mineCounts[s]||0}`)
+        .join(" ")})`
+    : "";
+  document.getElementById("modal-stats").textContent =
+    `${rows.length}/${total} shown · ` +
+    Object.entries(counts).map(([s, n]) => `${s}: ${n}`).join(" · ") +
+    mineSummary;
+  const tbody = document.getElementById("modal-tbody");
+  tbody.innerHTML = "";
+  for (const f of rows) {
+    const tr = document.createElement("tr");
+    tr.className = (f.state || "") + (f.this_session ? " session" : "") +
+                   (meName && f.author === meName ? " mine" : "");
+    const tags = (f.tags || []).join(", ");
+    const sessionMark = f.this_session ? "✨ " : "";
+    const author = f.author ? (meName && f.author === meName ? "you" : f.author) : "";
+    tr.innerHTML =
+      `<td>${escapeHtml(f.state || "")}</td>` +
+      `<td>${sessionMark}${escapeHtml(f.name)}</td>` +
+      `<td class="pct">${escapeHtml(f.fuzzy || "")}</td>` +
+      `<td>${escapeHtml(author)}</td>` +
+      `<td class="when" title="${f.ts ? new Date(f.ts*1000).toLocaleString() : ""}">${escapeHtml(fmtRelTime(f.ts))}</td>` +
+      `<td class="commit">${escapeHtml(f.commit || "")}</td>` +
+      `<td>${escapeHtml(f.headline || "")}</td>` +
+      `<td class="tags">${escapeHtml(tags)}</td>`;
+    tr.onclick = () => openFuncDetail(f);
+    tr.style.cursor = "pointer";
+    tbody.appendChild(tr);
+  }
+}
+
+async function openFuncDetail(f) {
+  // Drill-down: fetch the notes file body and any commit body, show in
+  // a side panel. Lazy server endpoint /note?func=X.
+  const panel = document.getElementById("detail-panel");
+  panel.classList.add("show");
+  panel.innerHTML = `
+    <div class="detail-head">
+      <h3>${escapeHtml(f.name)}</h3>
+      <button onclick="closeFuncDetail()" class="detail-close">✕</button>
+    </div>
+    <div class="detail-meta">
+      <span class="badge ${escapeHtml(f.state || "")}">${escapeHtml(f.state || "")}</span>
+      ${f.fuzzy ? `<span>${escapeHtml(f.fuzzy)}</span>` : ""}
+      ${f.author ? `<span>by ${escapeHtml(f.author)}</span>` : ""}
+      ${f.ts ? `<span>${escapeHtml(fmtRelTime(f.ts))}</span>` : ""}
+      ${f.commit ? `<span class="muted">${escapeHtml(f.commit)}</span>` : ""}
+    </div>
+    ${f.tu ? `<div class="detail-tu muted">TU: ${escapeHtml(f.tu)}</div>` : ""}
+    ${f.headline ? `<div class="detail-headline">${escapeHtml(f.headline)}</div>` : ""}
+    ${(f.tags || []).length ? `<div class="detail-tags">${(f.tags || []).map(t => `<span class="tag">${escapeHtml(t)}</span>`).join("")}</div>` : ""}
+    <div class="detail-body" id="detail-body">loading…</div>
+  `;
+  try {
+    const r = await fetch(`/note?func=${encodeURIComponent(f.name)}`);
+    const txt = await r.text();
+    document.getElementById("detail-body").textContent = txt || "(no notes file)";
+  } catch (err) {
+    document.getElementById("detail-body").textContent = "(failed to load notes)";
+  }
+}
+
+function closeFuncDetail() {
+  document.getElementById("detail-panel").classList.remove("show");
+}
+
+// Sortable headers
+document.addEventListener("click", (ev) => {
+  const th = ev.target.closest("#modal-table th[data-sort]");
+  if (!th) return;
+  const key = th.dataset.sort;
+  if (masterLog.sortKey === key) masterLog.sortDir *= -1;
+  else { masterLog.sortKey = key; masterLog.sortDir = 1; }
+  renderMasterLog();
+});
+
+// Esc closes modal
+document.addEventListener("keydown", (ev) => {
+  if (ev.key === "Escape") closeMasterLog();
+});
+
+// Permuter on/off toggle — controls whether near-misses dispatch the
+// cluster permuter or just log-stuck with permuter-queued tag.
+async function loadPermuterMode() {
+  try {
+    const r = await fetch("/permuter-mode");
+    const d = await r.json();
+    setPermuterPill(d.mode);
+  } catch {}
+}
+function setPermuterPill(mode) {
+  const el = document.getElementById("permuter-toggle");
+  if (!el) return;
+  el.textContent = `${emojis.toggle} permuter: ${mode}`;
+  el.style.background = mode === "on" ? "#d4f4dc" : "#f4d4d4";
+}
+async function togglePermuterMode() {
+  const el = document.getElementById("permuter-toggle");
+  const cur = (el.textContent.match(/permuter:\s*(\w+)/) || [, "on"])[1];
+  const next = cur === "on" ? "off" : "on";
+  try {
+    const r = await fetch("/permuter-mode", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ mode: next }),
+    });
+    const d = await r.json();
+    setPermuterPill(d.mode);
+  } catch (err) { console.warn("[viz] toggle failed", err); }
+}
+loadPermuterMode();
+
+// Per-core CPU gauge — polls /cpu every 2s. The bars are colored low→high
+// (green to red) and scale to 28px height.
+async function pollCpu() {
+  try {
+    const r = await fetch("/cpu");
+    const d = await r.json();
+    const bars = document.getElementById("cpu-bars");
+    const cores = d.cores || [];
+    // Build/refresh DOM only if core count changed
+    if (bars.children.length !== cores.length) {
+      bars.innerHTML = "";
+      for (let i = 0; i < cores.length; i++) {
+        const c = document.createElement("div");
+        c.className = "core";
+        bars.appendChild(c);
+      }
+    }
+    for (let i = 0; i < cores.length; i++) {
+      const pct = Math.max(0, Math.min(100, cores[i] || 0));
+      bars.children[i].style.height = `${Math.max(2, pct * 0.28)}px`;
+      bars.children[i].title = `core ${i}: ${pct.toFixed(0)}%`;
+    }
+    document.getElementById("cpu-total").textContent = (d.total || 0).toFixed(0);
+  } catch {}
+}
+setInterval(pollCpu, 2000);
+pollCpu();
+
+// Curated emoji bank — categorized for the in-app picker. Search uses
+// the keywords list (best-effort substring match).
+const EMOJI_BANK = {
+  faces: ["😀","😃","😄","😁","😆","😅","🤣","😂","🙂","🙃","😉","😊","😇","🥰","😍","🤩","😘","😋","😜","🤪","😎","🤓","🧐","🤔","🤨","😐","😏","🙄","😬","🤥","😴","🥱","🤤","😪","😵","🤯","🥶","🥵","😱","😨","😰","😥","😓","🤗","🤔","🤫","🤭","😈","👿","💀","☠️","💩"],
+  hands: ["👋","🤚","🖐️","✋","🖖","👌","🤌","🤏","✌️","🤞","🤟","🤘","🤙","👈","👉","👆","🖕","👇","☝️","👍","👎","✊","👊","🤛","🤜","👏","🙌","👐","🤲","🤝","🙏","✍️","💅","🤳","💪","🦾","🦵","🦿","🦶","👂","🦻","👃","🧠","🫀","🫁","🦷","🦴","👀","👁️","👅","👄"],
+  people: ["👶","🧒","👦","👧","🧑","👱","👨","🧔","👩","🧓","👴","👵","🙍","🙎","🙅","🙆","💁","🙋","🧏","🙇","🤦","🤷","🧙‍♀️","🧙","🧙‍♂️","🧚","🧛","🧜","🧝","🧞","🧟","💆","💇","🚶","🧍","🧎","🏃","💃","🕺","🧑‍🍳","👨‍🍳","👩‍🍳","🧑‍🎓","🧑‍💻","👨‍💻","👩‍💻","🧑‍🔬","🧑‍🚀","🧑‍🚒"],
+  animals: ["🐶","🐱","🐭","🐹","🐰","🦊","🐻","🐼","🐻‍❄️","🐨","🐯","🦁","🐮","🐷","🐸","🐵","🐔","🐧","🐦","🐤","🐣","🦆","🦅","🦉","🦇","🐺","🐗","🐴","🦄","🐝","🪲","🐛","🦋","🐌","🐞","🐜","🪰","🪱","🦗","🕷️","🕸️","🦂","🐢","🐍","🦎","🦖","🦕","🐙","🦑","🦐","🦞","🦀","🐡","🐠","🐟","🐬","🐳","🐋","🦈","🐊","🐅","🐆","🦓","🦍","🦧","🦣","🐘","🦛","🦏","🐪","🐫","🦒","🦘","🦬","🐃","🐂","🐄","🐎","🐖","🐏","🐑","🦙","🐐","🦌","🐕","🐩","🦮","🐕‍🦺","🐈","🐈‍⬛","🐓","🦃","🦚","🦜","🦢","🦩","🕊️","🐇","🦝","🦨","🦡","🦦","🦥","🐁","🐀","🐿️","🦔"],
+  nature: ["🌵","🎄","🌲","🌳","🌴","🌱","🌿","☘️","🍀","🎍","🎋","🍃","🍂","🍁","🍄","🐚","🪨","🌾","💐","🌷","🌹","🥀","🌺","🌸","🌼","🌻","🌞","🌝","🌛","🌜","🌚","🌕","🌖","🌗","🌘","🌑","🌒","🌓","🌔","🌙","🌎","🌍","🌏","🪐","💫","⭐","🌟","✨","⚡","☄️","💥","🔥","🌪️","🌈","☀️","🌤️","⛅","🌥️","☁️","🌦️","🌧️","⛈️","🌩️","🌨️","❄️","☃️","⛄","🌬️","💨","💧","💦","☔","☂️","🌊","🌫️"],
+  food: ["🍏","🍎","🍐","🍊","🍋","🍌","🍉","🍇","🍓","🫐","🍈","🍒","🍑","🥭","🍍","🥥","🥝","🍅","🍆","🥑","🥦","🥬","🥒","🌶️","🫑","🌽","🥕","🫒","🧄","🧅","🥔","🍠","🥐","🥯","🍞","🥖","🥨","🧀","🥚","🍳","🧈","🥞","🧇","🥓","🥩","🍗","🍖","🌭","🍔","🍟","🍕"],
+  travel: ["🚗","🚕","🚙","🚌","🚎","🏎️","🚓","🚑","🚒","🚐","🛻","🚚","🚛","🚜","🦯","🦽","🦼","🛴","🚲","🛵","🏍️","🛺","🚨","🚔","🚍","🚘","🚖","🚡","🚠","🚟","🚃","🚋","🚞","🚝","🚄","🚅","🚈","🚂","🚆","🚇","🚊","🚉","✈️","🛫","🛬","🛩️","💺","🛰️","🚀","🛸","🚁","🛶","⛵","🚤","🛥️","🛳️","⛴️","🚢","⚓","🪝","⛽","🚧","🚦","🚥","🗺️","🗿","🗽","🗼","🏰","🏯","🏟️","🎡","🎢","🎠"],
+  objects: ["⌚","📱","📲","💻","⌨️","🖥️","🖨️","🖱️","🖲️","🕹️","🗜️","💽","💾","💿","📀","📼","📷","📸","📹","🎥","📽️","🎞️","📞","☎️","📟","📠","📺","📻","🎙️","🎚️","🎛️","🧭","⏱️","⏲️","⏰","🕰️","⌛","⏳","📡","🔋","🔌","💡","🔦","🕯️","🪔","🧯","🛢️","💸","💵","💴","💶","💷","🪙","💰","💳","💎","⚖️","🪜","🧰","🪛","🔧","🔨","⚒️","🛠️","⛏️","🪚","🔩","⚙️","🪤","🧱","⛓️","🧲","🔫","💣","🧨","🪓","🔪","🗡️","⚔️","🛡️","🚬","⚰️","🪦","⚱️","🏺","🔮","📿","🧿","💈","⚗️","🔭","🔬","🕳️","🩹","🩺","💊","💉","🩸","🧬","🦠","🧫","🧪","🌡️","🧹","🧺","🧻","🚽","🚰","🚿","🛁","🛀","🧼","🪥","🪒","🧽","🪣","🧴","🛎️","🔑","🗝️","🚪","🪑","🛋️","🛏️","🛌","🧸","🪆","🖼️","🪞","🪟","🛍️","🛒","🎁","🎈","🎏","🎀","🎊","🎉","🎎","🏮","🎐","🧧","✉️","📩","📨","📧","💌","📥","📤","📦","🏷️","🪧","📪","📫","📬","📭","📮","📯","📜","📃","📄","📑","🧾","📊","📈","📉","🗒️","🗓️","📆","📅","🗑️","📇","🗃️","🗳️","🗄️","📋","📁","📂","🗂️","🗞️","📰","📓","📔","📒","📕","📗","📘","📙","📚","📖","🔖","🧷","🔗","📎","🖇️","📐","📏","🧮","📌","📍","✂️","🖊️","🖋️","✒️","🖌️","🖍️","📝","✏️","🔍","🔎","🔏","🔐","🔒","🔓"],
+  symbols: ["❤️","🧡","💛","💚","💙","💜","🖤","🤍","🤎","💔","❣️","💕","💞","💓","💗","💖","💘","💝","💟","☮️","✝️","☪️","🕉️","☸️","✡️","🔯","🕎","☯️","☦️","🛐","⛎","♈","♉","♊","♋","♌","♍","♎","♏","♐","♑","♒","♓","🆔","⚛️","🉑","☢️","☣️","📴","📳","🈶","🈚","🈸","🈺","🈷️","✴️","🆚","💮","🉐","㊙️","㊗️","🈴","🈵","🈹","🈲","🅰️","🅱️","🆎","🆑","🅾️","🆘","❌","⭕","🛑","⛔","📛","🚫","💯","💢","♨️","🚷","🚯","🚳","🚱","🔞","📵","🚭","❗","❕","❓","❔","‼️","⁉️","🔅","🔆","〽️","⚠️","🚸","🔱","⚜️","🔰","♻️","✅","🈯","💹","❇️","✳️","❎","🌐","💠","Ⓜ️","🌀","💤","🏧","🚾","♿","🅿️","🛗","🈳","🈂️","🛂","🛃","🛄","🛅","🚹","🚺","🚼","⚧","🚻","🚮","🎦","📶","🈁","🔣","ℹ️","🔤","🔡","🔠","🆖","🆗","🆙","🆒","🆕","🆓","0️⃣","1️⃣","2️⃣","3️⃣","4️⃣","5️⃣","6️⃣","7️⃣","8️⃣","9️⃣","🔟","🔢","#️⃣","*️⃣","⏏️","▶️","⏸️","⏯️","⏹️","⏺️","⏭️","⏮️","⏩","⏪","⏫","⏬","◀️","🔼","🔽","➡️","⬅️","⬆️","⬇️","↗️","↘️","↙️","↖️","↕️","↔️","↪️","↩️","⤴️","⤵️","🔀","🔁","🔂","🔄","🔃","🎵","🎶","➕","➖","➗","✖️","♾️","💲","💱","™️","©️","®️","〰️","➰","➿","🔚","🔙","🔛","🔝","🔜","✔️","☑️","🔘","🔴","🟠","🟡","🟢","🔵","🟣","⚫","⚪","🟤","🔺","🔻","🔸","🔹","🔶","🔷","🔳","🔲","▪️","▫️","◾","◽","◼️","◻️","⬛","⬜","🟧","🟨","🟩","🟦","🟪","🟫","🔈","🔇","🔉","🔊","🔔","🔕","📣","📢","💬","💭","🗯️","♠️","♣️","♥️","♦️","🃏","🎴","🀄","🕐","🕑","🕒","🕓","🕔","🕕","🕖","🕗","🕘","🕙","🕚","🕛","🕜","🕝","🕞","🕟","🕠","🕡","🕢","🕣","🕤","🕥","🕦","🕧"],
+};
+
+let _activeEmojiKey = null;  // currently being edited
+let _emojiPickerHostInput = null;
+
+function openEmojiSettings() {
+  const grid = document.getElementById("emoji-grid");
+  grid.innerHTML = "";
+  for (const k of Object.keys(EMOJI_DEFAULTS)) {
+    const label = document.createElement("label");
+    label.textContent = EMOJI_LABELS[k] || k;
+    const cur = document.createElement("div");
+    cur.className = "current";
+    cur.textContent = emojis[k] || "";
+    cur.title = "click to pick a new emoji";
+    cur.onclick = (ev) => openEmojiPicker(k, ev.currentTarget);
+    const pick = document.createElement("button");
+    pick.className = "pick-btn";
+    pick.textContent = "🎨";
+    pick.onclick = (ev) => openEmojiPicker(k, ev.currentTarget);
+    grid.appendChild(label);
+    grid.appendChild(cur);
+    grid.appendChild(pick);
+  }
+  document.getElementById("emoji-backdrop").classList.add("show");
+}
+
+function closeEmojiSettings() {
+  document.getElementById("emoji-backdrop").classList.remove("show");
+  closeEmojiPicker();
+}
+
+function resetEmojis() {
+  emojis = { ...EMOJI_DEFAULTS };
+  saveEmojis();
+  applyEmojis();
+  openEmojiSettings();
+}
+
+function openEmojiPicker(key, anchor) {
+  _activeEmojiKey = key;
+  _emojiPickerHostInput = anchor;
+  const pop = document.getElementById("emoji-picker-pop");
+  // Position next to the anchor
+  const r = anchor.getBoundingClientRect();
+  pop.style.left = Math.max(8, Math.min(window.innerWidth - 380, r.right + 6)) + "px";
+  pop.style.top  = Math.max(8, Math.min(window.innerHeight - 340, r.top)) + "px";
+  document.getElementById("emoji-picker-search").value = "";
+  pop.classList.add("show");
+  renderEmojiPicker();
+}
+
+function closeEmojiPicker() {
+  const pop = document.getElementById("emoji-picker-pop");
+  if (pop) pop.classList.remove("show");
+  _activeEmojiKey = null;
+}
+
+function renderEmojiPicker() {
+  const grid = document.getElementById("emoji-picker-grid");
+  const q = (document.getElementById("emoji-picker-search").value || "").toLowerCase();
+  grid.innerHTML = "";
+  for (const [group, list] of Object.entries(EMOJI_BANK)) {
+    // Search: match by group name or by literal emoji presence
+    let filtered = list;
+    if (q) filtered = q && group.includes(q) ? list : list.filter(e => e.includes(q));
+    if (!filtered.length) continue;
+    const lbl = document.createElement("div");
+    lbl.className = "group-label";
+    lbl.textContent = group;
+    grid.appendChild(lbl);
+    for (const e of filtered) {
+      const sp = document.createElement("span");
+      sp.textContent = e;
+      sp.title = e;
+      sp.onclick = () => pickEmoji(e);
+      grid.appendChild(sp);
+    }
+  }
+}
+
+function pickEmoji(emoji) {
+  if (!_activeEmojiKey) return;
+  emojis[_activeEmojiKey] = emoji;
+  saveEmojis();
+  applyEmojis();
+  // Update the grid cell live
+  if (_emojiPickerHostInput) {
+    const sib = _emojiPickerHostInput.classList.contains("current")
+      ? _emojiPickerHostInput
+      : _emojiPickerHostInput.previousElementSibling;
+    if (sib && sib.classList.contains("current")) sib.textContent = emoji;
+  }
+  closeEmojiPicker();
+}
+
+// Click outside the picker closes it
+document.addEventListener("click", (ev) => {
+  const pop = document.getElementById("emoji-picker-pop");
+  if (!pop || !pop.classList.contains("show")) return;
+  if (pop.contains(ev.target)) return;
+  if (_emojiPickerHostInput && _emojiPickerHostInput.contains(ev.target)) return;
+  closeEmojiPicker();
+});
+
+// Apply emoji choices on initial load (from localStorage if any).
+applyEmojis();
+
+async function bootstrap() {
+  // Replay /history so a page refresh shows the current state, not just
+  // events arriving after subscription. Then connect for live updates.
+  try {
+    const r = await fetch("/history");
+    const events = await r.json();
+    console.log(`[viz] replaying ${events.length} historical events`);
+    replaying = true;
+    try {
+      for (const e of events) {
+        console.log("[viz][replay]", e);
+        handleEvent(e);
+      }
+    } finally {
+      replaying = false;
+    }
+    reconcileFarmDom();
+  } catch (err) {
+    console.warn("[viz] /history fetch failed", err);
+  }
+  connect();
+}
+
+bootstrap();
+</script>
+</body>
+</html>

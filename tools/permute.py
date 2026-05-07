@@ -31,6 +31,18 @@ from typing import Optional
 ROOT = Path(__file__).resolve().parent.parent
 SRC = ROOT / "src"
 
+
+def _viz_emit(actor: str, event: str, **fields) -> None:
+    """Best-effort viz event; never raises."""
+    try:
+        # When invoked as `python tools/permute.py`, sys.path[0] is the
+        # tools/ directory, so `viz.emit` is the right import path —
+        # `tools.viz.emit` would require the project root on sys.path.
+        from viz.emit import emit  # type: ignore
+        emit(actor, event, **fields)
+    except Exception:
+        pass
+
 # Ensure unicode output works on Windows console (em-dashes, arrows, etc.)
 if sys.stdout.encoding and sys.stdout.encoding.lower() not in ("utf-8", "utf8"):
     try:
@@ -82,6 +94,8 @@ def _log_event(event_type: str, **fields) -> None:
             f.write(_json.dumps(rec) + "\n")
     except OSError:
         pass
+    # mirror to viz event stream (best-effort; never raises)
+    _viz_emit("permute", event_type, **{k: str(v) for k, v in fields.items() if v is not None})
 
 
 def _is_pid_alive(pid: int) -> bool:
@@ -940,6 +954,42 @@ def cmd_diff(args: argparse.Namespace) -> None:
         if len(mismatches) > 25:
             print(f"  ... and {len(mismatches) - 25} more")
 
+    # --paired: side-by-side OURS|TARGET view, only mismatching rows. Easier to
+    # eyeball regalloc swaps and instruction-scheduling differences than the
+    # default vertical list. Layout cribbed from jurrejelle/ai-melee-decomp's
+    # objdiff_wrapper.py (the print_paired_diff function).
+    if getattr(args, "paired", False):
+        print(f"\nPAIRED DIFF (mismatch rows only):")
+        print(f"   {'OURS (base)':<44s} {'TARGET':>44s}")
+        print(f"   {'-' * 91}")
+        max_len = max(len(target_ins), len(base_ins))
+        shown = 0
+        for i in range(max_len):
+            t = target_ins[i] if i < len(target_ins) else {}
+            b = base_ins[i] if i < len(base_ins) else {}
+            kind = t.get("diff_kind") or b.get("diff_kind") or "NONE"
+            if kind in ("NONE", "EQUAL"):
+                continue
+            t_inst = t.get("instruction") or {}
+            b_inst = b.get("instruction") or {}
+
+            def _fmt(inst):
+                if not inst:
+                    return "---"
+                addr = inst.get("address")
+                txt = inst.get("formatted", "?")
+                if isinstance(addr, int):
+                    addr_s = f"0x{addr:X}"
+                else:
+                    addr_s = str(addr) if addr is not None else ""
+                return f"{addr_s}: {txt}".strip(": ")
+            print(f"   {_fmt(b_inst):<42s}  |  {_fmt(t_inst):>42s}  [{kind}]")
+            shown += 1
+            if shown >= 80:
+                print(f"   ... and more (truncated)")
+                break
+        print(f"   {'-' * 91}")
+
     # Phase 2: record this variant's outcome for the attempts cap
     _record_attempt(func, c_file, len(mismatches))
 
@@ -1011,7 +1061,19 @@ def _launch_permuter_background(c_file: Path, func: str, cluster: bool = False) 
     wants to fire-and-forget a permuter-territory near-miss without burning
     the local CPU budget. A `permuter-<func>.cluster` marker file is created
     so `budget` and `permute-stop` can distinguish cluster jobs from local.
+
+    Honors the dispatch-disabled toggle at tools/viz/permuter_mode.txt — when
+    that file's contents start with "off", refuses to launch and exits with
+    a hint so the calling agent falls through to log-stuck (with the
+    permuter-queued tag) for later batch processing.
     """
+    mode_path = ROOT / "tools" / "viz" / "permuter_mode.txt"
+    if mode_path.exists() and mode_path.read_text(encoding="utf-8").strip().lower().startswith("off"):
+        print(f"[permute] permuter dispatch is OFF (toggle in viz). Skipping launch for {func}.")
+        print(f"[permute] Run log-stuck with --tags=permuter-queued (or permuter-queued-cluster) instead:")
+        print(f"  python tools/permute.py log-stuck {func} --tags=permuter-queued,regalloc \\")
+        print(f"      --diagnosis=\"<your near-miss diagnosis>\"")
+        sys.exit(2)
     nm_dir = ROOT / "nonmatchings" / func
     if not nm_dir.exists():
         # Run import.py to set up the dir (similar to cmd_permute)
@@ -1114,6 +1176,10 @@ def _launch_permuter_background(c_file: Path, func: str, cluster: bool = False) 
     print(f"[permute] launched permuter (wsl pid {wsl_pid}, win pid {proc.pid})")
     print(f"[permute] logs: {rel(log_path).as_posix()}")
     print(f"[permute] stop with: python tools/permute.py permute-stop {func}")
+    # No viz emit here — the poller (tools/viz/poll.py) is the single source
+    # of truth for permuter_start/stop, driven by pidfile presence. That way
+    # cluster permuters that die immediately on "connection refused" don't
+    # leave phantom machines in the farm.
 
 
 def shlex_quote(s: str) -> str:
@@ -1465,6 +1531,7 @@ def cmd_permute_stop(args: argparse.Namespace) -> None:
     if not killed:
         sys.exit(f"no pidfiles for {args.func} — was permuter launched?")
     print(f"[permute-stop] killed {', '.join(killed)}")
+    # permuter_stop comes from the poller next tick (pidfile is gone now).
 
 
 def _newest_output_mtime(func: str) -> Optional[float]:
@@ -3245,7 +3312,11 @@ def cmd_picker(args: argparse.Namespace) -> None:
             if differing_tus is not None and unit_short not in differing_tus:
                 skipped_no_diff += 1
                 continue
-            if differing_tus is not None and func_name and _upstream_already_matched(unit_short, func_name):
+            # Skip already-matched-in-upstream — saves agent time, the prep
+            # gate would refuse anyway. Auto-on under --source-differs-upstream;
+            # also exposed as standalone --skip-upstream-matched flag.
+            if (differing_tus is not None or getattr(args, "skip_upstream_matched", False)) \
+                    and func_name and _upstream_already_matched(unit_short, func_name):
                 skipped_upstream_matched += 1
                 continue
 
@@ -3262,6 +3333,8 @@ def cmd_picker(args: argparse.Namespace) -> None:
     if differing_tus is not None:
         suffix = (f"  (source-differs-upstream: {len(differing_tus)} TUs differ; "
                   f"{skipped_no_diff} fns wrong-TU; {skipped_upstream_matched} fns already matched upstream)")
+    elif getattr(args, "skip_upstream_matched", False):
+        suffix = f"  (skipped {skipped_upstream_matched} fns already matched upstream)"
     print(f"# {len(rows)} {args.mode} functions (showing first {args.limit}){suffix}")
     print(f"{'instructions':>12}  {'match%':>7}  function name")
     for _, r in rows[: args.limit]:
@@ -3509,6 +3582,7 @@ def cmd_permute(args: argparse.Namespace) -> None:
     print()
     print("To run permuter:")
     print(f"  {run_cmd}")
+    # Manual `permute` command: viz observes via poller, not from this path.
 
 
 _PLACEHOLDER_NAME_RX = re.compile(r"^[A-Za-z][A-Za-z0-9_]*?_(?:[0-9A-Fa-f]{8})$|^fn_[0-9A-Fa-f]{8}$")
@@ -4252,6 +4326,11 @@ def main() -> None:
         dest="force_permute",
         help="dispatch --auto-permute even when reloc-symbol mismatches dominate (default: refuse, since permuter scorer treats them as equivalent and the run will plateau)",
     )
+    pd.add_argument(
+        "--paired",
+        action="store_true",
+        help="after the mismatch list, also print a side-by-side OURS|TARGET view of mismatching instructions (easier to read regalloc swaps)",
+    )
     pd.set_defaults(handler=cmd_diff)
 
     pcm = sub.add_parser("commit-match", help="verify 100%% match in both objdiff + report.json, then commit (refuses otherwise)")
@@ -4408,6 +4487,12 @@ def main() -> None:
         help=("only include functions whose TU source differs from upstream/master. "
               "Filters out TUs where source is identical (so any non-100%% is build-env "
               "or neighbor-TU layout, not source-shape work for a subagent)."),
+    )
+    ppk.add_argument(
+        "--skip-upstream-matched", action="store_true",
+        dest="skip_upstream_matched",
+        help=("skip funcs already matched in upstream/master. The prep gate would "
+              "refuse them anyway — pre-filtering here saves a subagent dispatch."),
     )
     ppk.set_defaults(handler=cmd_picker)
 

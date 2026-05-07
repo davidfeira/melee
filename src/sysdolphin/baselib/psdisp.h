@@ -6,8 +6,10 @@
 
 #include <dolphin/gx.h>
 
+#include "baselib/psstructs.h"
+
 void psDispParticles(s32, u32);
-UNK_T particleSort(s32, u8, UNK_T*, UNK_T*);
+HSD_Particle* particleSort(s32, u8, HSD_Particle**, HSD_Particle**);
 void setVtxDesc(s32);
 
 #endif

@@ -1363,7 +1363,33 @@ void ftColl_80078538(Fighter_GObj* gobj, Vec3* pos, u32 dmg, float ignored,
 
 void ftColl_8007861C(Fighter_GObj* arg0, Fighter_GObj* gobj, int arg2,
                      int arg3, int arg4, UNK_T arg5, int arg6, UNK_T arg7,
-                     int arg8);
+                     int arg8)
+{
+    Fighter* src_fp = arg0 != NULL ? (Fighter*) arg0->user_data : NULL;
+    Fighter* fp = gobj->user_data;
+    s32 saved_source_ply = fp->dmg.x18c4_source_ply;
+    s32 var_r30 = 0;
+
+    if (src_fp != NULL) {
+        fp->dmg.x18C0 = (src_fp == fp) ? 0 : src_fp->x8_spawnNum;
+        fp->dmg.x18c4_source_ply = src_fp->player_id;
+        fp->dmg.x18C8 = -1;
+        fp->x221F_b5 = src_fp->x221F_b4;
+    } else {
+        fp->dmg.x18C0 = 0;
+        fp->dmg.x18C8 = -1;
+        if (arg8 == 0) {
+            fp->dmg.x18c4_source_ply = 6;
+        }
+    }
+    fp->dmg.x18CC = arg2;
+    fp->dmg.x18D0 = arg3;
+    if (arg7 != NULL && ((s32*) arg7)[2] == 0) {
+        var_r30 = 1;
+    }
+    pl_80038144((HSD_GObj*) arg0, (HSD_GObj*) gobj, arg4,
+                (ft_800898B4_t*) arg5, (u16) arg6, var_r30, saved_source_ply);
+}
 
 void ftColl_80078710(Fighter_GObj* arg0, Fighter_GObj* arg1, UNK_T arg2)
 {

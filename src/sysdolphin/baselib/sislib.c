@@ -1169,6 +1169,208 @@ end:
     return sis_data;
 }
 
+s32 HSD_SisLib_803A70A0(HSD_Text* text, s32 entry_idx, char* fmt, ...)
+{
+    s8 sp110[0x80];
+    u8 sp90[0x80];
+    s32 sp8C;
+    s32 var_r26;
+    s32 var_r28;
+    u8* var_r30;
+    sislib_UnkAllocData* alloc;
+    u8* entry;
+    va_list args;
+    u8* data_start;
+    s32 delta;
+    s32 dist_from_entry;
+    u8* new_buf;
+    u8* copy_src;
+    u8* copy_dst;
+    s32 copy_i;
+    u8 copy_b;
+    u8* bwd_src;
+    u8* bwd_dst;
+    s32 bwd_n;
+    u32 bwd_loops;
+    u8 bwd_b;
+    s32 shrink;
+    s32 tail;
+    s32 fwd_i;
+    u8* fwd_src;
+    u8* fwd_dst;
+    u8* fwd_src2;
+    u32 fwd_cnt;
+    u8 fwd_b7;
+    u8 fwd_b;
+    s32 enc_i;
+    u8* enc_src;
+    u8* enc_src2;
+    u32 enc_cnt;
+    u8 enc_b7;
+    u8 enc_b;
+
+    var_r26 = 0;
+    entry = fn_803A6FEC((u8*) text->sis_buffer, entry_idx, &sp8C);
+    if (entry != NULL) {
+        alloc = text->alloc_data;
+        var_r30 = entry + 0xE;
+        if (fmt != NULL) {
+            va_start(args, fmt);
+            vsnprintf((char*) sp110, -1U, fmt, args);
+            var_r28 = HSD_SisLib_803A67EC(sp90, (u8*) sp110);
+        } else {
+            var_r28 = 0;
+        }
+        if (sp8C < var_r28) {
+            delta = var_r28 - sp8C;
+            dist_from_entry = (s32)((u8*) alloc->data_0 - var_r30);
+            data_start = (u8*) alloc->data_1;
+            if ((u32) alloc->size <
+                (u32)(var_r28 + ((s32)((u8*) alloc->data_0 - data_start) + 1)))
+            {
+                alloc->size =
+                    alloc->size +
+                    ((((u32)((var_r28 + ((s32)((u8*) alloc->data_0 - data_start) + 1)) -
+                             alloc->size) >>
+                       7U) +
+                      1)
+                     << 7);
+                new_buf = HSD_SisLib_803A5798((s32) alloc->size);
+                copy_src = data_start;
+                copy_dst = new_buf;
+                copy_i = 0;
+                while (copy_i <
+                       (s32)(((u8*) alloc->data_0 - (u8*) alloc->data_1) + 1)) {
+                    copy_b = *copy_src;
+                    copy_i += 1;
+                    copy_src += 1;
+                    *copy_dst = copy_b;
+                    copy_dst += 1;
+                }
+                alloc->data_1 = (HSD_Text*) new_buf;
+                text->sis_buffer = (SIS*) new_buf;
+                alloc->data_0 =
+                    (sislib_UnkAllocData*) (new_buf +
+                                            ((u8*) alloc->data_0 - data_start));
+                HSD_SisLib_803A594C(data_start);
+                var_r30 = (u8*) alloc->data_0 - dist_from_entry;
+            }
+            bwd_src = var_r30 + dist_from_entry;
+            bwd_dst = bwd_src + delta;
+            bwd_n = dist_from_entry;
+            bwd_loops = (u32) bwd_n >> 3U;
+            if (bwd_loops != 0) {
+                do {
+                    bwd_b = bwd_src[0];
+                    bwd_dst[0] = bwd_b;
+                    bwd_dst[-1] = bwd_src[-1];
+                    bwd_dst[-2] = bwd_src[-2];
+                    bwd_dst[-3] = bwd_src[-3];
+                    bwd_dst[-4] = bwd_src[-4];
+                    bwd_dst[-5] = bwd_src[-5];
+                    bwd_dst[-6] = bwd_src[-6];
+                    bwd_b = bwd_src[-7];
+                    bwd_src -= 8;
+                    bwd_dst[-7] = bwd_b;
+                    bwd_dst -= 8;
+                    bwd_loops -= 1;
+                } while (bwd_loops != 0);
+                bwd_n &= 7;
+                if (bwd_n == 0) {
+                    goto grow_done;
+                }
+            }
+            do {
+                bwd_b = *bwd_src;
+                bwd_src -= 1;
+                *bwd_dst = bwd_b;
+                bwd_dst -= 1;
+                bwd_n -= 1;
+            } while (bwd_n != 0);
+grow_done:
+            alloc->data_0 = (sislib_UnkAllocData*) ((u8*) alloc->data_0 + delta);
+        } else if (sp8C > var_r28) {
+            shrink = sp8C - var_r28;
+            tail = (s32)((u8*) alloc->data_0 - var_r30);
+            fwd_i = 0;
+            if (tail > 0) {
+                if (tail > 8) {
+                    fwd_src = var_r30 + shrink;
+                    if ((tail - 8) > 0) {
+                        u32 fwd_loops = (u32)((tail - 8 + 7)) >> 3U;
+                        do {
+                            fwd_dst = var_r30 + fwd_i;
+                            fwd_i += 8;
+                            fwd_dst[0] = fwd_src[0];
+                            fwd_dst[1] = fwd_src[1];
+                            fwd_dst[2] = fwd_src[2];
+                            fwd_dst[3] = fwd_src[3];
+                            fwd_dst[4] = fwd_src[4];
+                            fwd_dst[5] = fwd_src[5];
+                            fwd_dst[6] = fwd_src[6];
+                            fwd_b7 = fwd_src[7];
+                            fwd_src += 8;
+                            fwd_dst[7] = fwd_b7;
+                            fwd_loops -= 1;
+                        } while (fwd_loops != 0);
+                    }
+                }
+                fwd_src2 = var_r30 + shrink + fwd_i;
+                fwd_cnt = tail - fwd_i;
+                fwd_dst = var_r30 + fwd_i;
+                if (fwd_i < tail) {
+                    do {
+                        fwd_b = *fwd_src2;
+                        fwd_src2 += 1;
+                        *fwd_dst = fwd_b;
+                        fwd_dst += 1;
+                        fwd_cnt -= 1;
+                    } while (fwd_cnt != 0);
+                }
+            }
+            alloc->data_0 = (sislib_UnkAllocData*) ((u8*) alloc->data_0 - shrink);
+        }
+        enc_i = 0;
+        if (var_r28 > 0) {
+            if (var_r28 > 8) {
+                enc_src = sp90;
+                if ((var_r28 - 8) > 0) {
+                    u32 enc_loops = (u32)((var_r28 - 8 + 7)) >> 3U;
+                    do {
+                        enc_i += 8;
+                        var_r30[0] = enc_src[0];
+                        var_r30[1] = enc_src[1];
+                        var_r30[2] = enc_src[2];
+                        var_r30[3] = enc_src[3];
+                        var_r30[4] = enc_src[4];
+                        var_r30[5] = enc_src[5];
+                        var_r30[6] = enc_src[6];
+                        enc_b7 = enc_src[7];
+                        enc_src += 8;
+                        var_r30[7] = enc_b7;
+                        var_r30 += 8;
+                        enc_loops -= 1;
+                    } while (enc_loops != 0);
+                }
+            }
+            enc_src2 = &sp90[enc_i];
+            enc_cnt = var_r28 - enc_i;
+            if (enc_i < var_r28) {
+                do {
+                    enc_b = *enc_src2;
+                    enc_src2 += 1;
+                    *var_r30 = enc_b;
+                    var_r30 += 1;
+                    enc_cnt -= 1;
+                } while (enc_cnt != 0);
+            }
+        }
+        *var_r30 = 0xF;
+        var_r26 = 1;
+    }
+    return var_r26;
+}
+
 void HSD_SisLib_803A746C(HSD_Text* text, s32 entry_idx, f32 new_x, f32 new_y)
 {
     s32 x;

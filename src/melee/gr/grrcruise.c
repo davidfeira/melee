@@ -737,8 +737,8 @@ void grRCruise_8020071C(Ground_GObj* gobj)
 
 void grRCruise_80200B48(Ground_GObj* gobj)
 {
-    Ground* gp = gobj->user_data;
     s32 i;
+    Ground* gp = gobj->user_data;
 
     for (i = 0; i < 17; i++) {
         struct grRCruise_Entry* entry = &gp->gv.rcruise.entries[i];

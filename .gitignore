@@ -76,6 +76,15 @@ clean.bat
 # Epilogue hack folder
 epilogue/
 
+# Viz event stream + hook payload debug log (local-only, regenerated)
+tools/viz/events.jsonl
+tools/viz/events.jsonl.*
+tools/viz/hook_payloads.jsonl
+
+# Permuter / objdiff scratch
+tmp_*.json
+tmp_pr_body.md
+
 # Local interactive-decomp tooling sandbox
 build-linux/
 .venv-embeddings/

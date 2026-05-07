@@ -18,6 +18,12 @@ typedef struct DefragJob {
     HSD_DevComCallback x3C_callback;
 } DefragJob;
 
+typedef struct FreeNode {
+    void* x0;
+    void* x4;
+    void* x8;
+} FreeNode;
+
 struct Allocator {
     void* x0_arenaLo;
     void* x4_arenaHi;
@@ -25,7 +31,7 @@ struct Allocator {
     Handle* x62C_free_mem;
     s32 x630_num_allocs;
     s32 x634_max_num_allocs;
-    u8 x638[0x698 - 0x638];
+    Handle x638_handles[6];
     Handle* x698_free_heap;
     Handle* x69C;
     DefragJob x6A0_job;
@@ -344,4 +350,61 @@ void lbMemory_800155A4(void)
     }
     PUSH_HANDLE(&g_alloc.x698_free_heap, handle);
     g_alloc.x69C = NULL;
+}
+
+void lbMemory_8001564C(void)
+{
+    FreeNode* nodes = (FreeNode*)&g_alloc;
+    u32 sp14;
+    s32 i;
+    FreeNode* p;
+
+    g_alloc.x0_arenaLo = (void*)ARAlloc(0x20U);
+    ARFree(&sp14);
+    g_alloc.x4_arenaHi =
+        (ARGetSize() <= 0x01000000U) ? (void*)ARGetSize() : (void*)0x01000000U;
+
+    g_alloc.x62C_free_mem = (Handle*)&nodes[0].x8;
+
+    i = 0;
+    p = nodes;
+    do {
+        p[0].x8 = &nodes[i + 1].x8;
+        p[1].x8 = &nodes[i + 2].x8;
+        p[2].x8 = &nodes[i + 3].x8;
+        p[3].x8 = &nodes[i + 4].x8;
+        p[4].x8 = &nodes[i + 5].x8;
+        p[5].x8 = &nodes[i + 6].x8;
+        p[6].x8 = &nodes[i + 7].x8;
+        p[7].x8 = &nodes[i + 8].x8;
+        p[8].x8 = &nodes[i + 9].x8;
+        p[9].x8 = &nodes[i + 10].x8;
+        p[10].x8 = &nodes[i + 11].x8;
+        p[11].x8 = &nodes[i + 12].x8;
+        p[12].x8 = &nodes[i + 13].x8;
+        p[13].x8 = &nodes[i + 14].x8;
+        p[14].x8 = &nodes[i + 15].x8;
+        p[15].x8 = &nodes[i + 16].x8;
+        p += 16;
+        i += 16;
+    } while (i < 0x80);
+
+    for (; i < 0x82; i++, p++) {
+        p->x8 = &nodes[i + 1].x8;
+    }
+    nodes[i].x8 = NULL;
+
+    g_alloc.x634_max_num_allocs = 0;
+    g_alloc.x630_num_allocs = 0;
+    g_alloc.x698_free_heap = &g_alloc.x638_handles[0];
+    g_alloc.x638_handles[0].x0_next = &g_alloc.x638_handles[1];
+    g_alloc.x638_handles[1].x0_next = &g_alloc.x638_handles[2];
+    g_alloc.x638_handles[2].x0_next = &g_alloc.x638_handles[3];
+    g_alloc.x638_handles[3].x0_next = &g_alloc.x638_handles[4];
+    g_alloc.x638_handles[4].x0_next = &g_alloc.x638_handles[5];
+    g_alloc.x638_handles[5].x0_next = NULL;
+    g_alloc.x69C = NULL;
+
+    g_alloc.x69C = lbMemory_80014E24(g_alloc.x0_arenaLo, g_alloc.x4_arenaHi);
+    g_alloc.x6A0_job.x30_size = 0;
 }

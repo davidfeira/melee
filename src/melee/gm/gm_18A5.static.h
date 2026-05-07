@@ -206,12 +206,19 @@ struct {
 } lbl_803D9F0C = { -1, -1, -1 };
 
 struct lbl_803DA0D0_t {
-    /* 0x00 */ u8 icon_model_map[0x18];
-    /* 0x18 */ u8 pad_0x18[0x1E - 0x18];
-    /* 0x1E */ u8 rank_thresholds[32][6];
-    /* 0xDE */ u8 pad_0xDE[0xE0 - 0xDE];
-    /* 0xE0 */ f32 bounce_y[41];
-}; /* size = 0x184 */
-STATIC_ASSERT(sizeof(struct lbl_803DA0D0_t) == 0x184);
+    /* 0x000 */ u8 icon_model_map[0x18];
+    /* 0x018 */ u8 pad_0x18[0x1E - 0x18];
+    /* 0x01E */ u8 rank_thresholds[32][6];
+    /* 0x0DE */ u8 pad_0xDE[0xE0 - 0xDE];
+    /* 0x0E0 */ f32 bounce_y[41];
+    /* 0x184 */ char unk_0x184[0x190 - 0x184];
+    /* 0x190 */ char scene_data_name[0x1A8 - 0x190];
+    /* 0x1A8 */ char tmbox_dat[0x1B4 - 0x1A8];
+    /* 0x1B4 */ char box2_array_name[0x1CC - 0x1B4];
+    /* 0x1CC */ char box3_array_name[0x1E4 - 0x1CC];
+    /* 0x1E4 */ char box4_array_name[0x1FC - 0x1E4];
+    /* 0x1FC */ char sis_data_name[0x210 - 0x1FC];
+}; /* size = 0x210 */
+STATIC_ASSERT(sizeof(struct lbl_803DA0D0_t) == 0x210);
 
 extern struct lbl_803DA0D0_t lbl_803DA0D0;

@@ -382,7 +382,7 @@ void ftCo_8009D81C(Fighter* fp)
             lb_8000FD48(fp->parts[desc->bone_id].joint,
                         &fp->dynamic_bone_sets[i].dyn_desc,
                         desc->dyn_desc.count);
-            desc->bone_id = FtPart_TopN;
+            fp->dynamic_bone_sets[i].bone_id = 0;
             lb_80011710(
                 &data->hat_dynamics[3]->ftDynamicBones->array[i].dyn_desc,
                 &fp->dynamic_bone_sets[i].dyn_desc);

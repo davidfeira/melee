@@ -2163,26 +2163,29 @@ void un_80308328(s32 arg0)
 {
     un_803063D4((s16) arg0, 2, 0x128);
 }
-/* 68.1% match */
 s16 un_80308354(s16 idx)
 {
     s32 i;
     s16 target;
     TrophyData* entry;
+    s32 ctr;
 
     target = un_804D6EDC[idx];
     entry = un_804D6EC4;
+    i = 0;
+    ctr = 0x125;
 
-    for (i = 0; i < 0x125; i++) {
+    do {
         if (target == entry->id) {
             break;
         }
         entry++;
-    }
+        i++;
+    } while (--ctr);
 
     if (i == 0x125) {
-        OSReport(un_803FE474);
-        __assert(un_804D5A48, 0xC2A, un_804D5A50);
+        OSReport(un_803FE474, target);
+        __assert("toy.c", 0xC2A, "0");
     }
 
     return target;

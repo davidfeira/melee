@@ -491,7 +491,97 @@ void grGreens_80214FA8(Ground_GObj* gobj)
     }
 }
 
-/// #grGreens_802150C4
+void grGreens_802150C4(Ground_GObj* gobj, int arg1, int arg2)
+{
+    Ground* gp = (Ground*) gobj->user_data;
+    u32 base;
+    u32 diag_row;
+    int diag_col;
+    int cur_col;
+    int cur_row;
+    u32 cur_block;
+
+    if (arg2 > 0 && arg1 > 0) {
+        base = (u32) gp->gv.greens.x8_blocks;
+        diag_row = base + (arg2 - 1) * 0xC0;
+        diag_col = (arg1 - 1) << 5;
+        if ((u32) ((*(u8*) (diag_row + diag_col) >> 4) & 0xF) == 3) {
+            cur_col = arg1 << 5;
+            if ((u32) ((*(u8*) (diag_row + cur_col) >> 4) & 0xF) == 3) {
+                cur_block = base + arg2 * 0xC0 + cur_col;
+                mpLib_800581DC(*(int*) (cur_block - 0xC8),
+                               *(int*) (cur_block - 0xA8));
+            } else {
+                cur_row = arg2 * 0xC0;
+                if ((u32) ((*(u8*) (base + cur_row + diag_col) >> 4) & 0xF) == 3) {
+                    cur_block = base + cur_row + cur_col;
+                    mpLib_800581DC(*(int*) (cur_block - 0xC8),
+                                   *(int*) (cur_block - 0x8));
+                }
+            }
+        }
+    }
+    if (arg2 < 4 && arg1 > 0) {
+        base = (u32) gp->gv.greens.x8_blocks;
+        diag_row = base + (arg2 + 1) * 0xC0;
+        diag_col = (arg1 - 1) << 5;
+        if ((u32) ((*(u8*) (diag_row + diag_col) >> 4) & 0xF) == 3) {
+            cur_col = arg1 << 5;
+            if ((u32) ((*(u8*) (diag_row + cur_col) >> 4) & 0xF) == 3) {
+                cur_block = base + arg2 * 0xC0 + cur_col;
+                mpLib_800581DC(*(int*) (cur_block + 0xB8),
+                               *(int*) (cur_block + 0xD8));
+            } else {
+                cur_row = arg2 * 0xC0;
+                if ((u32) ((*(u8*) (base + cur_row + diag_col) >> 4) & 0xF) == 3) {
+                    cur_block = base + cur_row + cur_col;
+                    mpLib_800581DC(*(int*) (cur_block + 0xB8),
+                                   *(int*) (cur_block - 0x8));
+                }
+            }
+        }
+    }
+    if (arg2 > 0 && arg1 < 5) {
+        base = (u32) gp->gv.greens.x8_blocks;
+        diag_row = base + (arg2 - 1) * 0xC0;
+        diag_col = (arg1 + 1) << 5;
+        if ((u32) ((*(u8*) (diag_row + diag_col) >> 4) & 0xF) == 3) {
+            cur_col = arg1 << 5;
+            if ((u32) ((*(u8*) (diag_row + cur_col) >> 4) & 0xF) == 3) {
+                cur_block = base + arg2 * 0xC0 + cur_col;
+                mpLib_800581DC(*(int*) (cur_block - 0x88),
+                               *(int*) (cur_block - 0xA8));
+            } else {
+                cur_row = arg2 * 0xC0;
+                if ((u32) ((*(u8*) (base + cur_row + diag_col) >> 4) & 0xF) == 3) {
+                    cur_block = base + cur_row + cur_col;
+                    mpLib_800581DC(*(int*) (cur_block - 0x88),
+                                   *(int*) (cur_block + 0x38));
+                }
+            }
+        }
+    }
+    if (arg2 < 4 && arg1 < 5) {
+        base = (u32) gp->gv.greens.x8_blocks;
+        diag_row = base + (arg2 + 1) * 0xC0;
+        diag_col = (arg1 + 1) << 5;
+        if ((u32) ((*(u8*) (diag_row + diag_col) >> 4) & 0xF) == 3) {
+            cur_col = arg1 << 5;
+            if ((u32) ((*(u8*) (diag_row + cur_col) >> 4) & 0xF) == 3) {
+                cur_block = base + arg2 * 0xC0 + cur_col;
+                mpLib_800581DC(*(int*) (cur_block + 0xF8),
+                               *(int*) (cur_block + 0xD8));
+                return;
+            }
+            cur_row = arg2 * 0xC0;
+            if ((u32) ((*(u8*) (base + cur_row + ((arg1 - 1) << 5)) >> 4) & 0xF) == 3) {
+                cur_block = base + cur_row + cur_col;
+                mpLib_800581DC(*(int*) (cur_block + 0xF8),
+                               *(int*) (cur_block + 0x38));
+            }
+        }
+    }
+}
 
 void grGreens_80215358(Ground_GObj* gobj, int i, int j, int arg3, int arg4)
 {
@@ -968,16 +1058,23 @@ void fn_80216DE4(Ground* gp, s32 arg1, CollData* arg2, s32 arg3,
                  enum mpLib_GroundEnum arg4, f32 farg0)
 {
     int i;
+    int ioff;
     int j;
+    int joff;
+    struct grGreens_BlockVars* block;
     for (i = 0; i < 5; i++) {
+        ioff = i * 0xC0;
+        joff = 0;
         for (j = 0; j < 6; j++) {
-            if (getBlock(gp, i, j)->status != Gr_Greens_Block_Status_None &&
-                arg1 == getBlock(gp, i, j)->x18)
+            block = (struct grGreens_BlockVars*) ((u8*) gp->gv.greens.x8_blocks + ioff + joff);
+            if (block->status != Gr_Greens_Block_Status_None &&
+                arg1 == block->x18)
             {
-                getBlock(gp, i, j)->x1_4 = 1;
+                ((struct grGreens_BlockVars*) ((u8*) gp->gv.greens.x8_blocks + ioff + (j << 5)))->x1_4 = 1;
                 i = 5;
                 break;
             }
+            joff += 0x20;
         }
     }
 }

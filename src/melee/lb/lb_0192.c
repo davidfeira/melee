@@ -232,6 +232,54 @@ void fn_800195FC(void)
     lbSnap_8001D2BC();
 }
 
+void lb_80019628(void)
+{
+    if (lb_804329F0.x38 != lb_804329F0.x0[0].x0) {
+        u32 rate;
+        OSTime period;
+        lb_804329F0.x0[0].x0 = lb_804329F0.x38;
+        if (lb_804329F0.x0[0].x8 >= lb_804329F0.x0[0].x0) {
+            lb_804329F0.x0[0].x8 = 0;
+        }
+        period = (OSTime)__cvt_dbl_usll(
+            (f64)(f32)((u32)*(u32*)0x800000F8 >> 2u));
+        if (lb_804329F0.x0[0].x0 < period) {
+            period = lb_804329F0.x0[0].x0;
+        }
+        if (lb_804329F0.x0[1].x0 < period) {
+            period = lb_804329F0.x0[1].x0;
+        }
+        if (period >= (OSTime)__cvt_dbl_usll(
+                (f64)(0.016666668f * (f32)((u32)*(u32*)0x800000F8 >> 2u)))) {
+            period = (OSTime)__cvt_dbl_usll(
+                (f64)(0.016666668f * (f32)((u32)*(u32*)0x800000F8 >> 2u)));
+        }
+        if (lb_804329F0.x40 != (u64)period) {
+            lb_804329F0.x40 = (u64)period;
+            rate = (u32)((s64)lb_804329F0.x40 /
+                         (s64)((u32)(((u64)0x10624DD3 *
+                                      ((u32)*(u32*)0x800000F8 >> 2u)) >>
+                                     32) >>
+                               6));
+            if (rate > 0xB) {
+                rate = 0xB;
+            }
+            if (lb_804329F0.x4 != rate) {
+                PADSetSamplingRate(rate);
+                lb_804329F0.x4 = rate;
+            }
+            if (lb_804329F0.x48 != 0) {
+                OSCancelAlarm(&lb_804329F0.alarm);
+            }
+            OSCreateAlarm(&lb_804329F0.alarm);
+            OSSetPeriodicAlarm(&lb_804329F0.alarm, lb_804329F0.x40,
+                               lb_804329F0.x40,
+                               (OSAlarmHandler)fn_800195FC);
+            lb_804329F0.x48 = 1;
+        }
+    }
+}
+
 void lb_80019880(u64 arg0)
 {
     lb_804329F0.x38 = arg0;

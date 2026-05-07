@@ -447,6 +447,68 @@ void fn_8024AED0(HSD_GObj* arg0)
 extern HSD_Archive* mn_804D6BB8;
 extern void* mnSoundTest_804A08C8[4];
 
+void mnSoundTest_8024BCA0(void)
+{
+    HSD_JObj* sp24;
+    void** temp_r29;
+    HSD_GObj* temp_r30;
+    HSD_JObj* temp_r28;
+    soundtest_user_data* temp_r29_2;
+    HSD_Text* temp_r3;
+    HSD_GObjProc* temp_r3_2;
+    soundtest_user_data* temp_r28_2;
+    u8 temp_r29_3;
+    u8 temp_r0;
+
+    temp_r29 = mnSoundTest_804A08C8;
+    temp_r30 = GObj_Create(6U, 7U, 0x80U);
+    mnSoundTest_804D6C40 = temp_r30;
+    temp_r28 = HSD_JObjLoadJoint(temp_r29[0]);
+    HSD_GObjObject_80390A70(temp_r30, HSD_GObj_804D7849, temp_r28);
+    GObj_SetupGXLink(temp_r30, HSD_GObj_JObjCallback, 4U, 0x80U);
+    HSD_JObjAddAnimAll(temp_r28, temp_r29[1], temp_r29[2], temp_r29[3]);
+    HSD_JObjReqAnimAll(temp_r28, vec_0.x);
+    HSD_JObjAnimAll(temp_r28);
+    temp_r3_2 = HSD_GObj_SetupProc(temp_r30, fn_8024BAF0, 0U);
+    temp_r3_2->flags_3 = HSD_GObj_804D783C;
+    temp_r28_2 = HSD_MemAlloc(0x20);
+    if (temp_r28_2 == NULL) {
+        OSReport("Can't get user_data.\n");
+        __assert("mnsoundtest.c", 0x5F4, "user_data");
+    }
+    temp_r28_2->unk1 = 0;
+    temp_r28_2->unk2 = 0x50;
+    temp_r28_2->unk4 = 0;
+    temp_r28_2->unk3 = 0U;
+    temp_r28_2->unk0 = 0U;
+    temp_r28_2->unk8 = 1.0f;
+    temp_r28_2->unkC = 1.0f;
+    temp_r28_2->unk10 = 0;
+    temp_r28_2->unk14 = NULL;
+    temp_r28_2->unk18 = NULL;
+    temp_r28_2->unk1C = NULL;
+    GObj_InitUserData(temp_r30, 0U, HSD_Free, temp_r28_2);
+    temp_r29_2 = mnSoundTest_804D6C40->user_data;
+    temp_r3 = temp_r29_2->unk10;
+    if (temp_r3 != NULL) {
+        HSD_SisLib_803A5CC4(temp_r3);
+    }
+    temp_r3 = HSD_SisLib_803A5ACC(0, 1, -9.5f, 9.1f, 17.0f, 364.68332f, 38.38772f);
+    temp_r29_2->unk10 = temp_r3;
+    temp_r3->font_size.x = 0.0521f;
+    temp_r3->font_size.y = 0.0521f;
+    HSD_SisLib_803A6368(temp_r3, 0xBE);
+    temp_r29_3 = temp_r28_2->unk0;
+    mnSoundTest_8024ABF8(temp_r30, (u8) (-(s32) temp_r29_3 == 0));
+    mnSoundTest_8024AD58(temp_r30, temp_r29_3);
+    temp_r0 = temp_r28_2->unk3;
+    temp_r29_3 = data_3[temp_r0];
+    lb_80011E24((HSD_JObj*) temp_r30->hsd_obj, &sp24, 0x15, -1);
+    HSD_JObjReqAnimAll(sp24, (f32) data_4[temp_r29_3]);
+    mn_8022F3D8(sp24, 0xFFU, 0xA0);
+    HSD_JObjAnimAll(sp24);
+}
+
 void mnSoundTest_8024BEE0(int arg0)
 {
     HSD_GObjProc* proc;
@@ -471,6 +533,29 @@ void mnSoundTest_8024BEE0(int arg0)
     ((void (*)(int)) mnSoundTest_8024BCA0)(arg0);
     proc = HSD_GObj_SetupProc(GObj_Create(0, 1, 0x80), fn_8024B2B0, 0);
     proc->flags_3 = HSD_GObj_804D783C;
+}
+
+void fn_8024B7E4(HSD_GObj* arg0)
+{
+    HSD_JObj* sp20;
+    HSD_JObj* sp1C;
+    HSD_JObj* sp18;
+    f32 temp_f31;
+    f32 temp_f1;
+    f32 temp_f1_2;
+    f32 temp_f1_3;
+    HSD_JObj* temp_r30;
+
+    temp_r30 = arg0->hsd_obj;
+    lb_80011E24(temp_r30, &sp20, 0xB, -1);
+    lb_80011E24(temp_r30, &sp1C, 2, -1);
+    lb_80011E24(temp_r30, &sp18, 1, -1);
+    temp_f31 = mn_8022EFD8(sp20, (AnimLoopSettings*) &vec_1);
+    temp_f1 = mn_8022EFD8(sp1C, (AnimLoopSettings*) &vec_1);
+    temp_f1_2 = mn_8022EFD8(sp18, (AnimLoopSettings*) &vec_1);
+    if (temp_f31 == ((AnimLoopSettings*) &vec_1)->end_frame) {
+        HSD_GObjPLink_80390228(arg0);
+    }
 }
 
 void fn_8024B8B4(HSD_GObj* arg0)

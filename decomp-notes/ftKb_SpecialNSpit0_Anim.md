@@ -1,12 +1,14 @@
 ---
 function: ftKb_SpecialNSpit0_Anim
 tu: src/melee/ft/chara/ftKirby/ftKb_SpecialN.c
-headline: permuter-queued + scheduler
-tags: [permuter-queued, scheduler, regalloc, sda21-float-collision, sdata2-anonymous-floats, paired-siblings]
+headline: scheduler + regalloc
+tags: [scheduler, regalloc, sdata2-anonymous-floats, float-regalloc, paired-siblings, permuter-resistant]
 ---
-## ftKb_SpecialNSpit0_Anim (`src/melee/ft/chara/ftKirby/ftKb_SpecialN.c`) — permuter-queued + scheduler
+## ftKb_SpecialNSpit0_Anim (`src/melee/ft/chara/ftKirby/ftKb_SpecialN.c`) — scheduler + regalloc
 
-- **Tags:** `permuter-queued`, `scheduler`, `regalloc`, `sda21-float-collision`, `sdata2-anonymous-floats`, `paired-siblings`
-- **Best fuzzy:** 94.5455%
-- **Diagnosis:** 95.08% (5 mismatches: 2 instr-swap lfs/lwz, 2 missing fneg pair, 1 sda21 symbol naming @193 vs ftKb_Init_804D93B0). Frame layout, store ordering (z then y), and access pattern (gobj->user_data->dat_attrs reload after lb_8000B1CC) all matched. Sibling Spit1 matches identically (just tail-call differs: ft_8008A2BC vs ftCo_Fall_Enter). Both functions share inline ftKb_SpecialNSpit0_Anim_inline(). Stack pad uses u8 _pad[60] before attrs + u8 _pad2[8] after. Constant 0.0f compiles to anonymous @193 instead of named ftKb_Init_804D93B0; using extern f32 ftKb_Init_804D93B0 directly causes register reshuffle (f0/f1/f2 perm) and worse match. The two missing fneg instructions are compiler scheduling artifact: target stashes facing_dir into f1 via fneg-then-fneg-back across the f0-clobbering 0.0f load. Not directly expressible from C source. Permuter required for fneg insertion plus lfs/lwz swap.
+- **Tags:** `scheduler`, `regalloc`, `sdata2-anonymous-floats`, `float-regalloc`, `paired-siblings`, `permuter-resistant`
+- **Best fuzzy:** 95.1515%
+- **Diagnosis:** 95.08% (5 mismatches). After two attempts: (1) adding explicit f32 local + double-negation caused 8-byte stack frame growth (MWCC allocated spill slot, not register-only), worsening to 94.8% with 21 mismatches; (2) all structural layouts confirmed correct. Remaining 4 real mismatches are: lfs/lwz order swap (facing_dir load before vs after dat_attrs ptr load) and missing fneg+fneg pair (double-negation scheduling artifact to preserve facing_dir in FPR across 0.0f constant clobber). 5th mismatch is sdata2-anonymous-floats class: @193@sda21 vs ftKb_Init_804D93B0@sda21 (both 0.0f, post-link equivalent). All mismatches are scheduler/regalloc decisions unreachable from C source.
+- **Tried:** (1) f32 facing_dir local + -(-facing_dir) double-neg expression: caused stack frame growth from 0x90 to 0x98, worsened match. Reverted. (2) Analyzed all structural variants: da= vs direct deref, order of vel.x/z/y, and cast patterns. Stack frame 0x90 matches perfectly with current layout (u8 _pad[60] + it_2F28_DatAttrs + u8 _pad2[8]). Function body ordering is correct. Only scheduler issue remains.
+- **Likely fix:** Permuter with fneg-insertion + lfs/lwz reorder. The sdata2-anonymous-floats mismatch is a permuter-false-positive (post-link identical). The real 4 mismatches need permuter to find the register-preservation scheduling pattern.
 

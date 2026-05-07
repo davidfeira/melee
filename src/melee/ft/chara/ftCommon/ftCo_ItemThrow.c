@@ -596,12 +596,14 @@ void ftCo_ItemThrow_Phys(Fighter_GObj* gobj)
 void ftCo_LightThrowDash_Phys(Fighter_GObj* gobj)
 {
     Fighter* fp = GET_FIGHTER(gobj);
-    ftCommonData* cd = p_ftCommonData;
-    if (fp->cur_anim_frame <= cd->x408) {
-        ft_80085030(gobj, cd->x40C * (cd->x404 * fp->co_attrs.gr_friction),
+    if (fp->cur_anim_frame <= p_ftCommonData->x408) {
+        ft_80085030(gobj,
+                    p_ftCommonData->x40C *
+                        (p_ftCommonData->x404 * fp->co_attrs.gr_friction),
                     fp->facing_dir);
     } else {
-        ft_80085030(gobj, p_ftCommonData->x404 * fp->co_attrs.gr_friction,
+        ft_80085030(gobj,
+                    p_ftCommonData->x404 * fp->co_attrs.gr_friction,
                     fp->facing_dir);
     }
 }

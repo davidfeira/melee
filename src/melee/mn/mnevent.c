@@ -82,6 +82,7 @@ void mnEvent_8024D4E0(HSD_JObj* jobj, Vec3* translate)
     HSD_JObjSetTranslate(jobj, translate);
 }
 
+static GXColor mnEvent_804D5028 = { 0xCA, 0xBC, 0x9F, 0xFF };
 static GXColor mnEvent_804D502C = { 0, 0, 0, 0xFF };
 static char mnEvent_803EF7A0[] = { 0x81, 0x7C, 0x81, 0x7C, 0x3A,
                                    0x81, 0x7C, 0x81, 0x7C, 0x20,
@@ -242,6 +243,88 @@ void mnEvent_8024D0CC(HSD_GObj* gobj, s32 event)
     lb_80011E24(tree, &jobj, 4, -1);
     HSD_JObjReqAnimAll(jobj, frame);
     HSD_JObjAnimAll(jobj);
+}
+
+void mnEvent_8024D15C(s32 arg0, s32 arg1)
+{
+    HSD_JObj* jobj_c;
+    HSD_JObj* jobj_d;
+    Vec3 pos2;
+    Vec3 pos;
+    HSD_JObj* jobj_b;
+    HSD_JObj* jobj_a;
+    AnimLoopSettings* base = &mnEvent_803EF740;
+    HSD_JObj* jobj = mnEvent_804D6C60->hsd_obj;
+    MnEventData* data = mnEvent_804D6C60->user_data;
+    s32 slot_off;
+    HSD_GObj** gobj_slot;
+
+    lb_80011E24(jobj, &jobj_a, 0xA, -1);
+    lb_80011E24(jobj, &jobj_b, 0xC, -1);
+
+    HSD_JObjGetTranslation2(jobj_a, &pos);
+    pos.y -= (f32)arg0 * (HSD_JObjGetTranslationY(jobj_b) - HSD_JObjGetTranslationY(jobj_a));
+
+    slot_off = arg0 * 4;
+    gobj_slot = (HSD_GObj**)((char*)data + slot_off + 8);
+    if (*gobj_slot != NULL) {
+        HSD_GObjPLink_80390228(*gobj_slot);
+        *gobj_slot = NULL;
+    }
+
+    if (gmMainLib_8015CEFC(arg1)) {
+        HSD_JObj* jobj2 = mnEvent_804D6C60->hsd_obj;
+        lb_80011E24(jobj2, &jobj_c, 0xA, -1);
+        lb_80011E24(jobj2, &jobj_d, 0xC, -1);
+
+        HSD_JObjGetTranslation2(jobj_c, &pos2);
+        pos2.y += (f32)arg0 * (HSD_JObjGetTranslationY(jobj_d) - HSD_JObjGetTranslationY(jobj_c));
+
+        {
+            HSD_GObj* new_gobj = GObj_Create(6, 7, 0x80);
+            HSD_JObj* new_jobj = HSD_JObjLoadJoint(mnEvent_804A0908);
+            HSD_GObjObject_80390A70(new_gobj, HSD_GObj_804D7849, new_jobj);
+            GObj_SetupGXLink(new_gobj, HSD_GObj_JObjCallback, 4, 0x80);
+            mnEvent_8024D4E0(new_jobj, &pos2);
+            *gobj_slot = new_gobj;
+        }
+    }
+
+    {
+        HSD_Text** text_slot = (HSD_Text**)((char*)data + slot_off + 0x2C);
+        if (*text_slot != NULL) {
+            HSD_SisLib_803A5CC4(*text_slot);
+        }
+        {
+            HSD_Text* text = HSD_SisLib_803A6754(0, 1);
+            *text_slot = text;
+            text->font_size.x = 0.035f;
+            text->font_size.y = 0.035f;
+            text->pos_x = pos.x + *(f32*)((char*)base + 0x24);
+            text->pos_y = pos.y + *(f32*)((char*)base + 0x28);
+            text->pos_z = 17.0f;
+            text->default_kerning = 1;
+            text->text_color = mnEvent_804D5028;
+            HSD_SisLib_803A6B98(text, 0.0f, 0.0f, (char*)base + 0x3C, arg1 + 1);
+        }
+    }
+
+    {
+        HSD_Text** icon_slot = (HSD_Text**)((char*)data + slot_off + 0x50);
+        if (*icon_slot != NULL) {
+            HSD_SisLib_803A5CC4(*icon_slot);
+        }
+        {
+            HSD_Text* icon = HSD_SisLib_803A5ACC(0, 1,
+                pos.x + *(f32*)((char*)base + 0x30),
+                pos.y + *(f32*)((char*)base + 0x34),
+                17.0f, 364.68332f, 38.38772f);
+            *icon_slot = icon;
+            icon->font_size.x = 0.035f;
+            icon->font_size.y = 0.035f;
+            HSD_SisLib_803A6368(icon, ((gm_801BEBA8((u8)arg1) * 2) & 0x1FE) + 0x154);
+        }
+    }
 }
 
 void mnEvent_8024D7E0(HSD_GObj* gobj, s32 idx)
@@ -479,6 +562,66 @@ void fn_8024D864(HSD_GObj* gobj)
             mnEvent_8024D014(target);
         }
     }
+}
+
+void mnEvent_8024E524(s32 event_idx)
+{
+    HSD_JObj* sp1C;
+    HSD_JObj* sp20;
+    HSD_JObj* sp24;
+    HSD_JObj* sp28;
+    HSD_GObj* gobj;
+    HSD_JObj* jobj;
+    MnEventData* data;
+    char* base = (char*) &mnEvent_803EF740;
+    void** arr = mnEvent_804A08F8;
+    HSD_GObj* target;
+    u8 page;
+    u8 idx;
+    s32 first_event;
+    s32 i;
+    f32 ay, by;
+
+    gobj = GObj_Create(6, 7, 0x80);
+    mnEvent_804D6C60 = gobj;
+    jobj = HSD_JObjLoadJoint(arr[0]);
+    HSD_GObjObject_80390A70(gobj, HSD_GObj_804D7849, jobj);
+    GObj_SetupGXLink(gobj, HSD_GObj_JObjCallback, 4, 0x80);
+    HSD_JObjAddAnimAll(jobj, arr[1], arr[2], arr[3]);
+    HSD_JObjReqAnimAll(jobj, 0.0f);
+    HSD_JObjAnimAll(jobj);
+
+    data = HSD_MemAlloc(0x7C);
+    if (data == NULL) {
+        OSReport(base + 0x70);
+        __assert(base + 0x88, 0x39B, base + 0x94);
+    }
+    mnEvent_8024E420(data, event_idx);
+    GObj_InitUserData(gobj, 0, HSD_Free, data);
+
+    page = data->page;
+    lb_80011E24(jobj, &sp20, 0xA, -1);
+    lb_80011E24(jobj, &sp24, 0xC, -1);
+    ay = HSD_JObjGetTranslationY(sp20);
+    by = HSD_JObjGetTranslationY(sp24);
+    lb_80011E24(jobj, &sp28, 0xB, -1);
+    HSD_JObjSetTranslateY(sp28, page * (by - ay));
+
+    HSD_GObj_SetupProc(gobj, fn_8024E34C, 0)->flags_3 = HSD_GObj_804D783C;
+    first_event = data->first_event;
+    for (i = 0; i < 9; i++) {
+        mnEvent_8024D15C(i, first_event + i);
+    }
+
+    idx = gm_801BEBA8(data->first_event + data->page);
+    target = mnEvent_804D6C60;
+    mnEvent_8024D0CC(target, (s8) gm_801BEBF8(idx));
+    mnEvent_8024D7E0(target, idx);
+    mnEvent_8024D5B0(target, idx);
+    lb_80011E24(target->hsd_obj, &sp1C, 9, -1);
+    HSD_JObjReqAnimAll(sp1C, gm_801BEB8C(gm_801BEBC0(idx)));
+    HSD_JObjAnimAll(sp1C);
+    mnEvent_8024D014(target);
 }
 
 void mnEvent_8024E838(int event_idx, int first_time)

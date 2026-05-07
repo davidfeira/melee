@@ -102,3 +102,99 @@ u8 hsd_803B5D70(s32 arg0, s32 arg1)
     } while (var_r26 <= 0x10);
     return 0;
 }
+
+extern u8 lbl_80431638[0x40];
+
+void hsd_803B5EA0(s32 arg0)
+{
+    s32 var_r29;
+    s32 var_r3;
+    s32 len;
+    u32 ctr;
+    u8* var_r6;
+    s32 bits;
+    s32 sym;
+    u8* base;
+
+    base = hsd_804D2E70;
+
+    sym = hsd_803B5D70(0, arg0);
+    if (sym > 0) {
+        var_r3 = hsd_803B5C4C(sym);
+        if (!(var_r3 & (1 << (sym - 1)))) {
+            var_r3 -= (1 << sym) - 1;
+        }
+    } else {
+        var_r3 = 0;
+    }
+    *(s32*)(base + arg0 * 4 + 0x818) += var_r3;
+    var_r29 = 1;
+    *(s32*)(base + 0x718) = *(s32*)(base + arg0 * 4 + 0x818);
+
+    while (var_r29 < 0x40) {
+        bits = hsd_803B5D70(1, arg0);
+        if (bits == 0) {
+            var_r6 = lbl_80431638 + var_r29;
+            len = 0x40 - var_r29;
+            if (var_r29 < 0x40) {
+                ctr = (u32)len >> 3;
+                if (ctr != 0) {
+                    do {
+                        *(s32*)(base + var_r6[0] * 4 + 0x718) = 0;
+                        *(s32*)(base + var_r6[1] * 4 + 0x718) = 0;
+                        *(s32*)(base + var_r6[2] * 4 + 0x718) = 0;
+                        *(s32*)(base + var_r6[3] * 4 + 0x718) = 0;
+                        *(s32*)(base + var_r6[4] * 4 + 0x718) = 0;
+                        *(s32*)(base + var_r6[5] * 4 + 0x718) = 0;
+                        *(s32*)(base + var_r6[6] * 4 + 0x718) = 0;
+                        *(s32*)(base + var_r6[7] * 4 + 0x718) = 0;
+                        var_r6 += 8;
+                        ctr--;
+                    } while (ctr != 0);
+                    len &= 7;
+                    if (len == 0) {
+                        goto exit_loop;
+                    }
+                }
+                do {
+                    *(s32*)(base + *var_r6++ * 4 + 0x718) = 0;
+                    len--;
+                } while (len != 0);
+            }
+            goto exit_loop;
+        } else {
+            u32 count = (u32)hsd_803B5C4C(bits) - 1;
+            ctr = count >> 3;
+            if (ctr != 0) {
+                do {
+                    *(s32*)(base + lbl_80431638[var_r29] * 4 + 0x718) = 0; var_r29++;
+                    *(s32*)(base + lbl_80431638[var_r29] * 4 + 0x718) = 0; var_r29++;
+                    *(s32*)(base + lbl_80431638[var_r29] * 4 + 0x718) = 0; var_r29++;
+                    *(s32*)(base + lbl_80431638[var_r29] * 4 + 0x718) = 0; var_r29++;
+                    *(s32*)(base + lbl_80431638[var_r29] * 4 + 0x718) = 0; var_r29++;
+                    *(s32*)(base + lbl_80431638[var_r29] * 4 + 0x718) = 0; var_r29++;
+                    *(s32*)(base + lbl_80431638[var_r29] * 4 + 0x718) = 0; var_r29++;
+                    *(s32*)(base + lbl_80431638[var_r29] * 4 + 0x718) = 0; var_r29++;
+                    ctr--;
+                } while (ctr != 0);
+                count &= 7;
+                if (count == 0) {
+                    goto done_zeros;
+                }
+            }
+            do {
+                *(s32*)(base + lbl_80431638[var_r29] * 4 + 0x718) = 0; var_r29++;
+                count--;
+            } while (count != 0);
+done_zeros:
+            sym = hsd_803B5D70(1, arg0);
+            var_r3 = hsd_803B5C4C(sym);
+            if (!(var_r3 & (1 << (sym - 1)))) {
+                var_r3 -= (1 << sym) - 1;
+            }
+            *(s32*)(base + lbl_80431638[var_r29] * 4 + 0x718) = var_r3;
+            var_r29++;
+        }
+    }
+exit_loop:;
+}

@@ -1725,7 +1725,71 @@ bool fn_800D9558(Fighter_GObj* gobj)
     return false;
 }
 
-/// #fn_800D9930
+const Vec4 lbl_803B7510 = { 1.0f, 0.0f, 0.0f, 0.0f };
+
+bool fn_800D9930(Fighter_GObj* gobj)
+{
+    Fighter* fp = GET_FIGHTER(gobj);
+    Vec3 pos;
+    Vec3 sp;
+    Vec3 vel;
+    if (fp->kind == FTKIND_SAMUS) {
+        ftSs_DatAttrs* da = fp->dat_attrs;
+        fp->mv.co.catch.x0 += 1.0;
+        if (fp->mv.co.catch.x0 == (f32)(s32) da->xAC) {
+            lb_8000B1CC(fp->parts[FtPart_ThrowN].joint, NULL, &pos);
+            fp->fv.ss.x223C = it_802B7C18(gobj, &pos, fp->facing_dir);
+            if (fp->fv.ss.x223C == NULL) {
+                ft_8008A2BC(gobj);
+                return true;
+            }
+            fp->accessory2_cb = it_802BAC80;
+            fp->death1_cb = it_802BAC3C;
+            fp->accessory3_cb = it_802BACC4;
+        } else if (fp->mv.co.catch.x0 > (f32)(s32) da->xAC &&
+                   fp->mv.co.catch.x0 <= (f32)(s32) da->xB8)
+        {
+            Item_GObj* item_gobj = fp->fv.ss.x223C;
+            Item* item_ip = GET_ITEM(item_gobj);
+            struct TetherAttributes* tether_data =
+                item_ip->xC4_article_data->x4_specialAttributes;
+            if (item_gobj != NULL) {
+                int i;
+                int frame;
+                for (i = 0, frame = 20; i < 4; i++, frame += 3) {
+                    if (fp->mv.co.catch.x0 == (f32) frame) {
+                        ItemLink* link = item_ip->xDD4_itemVar.samusgrapple.x0;
+                        HSD_GObj* link_gobj = link->gobj;
+                        HSD_JObj* inner_jobj = link_gobj->hsd_obj;
+                        f32 r;
+                        HSD_JObjSetupMatrix(inner_jobj);
+                        sp.x = inner_jobj->mtx[0][3];
+                        sp.y = inner_jobj->mtx[1][3];
+                        sp.z = inner_jobj->mtx[2][3];
+                        sp.x = inner_jobj->mtx[0][3] +
+                               4.0 * (HSD_Randf() - 0.5f);
+                        sp.y = inner_jobj->mtx[1][3] +
+                               4.0 * (HSD_Randf() - 0.5f);
+                        r = HSD_Randf() - 0.5f;
+                        sp.z = inner_jobj->mtx[2][3] + 4.0 * r;
+                        efSync_Spawn(0x3F3, link_gobj, &sp, r);
+                    }
+                }
+            }
+            if (fp->mv.co.catch.x0 == (f32) da->xB0) {
+                vel = *(Vec3*)&lbl_803B7510;
+                vel.x = tether_data->pos_x_1;
+                vel.x *= fp->facing_dir;
+                it_802BAAE4(item_gobj, &vel);
+            } else if (fp->mv.co.catch.x0 == (f32)(s32) da->xB4) {
+                it_802BAA58(item_gobj);
+            } else if (fp->mv.co.catch.x0 == (f32)(s32) da->xB8) {
+                it_802B7B84(fp->fv.ss.x223C);
+            }
+        }
+    }
+    return false;
+}
 
 void fn_800D9C64(Fighter_GObj* gobj)
 {
@@ -2181,6 +2245,7 @@ void fn_800DA8E4(Fighter_GObj* arg0, Fighter_GObj* arg1, s32 arg2)
     Fighter* victim_fp = arg1->user_data;
     ftCommonData* co;
     f32 v;
+    ftCommonData* co2;
     f32 temp;
     u8 _[8];
 
@@ -2192,7 +2257,8 @@ void fn_800DA8E4(Fighter_GObj* arg0, Fighter_GObj* arg1, s32 arg2)
     fp->x221B_b5 = false;
     fp->x221B_b7 = false;
     fp->facing_dir = -victim_fp->facing_dir;
-    co = p_ftCommonData;
+    co2 = p_ftCommonData;
+    co = co2;
     v = co->x360 * (co->x364 - (f32) (Player_80033BB8(fp->player_id) + 1));
     temp = co->x358 * (co->x35C - (f32) Player_GetHandicap(fp->player_id)) +
            co->x354;
@@ -2279,33 +2345,31 @@ void fn_800DAC78(Fighter_GObj* gobj, Vec3* arg1)
 static bool fn_800DAD18(Fighter_GObj* gobj)
 {
     Fighter* temp_r31;
-    bool var_r3;
+    s32 var_r3;
+    f32 temp_f5;
 
-    Vec3 tmp;
     Vec3 sp2C;
     Vec3 sp20;
 
-    PAD_STACK(0x8);
+    PAD_STACK(0x18);
 
-    temp_r31 = GET_FIGHTER(gobj);
-    lb_8000B1CC(GET_FIGHTER(temp_r31->victim_gobj)->mv.co.capturedamage.x18,
-                NULL, &sp20);
+    temp_r31 = gobj->user_data;
+    lb_8000B1CC(
+        ((Fighter*) temp_r31->victim_gobj->user_data)->mv.co.capturedamage.x18,
+        NULL, &sp20);
     lb_8000B1CC(
         temp_r31->parts[ftParts_GetBoneIndex(temp_r31, FtPart_XRotN)].joint,
         NULL, &sp2C);
 
-    tmp.x = sp20.x - sp2C.x;
-    tmp.y = sp20.y - sp2C.y;
-    tmp.z = sp20.z - sp2C.z;
-
-    if (tmp.y > p_ftCommonData->x3C4 * temp_r31->x34_scale.y) {
-        var_r3 = true;
+    temp_f5 = sp20.y - sp2C.y;
+    if (temp_f5 > p_ftCommonData->x3C4 * temp_r31->x34_scale.y) {
+        var_r3 = 1;
     } else {
-        var_r3 = false;
+        var_r3 = 0;
     }
-    temp_r31->cur_pos.x += tmp.x;
-    temp_r31->cur_pos.y += tmp.y;
-    temp_r31->cur_pos.z += tmp.z;
+    temp_r31->cur_pos.x += sp20.x - sp2C.x;
+    temp_r31->cur_pos.y += temp_f5;
+    temp_r31->cur_pos.z += sp20.z - sp2C.z;
     return var_r3;
 }
 #pragma pop

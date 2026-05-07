@@ -2192,7 +2192,6 @@ void hsd_80394668(void)
     }
 }
 
-// @TODO: Currently 96.16% match - register swap in second loop (r29/r30)
 void hsd_80394950(OSContext* ctx)
 {
     OSContext tmp;
@@ -8805,7 +8804,6 @@ HSD_Generator* hsd_8039F05C(s8 linkNo, s32 bank, s32 idx)
     return gen;
 }
 
-// @TODO: Currently 92.50% match - dead beq instructions in target
 HSD_Generator* hsd_8039F6CC(s32 linkNo, s32 bank, s32 gfx_id, HSD_JObj* jobj)
 {
     HSD_Generator* gen;
@@ -8814,8 +8812,12 @@ HSD_Generator* hsd_8039F6CC(s32 linkNo, s32 bank, s32 gfx_id, HSD_JObj* jobj)
     if (gen == NULL) {
         return NULL;
     }
-    gen->jobj = jobj;
-    ref_INC(jobj);
+    if (gen != NULL) {
+        gen->jobj = jobj;
+        if (jobj != NULL) {
+            ref_INC(jobj);
+        }
+    }
     gen->type |= (gen->kind & 0x20000) ? 0x500 : 0x700;
     hsd_804D78F4 =
         (u32) HSD_SListAllocAndAppend((HSD_SList*) hsd_804D78F4, gen);
