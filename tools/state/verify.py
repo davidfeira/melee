@@ -146,6 +146,11 @@ def main() -> int:
         metavar="KEY=VALUE",
         help="append annotation; KEY in {status,blocker} (repeatable)",
     )
+    ap.add_argument(
+        "--auto-permute",
+        action="store_true",
+        help="if match%% < 100, hand off to `tools/permute.py dispatch` automatically",
+    )
     args = ap.parse_args()
 
     tu = _find_tu(args.name)
@@ -181,6 +186,19 @@ def main() -> int:
         _commit(tu, msg)
     else:
         print(f"[3/3] would-commit: {msg}  (rerun with --commit to apply)")
+
+    # Auto-permute hand-off: if match is incomplete, queue for permuter.
+    if args.auto_permute and pct is not None and pct < 100.0:
+        print(f"[+] auto-permute: dispatching {args.name} to permuter cluster")
+        rc = subprocess.run(
+            [sys.executable, str(ROOT / "tools" / "permute.py"), "dispatch", args.name],
+            cwd=ROOT,
+        ).returncode
+        state_mod.add_note(
+            args.name, "auto_permute_dispatched", rc == 0, tu=tu, exit_code=rc
+        )
+        if rc != 0:
+            print(f"[!] permute dispatch returned {rc}")
 
     return 0
 

@@ -1,2 +1,331 @@
 {"ts": "2026-05-07T18:42:36+00:00", "name": "grKongo_801D7F78", "key": "last_pct", "value": 99.73214, "tu": "melee/gr/grkongo.c"}
 {"ts": "2026-05-07T18:42:43+00:00", "name": "fn_801F9338", "key": "last_pct", "value": 100.0, "tu": "melee/gr/gricemt.c"}
+{"ts": "2026-05-07T12:10:45+00:00", "name": "ftPp_SpecialAirHiStart_0_Anim", "key": "user_claimed_match", "value": "9fb4561fa"}
+{"ts": "2026-05-07T11:57:18+00:00", "name": "ftKb_SpecialHi_800F36DC", "key": "user_claimed_match", "value": "299b1e50f"}
+{"ts": "2026-05-07T11:35:01+00:00", "name": "ftCo_8009DB50", "key": "user_claimed_match", "value": "f84773019"}
+{"ts": "2026-05-07T11:11:24+00:00", "name": "gm_8019B8C4_OnEnter", "key": "user_claimed_match", "value": "92c053443"}
+{"ts": "2026-05-07T11:05:38+00:00", "name": "fn_801F9558", "key": "user_claimed_match", "value": "efd124054"}
+{"ts": "2026-05-07T11:04:09+00:00", "name": "fn_801F9448", "key": "user_claimed_match", "value": "93d9119fe"}
+{"ts": "2026-05-07T11:02:21+00:00", "name": "fn_801F9338", "key": "user_claimed_match", "value": "902510bf6"}
+{"ts": "2026-05-07T10:34:57+00:00", "name": "grBigBlueRoute_8020B9D4", "key": "user_claimed_match", "value": "66e87551f"}
+{"ts": "2026-05-07T10:20:02+00:00", "name": "grZebes_801D8558", "key": "user_claimed_match", "value": "fd9df6dcc"}
+{"ts": "2026-05-07T10:05:57+00:00", "name": "grHeal_8021EFEC", "key": "user_claimed_match", "value": "646db3d20"}
+{"ts": "2026-05-07T10:01:58+00:00", "name": "grZebesRoute_8020B260", "key": "user_claimed_match", "value": "a99f50036"}
+{"ts": "2026-05-07T10:01:30+00:00", "name": "grOldPupupu_802108B4", "key": "user_claimed_match", "value": "a248b3a25"}
+{"ts": "2026-05-07T09:42:49+00:00", "name": "ftKb_SpecialNPe_8010C06C", "key": "user_claimed_match", "value": "f6352239b"}
+{"ts": "2026-05-07T09:40:01+00:00", "name": "ftKb_SpecialNPe_8010BF90", "key": "user_claimed_match", "value": "de4dc1cb4"}
+{"ts": "2026-05-07T09:34:02+00:00", "name": "grKongo_801D7F78", "key": "user_claimed_match", "value": "2e93edb31"}
+{"ts": "2026-05-07T09:17:26+00:00", "name": "ftCo_800D0EC8", "key": "user_claimed_match", "value": "8bb8888aa"}
+{"ts": "2026-05-07T08:47:32+00:00", "name": "ifMagnify_802FC870", "key": "user_claimed_match", "value": "674264624"}
+{"ts": "2026-05-07T08:45:34+00:00", "name": "grIceMt_801F796C", "key": "user_claimed_match", "value": "a364e25a0"}
+{"ts": "2026-05-07T07:53:41+00:00", "name": "pl_800407C8", "key": "user_claimed_match", "value": "19a71423c"}
+{"ts": "2026-05-07T07:25:18+00:00", "name": "un_803102D0", "key": "user_claimed_match", "value": "d8da5ee4a"}
+{"ts": "2026-05-07T07:14:30+00:00", "name": "grIceMt_801FA7F0", "key": "user_claimed_match", "value": "da7c8a4ce"}
+{"ts": "2026-05-06T23:59:41+00:00", "name": "fn_8010CE5C", "key": "user_claimed_match", "value": "4c7578129"}
+{"ts": "2026-05-06T23:58:35+00:00", "name": "gm_8016A9E8", "key": "user_claimed_match", "value": "800e05964"}
+{"ts": "2026-05-06T16:25:14+00:00", "name": "fn_803AC3F8", "key": "last_pct", "value": 82.55, "source_commit": "6cec21ca2"}
+{"ts": "2026-05-06T16:25:14+00:00", "name": "fn_803AC3F8", "key": "status", "value": "permuter-queued", "source_commit": "6cec21ca2"}
+{"ts": "2026-05-06T16:24:27+00:00", "name": "Ground_801C34AC", "key": "last_pct", "value": 90.14, "source_commit": "c26f452c9"}
+{"ts": "2026-05-06T16:24:27+00:00", "name": "Ground_801C34AC", "key": "status", "value": "permuter-queued", "source_commit": "c26f452c9"}
+{"ts": "2026-05-06T13:50:22+00:00", "name": "un_8031D9F8", "key": "last_pct", "value": 99.02, "source_commit": "c1b025cd0"}
+{"ts": "2026-05-06T13:50:22+00:00", "name": "un_8031D9F8", "key": "status", "value": "permuter-queued", "source_commit": "c1b025cd0", "blocker_reason": "commit-match blocked by sibling WIP"}
+{"ts": "2026-05-06T13:44:38+00:00", "name": "ftCo_800B04DC", "key": "last_pct", "value": 81.0, "source_commit": "46d6c0d9a"}
+{"ts": "2026-05-06T13:44:38+00:00", "name": "ftCo_800B04DC", "key": "status", "value": "permuter-queued", "source_commit": "46d6c0d9a"}
+{"ts": "2026-05-06T13:37:01+00:00", "name": "HSD_Synth_8038B120", "key": "user_claimed_match", "value": "c2f22619a"}
+{"ts": "2026-05-06T13:36:11+00:00", "name": "ftCo_800AEA8C", "key": "last_pct", "value": 51.12, "source_commit": "85a100cd3"}
+{"ts": "2026-05-06T13:36:11+00:00", "name": "ftCo_800AEA8C", "key": "status", "value": "permuter-queued", "source_commit": "85a100cd3"}
+{"ts": "2026-05-06T13:35:15+00:00", "name": "gmCamera_801A31FC", "key": "last_pct", "value": 89.39, "source_commit": "d66fba48e"}
+{"ts": "2026-05-06T13:35:15+00:00", "name": "gmCamera_801A31FC", "key": "status", "value": "permuter-queued", "source_commit": "d66fba48e", "blocker_reason": "TU-wide data layout blocker"}
+{"ts": "2026-05-06T13:34:27+00:00", "name": "HSD_SObjLib_803A477C", "key": "last_pct", "value": 77.8, "source_commit": "684de7464"}
+{"ts": "2026-05-06T13:34:27+00:00", "name": "HSD_SObjLib_803A477C", "key": "status", "value": "permuter-queued", "source_commit": "684de7464"}
+{"ts": "2026-05-06T13:25:43+00:00", "name": "fn_8016588C", "key": "last_pct", "value": 73.87, "source_commit": "aeba7c9ac"}
+{"ts": "2026-05-06T13:25:43+00:00", "name": "fn_8016588C", "key": "status", "value": "permuter-queued", "source_commit": "aeba7c9ac"}
+{"ts": "2026-05-06T13:25:03+00:00", "name": "hsd_803B2374", "key": "last_pct", "value": 92.39, "source_commit": "f0de8a469"}
+{"ts": "2026-05-06T13:25:03+00:00", "name": "hsd_803B2374", "key": "status", "value": "permuter-queued", "source_commit": "f0de8a469"}
+{"ts": "2026-05-06T13:24:51+00:00", "name": "ftCo_800A4E8C", "key": "last_pct", "value": 88.6, "source_commit": "d1c5968ba"}
+{"ts": "2026-05-06T13:24:51+00:00", "name": "ftCo_800A4E8C", "key": "status", "value": "permuter-queued", "source_commit": "d1c5968ba"}
+{"ts": "2026-05-06T13:21:46+00:00", "name": "fn_8010AA64", "key": "user_claimed_match", "value": "78a9dea04"}
+{"ts": "2026-05-06T13:21:16+00:00", "name": "HSD_SynthPStreamHeaderCallback", "key": "user_claimed_match", "value": "8cb2bff63"}
+{"ts": "2026-05-06T13:21:14+00:00", "name": "fn_800C7DC4", "key": "last_pct", "value": 82.3, "source_commit": "bf1f9c5e9"}
+{"ts": "2026-05-06T13:21:14+00:00", "name": "fn_800C7DC4", "key": "status", "value": "permuter-queued", "source_commit": "bf1f9c5e9"}
+{"ts": "2026-05-06T13:16:31+00:00", "name": "fn_8024B8B4", "key": "last_pct", "value": 99.65, "source_commit": "ed06c6bcc"}
+{"ts": "2026-05-06T13:16:31+00:00", "name": "fn_8024B8B4", "key": "status", "value": "permuter-queued", "source_commit": "ed06c6bcc"}
+{"ts": "2026-05-06T13:13:56+00:00", "name": "ftKb_SpecialLwEnd_Coll", "key": "user_claimed_match", "value": "9765a8534"}
+{"ts": "2026-05-06T13:13:42+00:00", "name": "gm_80168710", "key": "last_pct", "value": 89.89, "source_commit": "13f8dfe61"}
+{"ts": "2026-05-06T13:13:42+00:00", "name": "gm_80168710", "key": "status", "value": "permuter-queued", "source_commit": "13f8dfe61"}
+{"ts": "2026-05-06T13:11:51+00:00", "name": "gmCamera_801A2BF0", "key": "last_pct", "value": 94.19, "source_commit": "ca7aa82f6"}
+{"ts": "2026-05-06T13:11:51+00:00", "name": "gmCamera_801A2BF0", "key": "status", "value": "permuter-queued", "source_commit": "ca7aa82f6"}
+{"ts": "2026-05-06T13:10:30+00:00", "name": "hsd_803B5D70", "key": "last_pct", "value": 92.5, "source_commit": "4fe05ffc1"}
+{"ts": "2026-05-06T13:10:30+00:00", "name": "hsd_803B5D70", "key": "status", "value": "permuter-queued", "source_commit": "4fe05ffc1"}
+{"ts": "2026-05-06T13:10:08+00:00", "name": "un_802FF9DC", "key": "last_pct", "value": 23.07, "source_commit": "429b82da7"}
+{"ts": "2026-05-06T13:10:08+00:00", "name": "un_802FF9DC", "key": "status", "value": "permuter-queued", "source_commit": "429b82da7"}
+{"ts": "2026-05-06T13:08:55+00:00", "name": "ftKb_SpecialN_800EF438", "key": "last_pct", "value": 90.3, "source_commit": "aa287de8d"}
+{"ts": "2026-05-06T13:08:55+00:00", "name": "ftKb_SpecialN_800EF438", "key": "status", "value": "permuter-queued", "source_commit": "aa287de8d"}
+{"ts": "2026-05-06T13:05:56+00:00", "name": "hsd_3AA7", "key": "status", "value": "permuter-queued", "source_commit": "fb089f7d0"}
+{"ts": "2026-05-06T13:05:02+00:00", "name": "mn_80230198", "key": "last_pct", "value": 89.27, "source_commit": "9c59c250e"}
+{"ts": "2026-05-06T13:05:02+00:00", "name": "mn_80230198", "key": "status", "value": "permuter-queued", "source_commit": "9c59c250e"}
+{"ts": "2026-05-06T13:03:57+00:00", "name": "hsd_803B5C4C", "key": "last_pct", "value": 93.79, "source_commit": "72af7688e"}
+{"ts": "2026-05-06T13:03:57+00:00", "name": "hsd_803B5C4C", "key": "status", "value": "permuter-queued", "source_commit": "72af7688e"}
+{"ts": "2026-05-06T13:00:55+00:00", "name": "ftCo_800A648C", "key": "last_pct", "value": 95.5, "source_commit": "66882597f"}
+{"ts": "2026-05-06T13:00:55+00:00", "name": "ftCo_800A648C", "key": "status", "value": "permuter-queued", "source_commit": "66882597f"}
+{"ts": "2026-05-06T12:59:34+00:00", "name": "HSD_SynthSFXGroupDataReaddress", "key": "last_pct", "value": 94.1, "source_commit": "ec615dc94"}
+{"ts": "2026-05-06T12:59:34+00:00", "name": "HSD_SynthSFXGroupDataReaddress", "key": "status", "value": "permuter-queued", "source_commit": "ec615dc94"}
+{"ts": "2026-05-06T12:54:40+00:00", "name": "THPDec_80331340", "key": "status", "value": "blocked", "source_commit": "b242bf206", "blocker_reason": "missing TU scaffold"}
+{"ts": "2026-05-06T12:52:54+00:00", "name": "pl_8003E4A4", "key": "last_pct", "value": 98.44, "source_commit": "2a7436289"}
+{"ts": "2026-05-06T12:52:54+00:00", "name": "pl_8003E4A4", "key": "status", "value": "permuter-queued", "source_commit": "2a7436289"}
+{"ts": "2026-05-06T12:52:36+00:00", "name": "gmCamera_801A2D44", "key": "last_pct", "value": 96.87, "source_commit": "f2c771700"}
+{"ts": "2026-05-06T12:52:36+00:00", "name": "gmCamera_801A2D44", "key": "status", "value": "permuter-queued", "source_commit": "f2c771700"}
+{"ts": "2026-05-06T12:42:22+00:00", "name": "fn_801F3F74", "key": "user_claimed_match", "value": "f8a3b6960"}
+{"ts": "2026-05-06T12:06:34+00:00", "name": "gm_801BD46C", "key": "user_claimed_match", "value": "17a7e1862"}
+{"ts": "2026-05-06T11:52:32+00:00", "name": "grHomeRun_8021C914", "key": "user_claimed_match", "value": "f9345742d"}
+{"ts": "2026-05-06T07:50:40+00:00", "name": "grIceMt_801F7A2C", "key": "user_claimed_match", "value": "e7e561cb5"}
+{"ts": "2026-05-06T05:22:42+00:00", "name": "un_8031F294", "key": "user_claimed_match", "value": "6b7f0e31a"}
+{"ts": "2026-05-06T05:13:46+00:00", "name": "ftKb_SpecialLw_Coll", "key": "user_claimed_match", "value": "115cd92c1"}
+{"ts": "2026-05-06T05:08:38+00:00", "name": "fn_800D84D4", "key": "user_claimed_match", "value": "12116308b"}
+{"ts": "2026-05-06T04:45:06+00:00", "name": "grAnime_801C8138", "key": "user_claimed_match", "value": "22805a20b"}
+{"ts": "2026-05-06T04:23:32+00:00", "name": "ftKb_SpecialN_800F1DAC", "key": "user_claimed_match", "value": "d8c8a2fda"}
+{"ts": "2026-05-06T04:22:50+00:00", "name": "fn_80015184", "key": "user_claimed_match", "value": "f9969e3b5"}
+{"ts": "2026-05-06T04:02:11+00:00", "name": "fn_8024F1D4", "key": "user_claimed_match", "value": "51e3e0308"}
+{"ts": "2026-05-06T04:02:05+00:00", "name": "gm_801BAB40", "key": "user_claimed_match", "value": "4811d3fd1"}
+{"ts": "2026-05-06T03:56:31+00:00", "name": "fn_80161004", "key": "user_claimed_match", "value": "5ae33c900"}
+{"ts": "2026-05-06T03:40:09+00:00", "name": "fn_801661E0", "key": "user_claimed_match", "value": "9b22029d2"}
+{"ts": "2026-05-06T03:31:24+00:00", "name": "grIceMt_801FA364", "key": "user_claimed_match", "value": "ab151422b"}
+{"ts": "2026-05-06T03:31:18+00:00", "name": "mn_80230D18", "key": "user_claimed_match", "value": "098c4fd9a"}
+{"ts": "2026-05-06T02:55:05+00:00", "name": "fn_80162068", "key": "user_claimed_match", "value": "558210424"}
+{"ts": "2026-05-06T02:19:39+00:00", "name": "grHomeRun_8021EC58", "key": "user_claimed_match", "value": "3bac58751"}
+{"ts": "2026-05-06T02:16:04+00:00", "name": "mnDataDel_8024EBC8", "key": "user_claimed_match", "value": "9de828b89"}
+{"ts": "2026-05-06T01:46:08+00:00", "name": "ftCo_CaptureWaitLw_Phys", "key": "user_claimed_match", "value": "9bb0c64f0"}
+{"ts": "2026-05-06T01:21:26+00:00", "name": "grIceMt_801F929C", "key": "user_claimed_match", "value": "533ab2d87"}
+{"ts": "2026-05-06T01:17:21+00:00", "name": "grPura_80211FD8", "key": "user_claimed_match", "value": "606a8ff70"}
+{"ts": "2026-04-27T22:04:07+00:00", "name": "ftCo_800B6208", "key": "user_claimed_match", "value": "9e3d27f35"}
+{"ts": "2026-04-27T22:18:19+00:00", "name": "ifStatus_802F7034", "key": "user_claimed_match", "value": "e4969c61a"}
+{"ts": "2026-04-27T22:01:36+00:00", "name": "ftCo_800B6208", "key": "user_claimed_match", "value": "de5dc3583"}
+{"ts": "2026-04-27T21:15:45+00:00", "name": "fn_800DB6C8", "key": "user_claimed_match", "value": "801119000"}
+{"ts": "2026-04-26T20:36:28+00:00", "name": "grIceMt_801F72D4", "key": "user_claimed_match", "value": "9472c25d9"}
+{"ts": "2026-04-26T19:10:51+00:00", "name": "grPura_80212024", "key": "user_claimed_match", "value": "2bcecbb6c"}
+{"ts": "2026-04-26T09:32:10+00:00", "name": "grIceMt_801F7728", "key": "user_claimed_match", "value": "e358c5c06"}
+{"ts": "2026-04-26T09:28:32+00:00", "name": "grPura_80212290", "key": "user_claimed_match", "value": "feb645582"}
+{"ts": "2026-04-26T09:16:13+00:00", "name": "grIceMt_801F81B4", "key": "user_claimed_match", "value": "05b028bd1"}
+{"ts": "2026-04-26T09:14:23+00:00", "name": "grIceMt_801F7F1C", "key": "user_claimed_match", "value": "b1fdfbdd1"}
+{"ts": "2026-04-26T08:54:31+00:00", "name": "grIceMt_801F98A8", "key": "user_claimed_match", "value": "89f05046c"}
+{"ts": "2026-04-26T00:29:21+00:00", "name": "grFourside_801F2F34", "key": "user_claimed_match", "value": "0b76c3512"}
+{"ts": "2026-05-06T12:21:38+00:00", "name": "fn_80169000", "key": "last_pct", "value": 93.5, "source_commit": "6d742cf87"}
+{"ts": "2026-05-06T12:21:38+00:00", "name": "fn_80169000", "key": "status", "value": "permuter-queued", "source_commit": "6d742cf87"}
+{"ts": "2026-05-06T12:19:53+00:00", "name": "ftKb_SpecialN_800F16D0", "key": "last_pct", "value": 94.09, "source_commit": "68f92f238"}
+{"ts": "2026-05-06T12:19:53+00:00", "name": "ftKb_SpecialN_800F16D0", "key": "status", "value": "permuter-queued", "source_commit": "68f92f238"}
+{"ts": "2026-05-06T12:19:28+00:00", "name": "un_8031457C", "key": "last_pct", "value": 96.24, "source_commit": "f7d8ff379"}
+{"ts": "2026-05-06T12:19:28+00:00", "name": "un_8031457C", "key": "status", "value": "permuter-queued", "source_commit": "f7d8ff379"}
+{"ts": "2026-05-06T12:13:04+00:00", "name": "mnInfo_80251AFC", "key": "last_pct", "value": 72.78, "source_commit": "7503b3ae2"}
+{"ts": "2026-05-06T12:13:04+00:00", "name": "mnInfo_80251AFC", "key": "status", "value": "permuter-queued", "source_commit": "7503b3ae2"}
+{"ts": "2026-05-06T12:07:29+00:00", "name": "gm_8016AC44", "key": "last_pct", "value": 88.21, "source_commit": "e6ae5b0a4"}
+{"ts": "2026-05-06T12:07:29+00:00", "name": "gm_8016AC44", "key": "status", "value": "permuter-queued", "source_commit": "e6ae5b0a4"}
+{"ts": "2026-05-06T08:53:31+00:00", "name": "un_80311AB0_OnEnter", "key": "last_pct", "value": 99.4, "source_commit": "a669ec96b"}
+{"ts": "2026-05-06T08:53:31+00:00", "name": "un_80311AB0_OnEnter", "key": "status", "value": "permuter-queued", "source_commit": "a669ec96b"}
+{"ts": "2026-05-06T08:51:17+00:00", "name": "fn_802461BC", "key": "last_pct", "value": 88.4, "source_commit": "85648cc06"}
+{"ts": "2026-05-06T08:51:17+00:00", "name": "fn_802461BC", "key": "status", "value": "permuter-queued", "source_commit": "85648cc06"}
+{"ts": "2026-05-06T08:50:29+00:00", "name": "fn_80161154", "key": "last_pct", "value": 95.49, "source_commit": "a953594d1"}
+{"ts": "2026-05-06T08:50:29+00:00", "name": "fn_80161154", "key": "status", "value": "permuter-queued", "source_commit": "a953594d1"}
+{"ts": "2026-05-06T08:48:27+00:00", "name": "ftCo_800ADE48", "key": "last_pct", "value": 61.0, "source_commit": "6f12486f9"}
+{"ts": "2026-05-06T08:48:27+00:00", "name": "ftCo_800ADE48", "key": "status", "value": "permuter-queued", "source_commit": "6f12486f9"}
+{"ts": "2026-05-06T08:47:16+00:00", "name": "mnSoundTest_8024BEE0", "key": "last_pct", "value": 53.4, "source_commit": "c8709e68d"}
+{"ts": "2026-05-06T08:47:16+00:00", "name": "mnSoundTest_8024BEE0", "key": "status", "value": "permuter-queued", "source_commit": "c8709e68d"}
+{"ts": "2026-05-06T08:44:04+00:00", "name": "ifMagnify_802FBBDC", "key": "last_pct", "value": 74.76, "source_commit": "cb0e7e7bd"}
+{"ts": "2026-05-06T08:44:04+00:00", "name": "ifMagnify_802FBBDC", "key": "status", "value": "permuter-queued", "source_commit": "cb0e7e7bd"}
+{"ts": "2026-05-06T08:41:35+00:00", "name": "grVenom_8020454C", "key": "last_pct", "value": 93.41, "source_commit": "eecf932c1"}
+{"ts": "2026-05-06T08:41:35+00:00", "name": "grVenom_8020454C", "key": "status", "value": "permuter-queued", "source_commit": "eecf932c1"}
+{"ts": "2026-05-06T08:40:18+00:00", "name": "un_80320A40_OnEnter", "key": "last_pct", "value": 98.77, "source_commit": "836bfac1f"}
+{"ts": "2026-05-06T08:40:18+00:00", "name": "un_80320A40_OnEnter", "key": "status", "value": "permuter-queued", "source_commit": "836bfac1f"}
+{"ts": "2026-05-06T08:37:39+00:00", "name": "un_8030FA50", "key": "last_pct", "value": 93.2, "source_commit": "cc4d1c255"}
+{"ts": "2026-05-06T08:37:39+00:00", "name": "un_8030FA50", "key": "status", "value": "permuter-queued", "source_commit": "cc4d1c255"}
+{"ts": "2026-05-06T08:32:52+00:00", "name": "ftCo_800B2AFC", "key": "last_pct", "value": 50.0, "source_commit": "32171cb72"}
+{"ts": "2026-05-06T08:32:52+00:00", "name": "ftCo_800B2AFC", "key": "status", "value": "permuter-queued", "source_commit": "32171cb72"}
+{"ts": "2026-05-06T08:27:48+00:00", "name": "fn_8024D864", "key": "last_pct", "value": 12.8, "source_commit": "aa0ae6497"}
+{"ts": "2026-05-06T08:27:48+00:00", "name": "fn_8024D864", "key": "status", "value": "permuter-queued", "source_commit": "aa0ae6497"}
+{"ts": "2026-05-06T08:20:55+00:00", "name": "fn_8022F538", "key": "last_pct", "value": 95.33, "source_commit": "638e150a5"}
+{"ts": "2026-05-06T08:20:55+00:00", "name": "fn_8022F538", "key": "status", "value": "permuter-queued", "source_commit": "638e150a5"}
+{"ts": "2026-05-06T08:18:02+00:00", "name": "ftCo_800B2790", "key": "last_pct", "value": 59.99, "source_commit": "74749fe88"}
+{"ts": "2026-05-06T08:18:02+00:00", "name": "ftCo_800B2790", "key": "status", "value": "permuter-queued", "source_commit": "74749fe88"}
+{"ts": "2026-05-06T08:07:40+00:00", "name": "gm_801BC00C", "key": "last_pct", "value": 82.72, "source_commit": "89cd3f694"}
+{"ts": "2026-05-06T08:07:40+00:00", "name": "gm_801BC00C", "key": "status", "value": "permuter-queued", "source_commit": "89cd3f694"}
+{"ts": "2026-05-06T08:06:23+00:00", "name": "fn_80313BD8", "key": "last_pct", "value": 94.39, "source_commit": "4c226515c"}
+{"ts": "2026-05-06T08:06:23+00:00", "name": "fn_80313BD8", "key": "status", "value": "permuter-queued", "source_commit": "4c226515c"}
+{"ts": "2026-05-06T07:58:05+00:00", "name": "grHomeRun_8021E500", "key": "last_pct", "value": 91.08, "source_commit": "87572019d"}
+{"ts": "2026-05-06T07:58:05+00:00", "name": "grHomeRun_8021E500", "key": "status", "value": "permuter-queued", "source_commit": "87572019d"}
+{"ts": "2026-05-06T07:53:42+00:00", "name": "grGreens_802166C4", "key": "last_pct", "value": 84.6, "source_commit": "f92556a34"}
+{"ts": "2026-05-06T07:53:42+00:00", "name": "grGreens_802166C4", "key": "status", "value": "permuter-queued", "source_commit": "f92556a34"}
+{"ts": "2026-05-06T07:48:53+00:00", "name": "mnInfo_80251D58", "key": "last_pct", "value": 89.95, "source_commit": "56614212c"}
+{"ts": "2026-05-06T07:48:53+00:00", "name": "mnInfo_80251D58", "key": "status", "value": "permuter-queued", "source_commit": "56614212c"}
+{"ts": "2026-05-06T07:48:00+00:00", "name": "ftCo_800A2C80", "key": "last_pct", "value": 84.0, "source_commit": "1d89717b6"}
+{"ts": "2026-05-06T07:48:00+00:00", "name": "ftCo_800A2C80", "key": "status", "value": "permuter-queued", "source_commit": "1d89717b6"}
+{"ts": "2026-05-06T07:45:29+00:00", "name": "fn_8016A4C8", "key": "last_pct", "value": 86.66, "source_commit": "d093f13a1"}
+{"ts": "2026-05-06T07:41:28+00:00", "name": "fn_8024F318", "key": "last_pct", "value": 94.6, "source_commit": "2aba0098d"}
+{"ts": "2026-05-06T07:41:28+00:00", "name": "fn_8024F318", "key": "status", "value": "permuter-queued", "source_commit": "2aba0098d"}
+{"ts": "2026-05-06T07:39:37+00:00", "name": "fn_801C8EF8", "key": "last_pct", "value": 94.06, "source_commit": "fb34068f2"}
+{"ts": "2026-05-06T07:39:37+00:00", "name": "fn_801C8EF8", "key": "status", "value": "permuter-queued", "source_commit": "fb34068f2"}
+{"ts": "2026-05-06T07:30:33+00:00", "name": "mnStageSw_80236548", "key": "last_pct", "value": 97.6, "source_commit": "2becfe2d1"}
+{"ts": "2026-05-06T07:30:33+00:00", "name": "mnStageSw_80236548", "key": "status", "value": "permuter-queued", "source_commit": "2becfe2d1"}
+{"ts": "2026-05-06T07:24:18+00:00", "name": "ftCo_800AE7AC", "key": "last_pct", "value": 69.45, "source_commit": "cee502ef0"}
+{"ts": "2026-05-06T07:24:18+00:00", "name": "ftCo_800AE7AC", "key": "status", "value": "permuter-queued", "source_commit": "cee502ef0"}
+{"ts": "2026-05-06T07:12:25+00:00", "name": "grVenom_8020362C", "key": "last_pct", "value": 77.38, "source_commit": "5607e63c2"}
+{"ts": "2026-05-06T07:12:25+00:00", "name": "grVenom_8020362C", "key": "status", "value": "permuter-queued", "source_commit": "5607e63c2"}
+{"ts": "2026-05-06T06:58:45+00:00", "name": "ftCo_800BB220", "key": "last_pct", "value": 77.4, "source_commit": "8e793a3a5"}
+{"ts": "2026-05-06T06:58:45+00:00", "name": "ftCo_800BB220", "key": "status", "value": "permuter-queued", "source_commit": "8e793a3a5"}
+{"ts": "2026-05-06T06:53:57+00:00", "name": "ftKb_SpecialAirLw_Coll", "key": "last_pct", "value": 91.58, "source_commit": "8cc208e03"}
+{"ts": "2026-05-06T06:53:57+00:00", "name": "ftKb_SpecialAirLw_Coll", "key": "status", "value": "permuter-queued", "source_commit": "8cc208e03"}
+{"ts": "2026-05-06T06:47:40+00:00", "name": "ftCo_800B17D0", "key": "last_pct", "value": 40.0, "source_commit": "144005495"}
+{"ts": "2026-05-06T06:47:40+00:00", "name": "ftCo_800B17D0", "key": "status", "value": "permuter-queued", "source_commit": "144005495"}
+{"ts": "2026-05-06T06:46:58+00:00", "name": "fn_8024F840", "key": "last_pct", "value": 90.59, "source_commit": "45168390d"}
+{"ts": "2026-05-06T06:46:58+00:00", "name": "fn_8024F840", "key": "status", "value": "permuter-queued", "source_commit": "45168390d"}
+{"ts": "2026-05-06T06:37:13+00:00", "name": "ftCo_8009E7B4", "key": "last_pct", "value": 90.74, "source_commit": "d14ad63b8"}
+{"ts": "2026-05-06T06:37:13+00:00", "name": "ftCo_8009E7B4", "key": "status", "value": "permuter-queued", "source_commit": "d14ad63b8"}
+{"ts": "2026-05-06T06:36:23+00:00", "name": "ftKb_EatWait_IASA", "key": "last_pct", "value": 91.72, "source_commit": "207b1ef9b"}
+{"ts": "2026-05-06T06:36:23+00:00", "name": "ftKb_EatWait_IASA", "key": "status", "value": "permuter-queued", "source_commit": "207b1ef9b"}
+{"ts": "2026-05-06T06:30:50+00:00", "name": "fn_800D8EC8", "key": "last_pct", "value": 98.96, "source_commit": "e45eca31a"}
+{"ts": "2026-05-06T06:30:50+00:00", "name": "fn_800D8EC8", "key": "status", "value": "permuter-queued", "source_commit": "e45eca31a"}
+{"ts": "2026-05-06T06:26:42+00:00", "name": "fn_80161C90", "key": "last_pct", "value": 90.9, "source_commit": "72fb0d80f"}
+{"ts": "2026-05-06T06:26:42+00:00", "name": "fn_80161C90", "key": "status", "value": "permuter-queued", "source_commit": "72fb0d80f"}
+{"ts": "2026-05-06T06:25:23+00:00", "name": "grKongo_801D77E0", "key": "last_pct", "value": 99.07, "source_commit": "48158bee4"}
+{"ts": "2026-05-06T06:25:23+00:00", "name": "grKongo_801D77E0", "key": "status", "value": "permuter-queued", "source_commit": "48158bee4"}
+{"ts": "2026-05-06T06:24:14+00:00", "name": "fn_800D9558", "key": "last_pct", "value": 96.98, "source_commit": "a10909bde"}
+{"ts": "2026-05-06T06:24:14+00:00", "name": "fn_800D9558", "key": "status", "value": "permuter-queued", "source_commit": "a10909bde"}
+{"ts": "2026-05-06T06:23:21+00:00", "name": "grAnime_801C7C1C", "key": "last_pct", "value": 64.79, "source_commit": "60548a985"}
+{"ts": "2026-05-06T06:23:21+00:00", "name": "grAnime_801C7C1C", "key": "status", "value": "permuter-queued", "source_commit": "60548a985"}
+{"ts": "2026-05-06T06:18:05+00:00", "name": "fn_80164B48", "key": "last_pct", "value": 94.02, "source_commit": "7759474a3"}
+{"ts": "2026-05-06T06:18:05+00:00", "name": "fn_80164B48", "key": "status", "value": "permuter-queued", "source_commit": "7759474a3"}
+{"ts": "2026-05-06T06:17:15+00:00", "name": "grInishie1_801FC664", "key": "last_pct", "value": 95.82, "source_commit": "ffb8fddf5"}
+{"ts": "2026-05-06T06:16:02+00:00", "name": "grVenom_80205758", "key": "last_pct", "value": 94.31, "source_commit": "2ea5d5ba1"}
+{"ts": "2026-05-06T06:16:02+00:00", "name": "grVenom_80205758", "key": "status", "value": "permuter-queued", "source_commit": "2ea5d5ba1"}
+{"ts": "2026-05-06T06:14:43+00:00", "name": "fn_8003F294", "key": "last_pct", "value": 77.71, "source_commit": "798201f06"}
+{"ts": "2026-05-06T06:14:43+00:00", "name": "fn_8003F294", "key": "status", "value": "permuter-queued", "source_commit": "798201f06"}
+{"ts": "2026-05-06T06:11:12+00:00", "name": "gm_801BB758", "key": "last_pct", "value": 90.9, "source_commit": "7298b51a5"}
+{"ts": "2026-05-06T06:11:12+00:00", "name": "gm_801BB758", "key": "status", "value": "permuter-queued", "source_commit": "7298b51a5"}
+{"ts": "2026-05-06T06:10:36+00:00", "name": "Ground_801C20E0", "key": "last_pct", "value": 88.95, "source_commit": "0044cc4a4"}
+{"ts": "2026-05-06T06:10:36+00:00", "name": "Ground_801C20E0", "key": "status", "value": "permuter-queued", "source_commit": "0044cc4a4"}
+{"ts": "2026-05-06T06:10:25+00:00", "name": "ftCo_800B1EF0", "key": "last_pct", "value": 39.46, "source_commit": "1e7edbfa1"}
+{"ts": "2026-05-06T06:10:25+00:00", "name": "ftCo_800B1EF0", "key": "status", "value": "permuter-queued", "source_commit": "1e7edbfa1"}
+{"ts": "2026-05-06T06:08:38+00:00", "name": "fn_80169C54", "key": "last_pct", "value": 75.8, "source_commit": "523eca98a"}
+{"ts": "2026-05-06T06:08:38+00:00", "name": "fn_80169C54", "key": "status", "value": "permuter-queued", "source_commit": "523eca98a"}
+{"ts": "2026-05-06T06:03:01+00:00", "name": "ftKb_SpecialNYs_8010AC78", "key": "last_pct", "value": 85.5, "source_commit": "a4474ae82"}
+{"ts": "2026-05-06T06:03:01+00:00", "name": "ftKb_SpecialNYs_8010AC78", "key": "status", "value": "permuter-queued", "source_commit": "a4474ae82"}
+{"ts": "2026-05-06T05:56:27+00:00", "name": "grZebesRoute_8020B548", "key": "last_pct", "value": 72.5, "source_commit": "1e4f1aad1"}
+{"ts": "2026-05-06T05:56:27+00:00", "name": "grZebesRoute_8020B548", "key": "status", "value": "permuter-queued", "source_commit": "1e4f1aad1"}
+{"ts": "2026-05-06T05:53:18+00:00", "name": "un_80312904", "key": "last_pct", "value": 89.75, "source_commit": "86f6b170a"}
+{"ts": "2026-05-06T05:53:18+00:00", "name": "un_80312904", "key": "status", "value": "permuter-queued", "source_commit": "86f6b170a"}
+{"ts": "2026-05-06T05:44:02+00:00", "name": "fn_80165AC0", "key": "last_pct", "value": 98.2, "source_commit": "06f00a6d9"}
+{"ts": "2026-05-06T05:44:02+00:00", "name": "fn_80165AC0", "key": "status", "value": "permuter-queued", "source_commit": "06f00a6d9"}
+{"ts": "2026-05-06T05:42:05+00:00", "name": "ftCo_800A6D2C", "key": "last_pct", "value": 76.0, "source_commit": "643d2fb77"}
+{"ts": "2026-05-06T05:42:05+00:00", "name": "ftCo_800A6D2C", "key": "status", "value": "permuter-queued", "source_commit": "643d2fb77"}
+{"ts": "2026-05-06T05:39:57+00:00", "name": "fn_80251FE4", "key": "last_pct", "value": 93.6, "source_commit": "8696e90d8"}
+{"ts": "2026-05-06T05:39:57+00:00", "name": "fn_80251FE4", "key": "status", "value": "permuter-queued", "source_commit": "8696e90d8"}
+{"ts": "2026-05-06T05:38:22+00:00", "name": "grKongo_801D7BBC", "key": "last_pct", "value": 96.64, "source_commit": "91f342c7f"}
+{"ts": "2026-05-06T05:38:22+00:00", "name": "grKongo_801D7BBC", "key": "status", "value": "permuter-queued", "source_commit": "91f342c7f"}
+{"ts": "2026-05-06T05:33:06+00:00", "name": "mn_8022FEC8", "key": "last_pct", "value": 81.3, "source_commit": "617b3b007"}
+{"ts": "2026-05-06T05:33:06+00:00", "name": "mn_8022FEC8", "key": "status", "value": "permuter-queued", "source_commit": "617b3b007"}
+{"ts": "2026-05-06T05:31:26+00:00", "name": "grIceMt_801FA0BC", "key": "last_pct", "value": 99.71, "source_commit": "6407da9f9"}
+{"ts": "2026-05-06T05:31:26+00:00", "name": "grIceMt_801FA0BC", "key": "status", "value": "permuter-queued", "source_commit": "6407da9f9"}
+{"ts": "2026-05-06T05:28:37+00:00", "name": "un_802FFF2C", "key": "last_pct", "value": 93.97, "source_commit": "424c548ce"}
+{"ts": "2026-05-06T05:28:37+00:00", "name": "un_802FFF2C", "key": "status", "value": "permuter-queued", "source_commit": "424c548ce"}
+{"ts": "2026-05-06T05:24:12+00:00", "name": "grHomeRun_8021CB20", "key": "last_pct", "value": 81.83, "source_commit": "45c0c9215"}
+{"ts": "2026-05-06T05:24:12+00:00", "name": "grHomeRun_8021CB20", "key": "status", "value": "permuter-queued", "source_commit": "45c0c9215"}
+{"ts": "2026-05-06T05:22:42+00:00", "name": "grHeal_8021F180", "key": "last_pct", "value": 81.88, "source_commit": "45c338672"}
+{"ts": "2026-05-06T05:22:42+00:00", "name": "grHeal_8021F180", "key": "status", "value": "permuter-queued", "source_commit": "45c338672"}
+{"ts": "2026-05-06T05:18:32+00:00", "name": "ftKb_SpecialNMs_8010B4A0", "key": "last_pct", "value": 97.63, "source_commit": "cfbff82e0"}
+{"ts": "2026-05-06T05:18:32+00:00", "name": "ftKb_SpecialNMs_8010B4A0", "key": "status", "value": "permuter-queued", "source_commit": "cfbff82e0"}
+{"ts": "2026-05-06T05:16:21+00:00", "name": "ifMagnify_802FC3C0", "key": "last_pct", "value": 84.57, "source_commit": "f8084cfce"}
+{"ts": "2026-05-06T05:16:21+00:00", "name": "ifMagnify_802FC3C0", "key": "status", "value": "permuter-queued", "source_commit": "f8084cfce"}
+{"ts": "2026-05-06T05:12:18+00:00", "name": "un_8031F714_OnEnter", "key": "last_pct", "value": 97.46, "source_commit": "1810da85d"}
+{"ts": "2026-05-06T05:12:18+00:00", "name": "un_8031F714_OnEnter", "key": "status", "value": "permuter-queued", "source_commit": "1810da85d"}
+{"ts": "2026-05-06T05:12:04+00:00", "name": "grGreens_80216C20", "key": "last_pct", "value": 75.6, "source_commit": "dfc6e8c9d"}
+{"ts": "2026-05-06T05:12:04+00:00", "name": "grGreens_80216C20", "key": "status", "value": "permuter-queued", "source_commit": "dfc6e8c9d"}
+{"ts": "2026-05-06T05:04:11+00:00", "name": "lbColl_8000A78C", "key": "last_pct", "value": 99.83, "source_commit": "1fd121ee5"}
+{"ts": "2026-05-06T05:04:11+00:00", "name": "lbColl_8000A78C", "key": "status", "value": "permuter-queued", "source_commit": "1fd121ee5"}
+{"ts": "2026-05-06T05:01:36+00:00", "name": "fn_80215B84", "key": "last_pct", "value": 89.3, "source_commit": "c63820b6d"}
+{"ts": "2026-05-06T05:01:36+00:00", "name": "fn_80215B84", "key": "status", "value": "permuter-queued", "source_commit": "c63820b6d"}
+{"ts": "2026-05-06T05:01:26+00:00", "name": "grPura_802120E0", "key": "last_pct", "value": 51.48, "source_commit": "9461dab4e"}
+{"ts": "2026-05-06T05:01:26+00:00", "name": "grPura_802120E0", "key": "status", "value": "permuter-queued", "source_commit": "9461dab4e"}
+{"ts": "2026-05-06T05:00:54+00:00", "name": "grInishie1_801FC4A0", "key": "last_pct", "value": 99.82, "source_commit": "6ba8318fa"}
+{"ts": "2026-05-06T04:59:34+00:00", "name": "fn_80252548", "key": "last_pct", "value": 92.92, "source_commit": "13f2e6ffc"}
+{"ts": "2026-05-06T04:59:34+00:00", "name": "fn_80252548", "key": "status", "value": "permuter-queued", "source_commit": "13f2e6ffc"}
+{"ts": "2026-05-06T04:55:54+00:00", "name": "mnStageSw_80235DC8", "key": "last_pct", "value": 94.39, "source_commit": "7d82490e4"}
+{"ts": "2026-05-06T04:55:54+00:00", "name": "mnStageSw_80235DC8", "key": "status", "value": "permuter-queued", "source_commit": "7d82490e4"}
+{"ts": "2026-05-06T04:55:24+00:00", "name": "ftKb_SpecialN_800EF69C", "key": "last_pct", "value": 91.66, "source_commit": "950f02e29"}
+{"ts": "2026-05-06T04:55:24+00:00", "name": "ftKb_SpecialN_800EF69C", "key": "status", "value": "permuter-queued", "source_commit": "950f02e29"}
+{"ts": "2026-05-06T04:54:49+00:00", "name": "fn_80169A84", "key": "last_pct", "value": 71.0, "source_commit": "59e33aebe"}
+{"ts": "2026-05-06T04:45:42+00:00", "name": "mnInfo_80252758", "key": "last_pct", "value": 78.25, "source_commit": "c1ece77a1"}
+{"ts": "2026-05-06T04:45:42+00:00", "name": "mnInfo_80252758", "key": "status", "value": "permuter-queued", "source_commit": "c1ece77a1"}
+{"ts": "2026-05-06T04:39:02+00:00", "name": "grMaterial_801C92C0", "key": "last_pct", "value": 95.09, "source_commit": "58121785f"}
+{"ts": "2026-05-06T04:39:02+00:00", "name": "grMaterial_801C92C0", "key": "status", "value": "permuter-queued", "source_commit": "58121785f"}
+{"ts": "2026-05-06T04:34:32+00:00", "name": "ftKb_YsSpecialAirN2_1_Anim", "key": "last_pct", "value": 99.89, "source_commit": "8e749f5f3"}
+{"ts": "2026-05-06T04:34:32+00:00", "name": "ftKb_YsSpecialAirN2_1_Anim", "key": "status", "value": "permuter-queued", "source_commit": "8e749f5f3"}
+{"ts": "2026-05-06T04:30:22+00:00", "name": "mn_8022FB88", "key": "last_pct", "value": 92.45, "source_commit": "1b6e6e958"}
+{"ts": "2026-05-06T04:30:22+00:00", "name": "mn_8022FB88", "key": "status", "value": "permuter-queued", "source_commit": "1b6e6e958"}
+{"ts": "2026-05-06T04:28:14+00:00", "name": "ftKb_SpecialAirLwEnd_Coll", "key": "last_pct", "value": 80.9, "source_commit": "22d08ce40"}
+{"ts": "2026-05-06T04:20:07+00:00", "name": "grIceMt_801F993C", "key": "last_pct", "value": 76.39, "source_commit": "ff922c48a"}
+{"ts": "2026-05-06T04:20:07+00:00", "name": "grIceMt_801F993C", "key": "status", "value": "permuter-queued", "source_commit": "ff922c48a"}
+{"ts": "2026-05-06T04:19:47+00:00", "name": "ftCo_800D730C", "key": "last_pct", "value": 64.97, "source_commit": "a879005a2"}
+{"ts": "2026-05-06T04:19:47+00:00", "name": "ftCo_800D730C", "key": "status", "value": "permuter-queued", "source_commit": "a879005a2"}
+{"ts": "2026-05-06T04:18:19+00:00", "name": "lbMemory_80015320", "key": "last_pct", "value": 93.66, "source_commit": "fa32a1ed0"}
+{"ts": "2026-05-06T04:18:19+00:00", "name": "lbMemory_80015320", "key": "status", "value": "permuter-queued", "source_commit": "fa32a1ed0"}
+{"ts": "2026-05-06T04:17:13+00:00", "name": "gm_8016260C", "key": "last_pct", "value": 97.9, "source_commit": "826793d18"}
+{"ts": "2026-05-06T04:17:13+00:00", "name": "gm_8016260C", "key": "status", "value": "permuter-queued", "source_commit": "826793d18"}
+{"ts": "2026-05-06T04:14:23+00:00", "name": "fn_8031438C", "key": "last_pct", "value": 95.1, "source_commit": "13a79bb02"}
+{"ts": "2026-05-06T04:14:23+00:00", "name": "fn_8031438C", "key": "status", "value": "permuter-queued", "source_commit": "13a79bb02"}
+{"ts": "2026-05-06T04:12:01+00:00", "name": "fn_80160DE8", "key": "last_pct", "value": 97.9, "source_commit": "19c3c4915"}
+{"ts": "2026-05-06T04:12:01+00:00", "name": "fn_80160DE8", "key": "status", "value": "permuter-queued", "source_commit": "19c3c4915"}
+{"ts": "2026-05-06T04:09:45+00:00", "name": "un_80307470", "key": "last_pct", "value": 88.6, "source_commit": "b5fe57ef4"}
+{"ts": "2026-05-06T04:09:45+00:00", "name": "un_80307470", "key": "status", "value": "permuter-queued", "source_commit": "b5fe57ef4"}
+{"ts": "2026-05-06T04:08:07+00:00", "name": "grGreens_80215D54", "key": "last_pct", "value": 78.4, "source_commit": "83ed21336"}
+{"ts": "2026-05-06T04:08:07+00:00", "name": "grGreens_80215D54", "key": "status", "value": "permuter-queued", "source_commit": "83ed21336"}
+{"ts": "2026-05-06T04:07:52+00:00", "name": "gmCamera_801A292C", "key": "last_pct", "value": 72.58, "source_commit": "24a0fe193"}
+{"ts": "2026-05-06T03:52:23+00:00", "name": "un_80311960", "key": "last_pct", "value": 93.74, "source_commit": "3b6393bed"}
+{"ts": "2026-05-06T03:52:23+00:00", "name": "un_80311960", "key": "status", "value": "permuter-queued", "source_commit": "3b6393bed"}
+{"ts": "2026-05-06T03:51:39+00:00", "name": "mnDataDel_80250170", "key": "last_pct", "value": 68.94, "source_commit": "ab39565de"}
+{"ts": "2026-05-06T03:51:39+00:00", "name": "mnDataDel_80250170", "key": "status", "value": "permuter-queued", "source_commit": "ab39565de"}
+{"ts": "2026-05-06T03:43:20+00:00", "name": "fn_801F8E58", "key": "last_pct", "value": 73.9, "source_commit": "7dd80e483"}
+{"ts": "2026-05-06T03:43:20+00:00", "name": "fn_801F8E58", "key": "status", "value": "permuter-queued", "source_commit": "7dd80e483"}
+{"ts": "2026-05-06T03:41:08+00:00", "name": "fn_8021E994", "key": "last_pct", "value": 96.15, "source_commit": "d3ce86d1f"}
+{"ts": "2026-05-06T03:41:08+00:00", "name": "fn_8021E994", "key": "status", "value": "permuter-queued", "source_commit": "d3ce86d1f"}
+{"ts": "2026-05-06T03:36:20+00:00", "name": "ftCo_CapturePulledHi_Phys", "key": "last_pct", "value": 98.14, "source_commit": "534ca3a33"}
+{"ts": "2026-05-06T03:36:20+00:00", "name": "ftCo_CapturePulledHi_Phys", "key": "status", "value": "permuter-queued", "source_commit": "534ca3a33"}
+{"ts": "2026-05-06T03:35:24+00:00", "name": "grPura_80212FC0", "key": "last_pct", "value": 94.29, "source_commit": "1fa8532d6"}
+{"ts": "2026-05-06T03:35:24+00:00", "name": "grPura_80212FC0", "key": "status", "value": "permuter-queued", "source_commit": "1fa8532d6"}
+{"ts": "2026-05-06T03:15:32+00:00", "name": "ifStatus_802F6EA4", "key": "last_pct", "value": 98.2, "source_commit": "b8ae31163"}
+{"ts": "2026-05-06T03:15:32+00:00", "name": "ifStatus_802F6EA4", "key": "status", "value": "permuter-queued", "source_commit": "b8ae31163"}
+{"ts": "2026-05-06T03:05:18+00:00", "name": "ifMagnify_802FB73C", "key": "last_pct", "value": 96.96, "source_commit": "4fc9e7951"}
+{"ts": "2026-05-06T03:05:18+00:00", "name": "ifMagnify_802FB73C", "key": "status", "value": "permuter-queued", "source_commit": "4fc9e7951"}
+{"ts": "2026-05-06T03:03:01+00:00", "name": "fn_80165548", "key": "last_pct", "value": 96.13, "source_commit": "277f01173"}
+{"ts": "2026-05-06T03:03:01+00:00", "name": "fn_80165548", "key": "status", "value": "permuter-queued", "source_commit": "277f01173"}
+{"ts": "2026-05-06T02:57:37+00:00", "name": "mnDataDel_8024EA6C", "key": "last_pct", "value": 89.74, "source_commit": "ac454ea2d"}
+{"ts": "2026-05-06T02:52:17+00:00", "name": "fn_802523D8", "key": "last_pct", "value": 93.79, "source_commit": "338c830f5"}
+{"ts": "2026-05-06T02:52:17+00:00", "name": "fn_802523D8", "key": "status", "value": "permuter-queued", "source_commit": "338c830f5"}
+{"ts": "2026-05-06T02:50:40+00:00", "name": "mnStageSw_80235C58", "key": "last_pct", "value": 94.13, "source_commit": "298a51479"}
+{"ts": "2026-05-06T02:50:40+00:00", "name": "mnStageSw_80235C58", "key": "status", "value": "permuter-queued", "source_commit": "298a51479"}
+{"ts": "2026-05-06T02:49:27+00:00", "name": "lbArq_80014BD0", "key": "last_pct", "value": 93.97, "source_commit": "e59ff3f1a"}
+{"ts": "2026-05-06T02:49:27+00:00", "name": "lbArq_80014BD0", "key": "status", "value": "permuter-queued", "source_commit": "e59ff3f1a"}
+{"ts": "2026-05-06T02:39:24+00:00", "name": "grAnime_801C8578", "key": "last_pct", "value": 89.14, "source_commit": "3585895c6"}
+{"ts": "2026-05-06T02:39:24+00:00", "name": "grAnime_801C8578", "key": "status", "value": "permuter-queued", "source_commit": "3585895c6"}
+{"ts": "2026-05-06T02:36:04+00:00", "name": "ftKb_SpecialN_800EED50", "key": "last_pct", "value": 76.29, "source_commit": "6aef40bd6"}
+{"ts": "2026-05-06T02:36:04+00:00", "name": "ftKb_SpecialN_800EED50", "key": "status", "value": "permuter-queued", "source_commit": "6aef40bd6"}
+{"ts": "2026-05-06T02:33:17+00:00", "name": "mnDataDel_8024E940", "key": "last_pct", "value": 87.2, "source_commit": "c77c72605"}
+{"ts": "2026-05-06T02:32:37+00:00", "name": "fn_801F9038", "key": "last_pct", "value": 99.14, "source_commit": "ff7b31ba8"}
+{"ts": "2026-05-06T02:32:37+00:00", "name": "fn_801F9038", "key": "status", "value": "permuter-queued", "source_commit": "ff7b31ba8"}
+{"ts": "2026-05-06T02:32:23+00:00", "name": "gmCamera_801A33BC", "key": "last_pct", "value": 96.88, "source_commit": "386836b53"}
+{"ts": "2026-05-06T02:32:23+00:00", "name": "gmCamera_801A33BC", "key": "status", "value": "permuter-queued", "source_commit": "386836b53"}
+{"ts": "2026-05-06T02:30:00+00:00", "name": "gm_801B0DD0", "key": "last_pct", "value": 87.94, "source_commit": "7c5c4d9c0"}
+{"ts": "2026-05-06T02:30:00+00:00", "name": "gm_801B0DD0", "key": "status", "value": "permuter-queued", "source_commit": "7c5c4d9c0"}
+{"ts": "2026-05-06T02:29:47+00:00", "name": "gm_801BD028", "key": "last_pct", "value": 87.53, "source_commit": "aa753be1d"}
+{"ts": "2026-05-06T02:29:47+00:00", "name": "gm_801BD028", "key": "status", "value": "permuter-queued", "source_commit": "aa753be1d"}
+{"ts": "2026-05-06T02:15:08+00:00", "name": "un_803067BC", "key": "last_pct", "value": 84.04, "source_commit": "cc20e0801"}
+{"ts": "2026-05-06T02:15:08+00:00", "name": "un_803067BC", "key": "status", "value": "permuter-queued", "source_commit": "cc20e0801"}
+{"ts": "2026-05-06T02:09:21+00:00", "name": "gm_801BAC9C", "key": "last_pct", "value": 96.57, "source_commit": "3a869496d"}
+{"ts": "2026-05-06T02:09:21+00:00", "name": "gm_801BAC9C", "key": "status", "value": "permuter-queued", "source_commit": "3a869496d"}
+{"ts": "2026-05-06T02:08:30+00:00", "name": "gm_80164910", "key": "last_pct", "value": 98.81, "source_commit": "41c0f4bd7"}
+{"ts": "2026-05-06T02:08:30+00:00", "name": "gm_80164910", "key": "status", "value": "permuter-queued", "source_commit": "41c0f4bd7"}
+{"ts": "2026-05-06T02:08:03+00:00", "name": "mn_80230198", "key": "last_pct", "value": 82.0, "source_commit": "5ef265073"}
+{"ts": "2026-05-06T01:52:14+00:00", "name": "grPura_8021231C", "key": "last_pct", "value": 99.84, "source_commit": "46f416a31"}
+{"ts": "2026-05-06T01:52:14+00:00", "name": "grPura_8021231C", "key": "status", "value": "permuter-queued", "source_commit": "46f416a31"}
+{"ts": "2026-05-06T01:35:37+00:00", "name": "ftCo_800D74A4", "key": "last_pct", "value": 92.0, "source_commit": "e6e0375a7"}
+{"ts": "2026-05-06T01:35:37+00:00", "name": "ftCo_800D74A4", "key": "status", "value": "permuter-queued", "source_commit": "e6e0375a7"}
+{"ts": "2026-05-06T01:34:56+00:00", "name": "grPura_80212EF4", "key": "last_pct", "value": 89.8, "source_commit": "49b851be9"}
+{"ts": "2026-05-06T01:34:56+00:00", "name": "grPura_80212EF4", "key": "status", "value": "permuter-queued", "source_commit": "49b851be9"}
+{"ts": "2026-05-06T01:27:28+00:00", "name": "grPura_80212024", "key": "last_pct", "value": 99.91, "source_commit": "0091c5d2c"}
