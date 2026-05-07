@@ -24,7 +24,7 @@ Write-Host "==> melee p@h cluster server bootstrap" -ForegroundColor Cyan
 Write-Host ""
 
 # 1. Detect LAN IP if not passed. Use the IP on the interface that owns the
-# default route — that's the "real" LAN side, not VirtualBox / vEthernet /
+# default route -- that's the "real" LAN side, not VirtualBox / vEthernet /
 # WSL host-only adapters that just happen to also have IPv4 addresses.
 if (-not $LanIp) {
     try {
@@ -53,7 +53,7 @@ if (-not $LanIp) {
 Write-Host "    LAN IP: $LanIp" -ForegroundColor Green
 
 # 2. Verify Docker Desktop is running. Use `docker version` (lighter and more
-# reliable than `docker info` — the latter can hang or return non-zero
+# reliable than `docker info` -- the latter can hang or return non-zero
 # even on a healthy daemon when Docker Desktop is mid-startup).
 Write-Host "    checking Docker..." -NoNewline
 $dockerOk = $false
@@ -103,7 +103,7 @@ if (Test-Path $cfgPath) {
     Write-Host "    controller_address = $newAddr" -ForegroundColor Green
 }
 if (-not (Test-Path $cfgPath)) {
-    Write-Host "    no pah_config.toml yet — controller will create on first start" -ForegroundColor DarkYellow
+    Write-Host "    no pah_config.toml yet -- controller will create on first start" -ForegroundColor DarkYellow
 }
 
 # 4. Start the controller container (detached) unless told otherwise.
@@ -111,7 +111,7 @@ $running = & docker ps --filter "name=melee-pah-controller" --format "{{.Names}}
 if ($running -eq "melee-pah-controller") {
     Write-Host "    controller already running" -ForegroundColor Green
 } elseif ($NoControllerRestart) {
-    Write-Host "    controller not running and -NoControllerRestart set — skipping" -ForegroundColor DarkYellow
+    Write-Host "    controller not running and -NoControllerRestart set -- skipping" -ForegroundColor DarkYellow
 } else {
     Write-Host "    starting controller on port $ControllerPort..."
     # Remove any stale stopped container first so the rerun is clean.
@@ -149,10 +149,10 @@ Write-Host ""
 Write-Host "    viz:        http://${LanIp}:$VizPort/" -ForegroundColor White
 Write-Host "    controller: ${LanIp}:$ControllerPort"   -ForegroundColor White
 Write-Host ""
-Write-Host "    worker bootstrap (mac/linux) — paste as one line:" -ForegroundColor Cyan
+Write-Host "    worker bootstrap (mac/linux) -- paste as one line:" -ForegroundColor Cyan
 Write-Host "      CONTROLLER_URL=http://${LanIp}:$VizPort curl -fsSL $kitBase/setup-worker.sh | bash" -ForegroundColor Gray
 Write-Host ""
-Write-Host "    worker bootstrap (windows) — paste as one line:" -ForegroundColor Cyan
+Write-Host "    worker bootstrap (windows) -- paste as one line:" -ForegroundColor Cyan
 Write-Host "      iwr $kitBase/bootstrap-worker.ps1 -OutFile `$env:TEMP\bs.ps1; & `$env:TEMP\bs.ps1 -KitUrl $kitBase/pah-worker-kit.zip -InstallPrereqs" -ForegroundColor Gray
 Write-Host ""
 Write-Host "    starting viz... ctrl-c to stop (controller keeps running)" -ForegroundColor Cyan
@@ -165,6 +165,6 @@ $env:VIZ_PORT = "$VizPort"
 # interfaces. Default (127.0.0.1) only protects standalone use.
 $env:VIZ_BIND = "0.0.0.0"
 
-# Foreground exec — user sees viz logs and ctrl-c stops it cleanly.
+# Foreground exec -- user sees viz logs and ctrl-c stops it cleanly.
 & python tools/viz/serve.py
 exit $LASTEXITCODE
