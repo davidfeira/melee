@@ -49,11 +49,15 @@ def _archive(label: str | None) -> Path | None:
 
 
 def _seed(label: str | None, note: str | None, archived: Path | None) -> None:
+    import sys as _sys
+    _sys.path.insert(0, str(ROOT))
+    import events_schema  # noqa: E402
+
     EVENTS.touch()
     event = {
         "t": datetime.now(timezone.utc).timestamp(),
         "actor": "system",
-        "event": "session_start",
+        "event": events_schema.SESSION_START,
         "label": label or "",
         "note": note or "",
         "previous_archive": archived.name if archived else "",

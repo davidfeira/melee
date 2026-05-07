@@ -35,8 +35,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "tools"))
+sys.path.insert(0, str(ROOT / "tools" / "viz"))
 
 from state import state as state_mod  # noqa: E402
+import events_schema  # noqa: E402
 
 REPORT = ROOT / "build" / "GALE01" / "report.json"
 OBJDIFF = ROOT / "build" / "tools" / "objdiff-cli.exe"
@@ -51,7 +53,7 @@ def _emit_viz_event(name: str, pct: float | None, action: str) -> None:
     ev = {
         "t": time.time(),
         "actor": "verify",
-        "event": "verify",
+        "event": events_schema.VERIFY,
         "func": name,
         "match_percent": pct,
         "action": action,

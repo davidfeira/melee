@@ -299,7 +299,13 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         self.wfile.write(body)
 
     def _sessions(self):
-        """List archived sessions under tools/viz/sessions/ with summary stats."""
+        """List archived sessions under tools/viz/sessions/ with summary stats.
+
+        Bucket assignment delegates to events_schema.classify() so the
+        canonical event-name → outcome mapping lives in exactly one place
+        (mirror of EVENTS.md).
+        """
+        from events_schema import classify  # local import — avoid hard dep
         sessions_dir = Path(__file__).resolve().parent / "sessions"
         out = []
         if sessions_dir.is_dir():
@@ -322,19 +328,9 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                             if isinstance(t, (int, float)):
                                 first_t = t if first_t is None else min(first_t, t)
                                 last_t = t if last_t is None else max(last_t, t)
-                            kind = ev.get("event")
-                            if kind == "dispatch":
-                                stats["dispatches"] += 1
-                            elif kind == "match":
-                                strict = ev.get("strict")
-                                if strict and float(strict) >= 100.0:
-                                    stats["matches"] += 1
-                                else:
-                                    stats["near"] += 1
-                            elif kind == "stuck":
-                                stats["stuck"] += 1
-                            elif kind == "permuter_start":
-                                stats["queued"] += 1
+                            bucket = classify(ev)
+                            if bucket and bucket in stats:
+                                stats[bucket] += 1
                             f = ev.get("func")
                             if f:
                                 stats["funcs"].add(f)

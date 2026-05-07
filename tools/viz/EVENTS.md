@@ -6,6 +6,14 @@ visualization by appending events in this format. Subscribe live via SSE on
 `GET /events`, replay history via `GET /history`, or POST one event at a
 time to `POST /events`.
 
+> **Programmatic mirror:** `tools/viz/events_schema.py` exports event-name
+> constants and a `classify(event_dict)` helper that maps events to
+> outcome buckets (matches/near/stuck/queued/dispatches). All Python
+> producers and consumers reference it. If you add a new event below,
+> also add it there so `/sessions` and other counters stay coherent —
+> that's how the early "0 stuck despite 112 stuck events" desync got
+> resolved.
+
 ## Common fields
 
 Every event line is a JSON object with at least:
