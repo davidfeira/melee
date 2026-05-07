@@ -95,16 +95,14 @@ if (Test-Path $cfgPath) {
     # Write/overwrite controller_address so /kit/info doesn't have to fall back
     # to the request Host header. Workers fetching /kit/pah.conf will then get
     # the right server_address regardless of how the viz is launched.
-    $cfgText = Get-Content $cfgPath -Raw
-    $newAddr = "${LanIp}:${ControllerPort}"
-    if ($cfgText -match '(?m)^controller_address\s*=') {
-        $cfgText = ($cfgText -replace '(?m)^controller_address\s*=.*$', "controller_address = `"$newAddr`"")
-    } else {
-        $cfgText = $cfgText.TrimEnd() + "`ncontroller_address = `"$newAddr`"`n"
-    }
-    Set-Content -Path $cfgPath -Value $cfgText -NoNewline -Encoding ASCII
+    $newAddr = $LanIp + ":" + $ControllerPort
+    $newLine = 'controller_address = "' + $newAddr + '"'
+    $kept = Get-Content $cfgPath | Where-Object { $_ -notmatch '^controller_address\s*=' }
+    $kept = @($kept) + @($newLine)
+    Set-Content -Path $cfgPath -Value $kept -Encoding ASCII
     Write-Host "    controller_address = $newAddr" -ForegroundColor Green
-} else {
+}
+if (-not (Test-Path $cfgPath)) {
     Write-Host "    no pah_config.toml yet — controller will create on first start" -ForegroundColor DarkYellow
 }
 
@@ -116,17 +114,30 @@ if ($running -eq "melee-pah-controller") {
     Write-Host "    controller not running and -NoControllerRestart set — skipping" -ForegroundColor DarkYellow
 } else {
     Write-Host "    starting controller on port $ControllerPort..."
-    $startScript = Join-Path $RepoRoot "build-linux\pah-worker-kit\tools\pah\start-controller.ps1"
-    if (-not (Test-Path $startScript)) {
-        throw "start-controller.ps1 not found at $startScript"
-    }
     # Remove any stale stopped container first so the rerun is clean.
     $stale = & docker ps -a --filter "name=melee-pah-controller" --format "{{.Names}}" 2>$null
     if ($stale -eq "melee-pah-controller") {
         & docker rm -f melee-pah-controller 2>&1 | Out-Null
     }
-    & $startScript -Port $ControllerPort -Detach
-    if ($LASTEXITCODE -ne 0) { throw "start-controller.ps1 exit $LASTEXITCODE" }
+    # Inline the controller-launch logic so we don't depend on the kit's
+    # broken RepoRoot computation. The kit-bundled start-controller.ps1
+    # uses $PSScriptRoot/../.. which inside build-linux/pah-worker-kit/
+    # points at the wrong directory.
+    $stateDirAbs = Join-Path $RepoRoot "build-linux\pah-controller-state"
+    if (-not (Test-Path $stateDirAbs)) {
+        throw "controller state dir missing: $stateDirAbs"
+    }
+    $dockerStatePath = $stateDirAbs -replace "\\", "/"
+    & docker run -d `
+        --name melee-pah-controller `
+        -p "${ControllerPort}:${ControllerPort}" `
+        -v "${dockerStatePath}:/state" `
+        "melee-pah-controller:local" `
+        run `
+        --listen-on "0.0.0.0:${ControllerPort}" `
+        --config /state/pah_config.toml `
+        --db /state/pah_db.json | Out-Null
+    if ($LASTEXITCODE -ne 0) { throw "docker run exit $LASTEXITCODE" }
     Write-Host "    controller started" -ForegroundColor Green
 }
 
