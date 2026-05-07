@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 # tools/pah/setup-worker.sh — one-command p@h worker bootstrap for Linux/macOS.
 #
-# From a fresh machine:
-#   CONTROLLER_URL=http://192.168.1.50:8080 \
-#     curl -fsSL https://raw.githubusercontent.com/davidfeira/melee/system-rebuild/tools/pah/setup-worker.sh | bash
+# From a fresh machine (note: CONTROLLER_URL is on the BASH side of the pipe,
+# not curl, so the env var actually reaches the script):
+#   curl -fsSL http://<controller-ip>:7777/kit/setup-worker.sh \
+#     | CONTROLLER_URL=http://<controller-ip>:7777 bash
 #
 # Or from a checkout:
 #   CONTROLLER_URL=http://192.168.1.50:8080 ./tools/pah/setup-worker.sh
@@ -37,9 +38,13 @@ CORES="${CORES:-}"
 MEMORY_GB="${MEMORY_GB:-}"
 
 if [[ -z "${CONTROLLER_URL:-}" ]]; then
-  echo "CONTROLLER_URL is required, e.g.:" >&2
-  echo "  CONTROLLER_URL=http://192.168.1.50:8080 $0" >&2
-  echo "(get the URL from \`python tools/pah/start-controller.ps1\` on the main machine)" >&2
+  echo "CONTROLLER_URL is required." >&2
+  echo "" >&2
+  echo "If you piped curl into bash, put the env var on bash:" >&2
+  echo "  curl -fsSL <url>/kit/setup-worker.sh | CONTROLLER_URL=<url> bash" >&2
+  echo "" >&2
+  echo "Or if running directly:" >&2
+  echo "  CONTROLLER_URL=<url> $0" >&2
   exit 2
 fi
 
