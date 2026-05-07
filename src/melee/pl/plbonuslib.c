@@ -1497,8 +1497,8 @@ float pl_800407C8(int arg0)
     temp_r3 = Player_GetStaleMoveTableIndexPtr2(arg0);
     temp_r5 = temp_r3->x0_staleMoveTable.xCEC;
     if (temp_r5 != 0) {
-        float tmp = temp_r3->x0_staleMoveTable.xCEC;
-        temp_f31 = temp_r3->x0_staleMoveTable.xCF0;
+        float tmp = (float)temp_r5;
+        temp_f31 = (float)(u32)temp_r3->x0_staleMoveTable.xCF0;
         return pl_CalculateAverage(temp_f31, tmp);
     }
     return 0.0f;
