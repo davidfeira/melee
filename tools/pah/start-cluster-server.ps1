@@ -23,18 +23,28 @@ Write-Host ""
 Write-Host "==> melee p@h cluster server bootstrap" -ForegroundColor Cyan
 Write-Host ""
 
-# 1. Detect LAN IP if not passed.
+# 1. Detect LAN IP if not passed. Use the IP on the interface that owns the
+# default route — that's the "real" LAN side, not VirtualBox / vEthernet /
+# WSL host-only adapters that just happen to also have IPv4 addresses.
 if (-not $LanIp) {
-    $candidates = Get-NetIPAddress -AddressFamily IPv4 -ErrorAction SilentlyContinue |
-        Where-Object {
-            $_.InterfaceAlias -notmatch 'Loopback|vEthernet|WSL' -and
-            $_.IPAddress -notmatch '^169\.|^127\.'
-        } |
-        Select-Object -ExpandProperty IPAddress
-    # Prefer 192.168.* over 10.* over others.
-    $LanIp = ($candidates | Where-Object { $_ -like "192.168.*" } | Select-Object -First 1)
+    try {
+        $defaultRoute = Get-NetRoute -DestinationPrefix '0.0.0.0/0' -ErrorAction SilentlyContinue |
+            Sort-Object -Property RouteMetric, ifMetric |
+            Select-Object -First 1
+        if ($defaultRoute) {
+            $LanIp = (Get-NetIPAddress -InterfaceIndex $defaultRoute.ifIndex -AddressFamily IPv4 -ErrorAction SilentlyContinue).IPAddress
+        }
+    } catch {}
     if (-not $LanIp) {
-        $LanIp = ($candidates | Select-Object -First 1)
+        # Fallback: filter known-virtual interface names.
+        $candidates = Get-NetIPAddress -AddressFamily IPv4 -ErrorAction SilentlyContinue |
+            Where-Object {
+                $_.InterfaceAlias -notmatch 'Loopback|vEthernet|WSL|VirtualBox|Hyper-V|VMware|Tailscale' -and
+                $_.IPAddress -notmatch '^169\.|^127\.|^192\.168\.56\.|^192\.168\.99\.'
+            } |
+            Select-Object -ExpandProperty IPAddress
+        $LanIp = ($candidates | Where-Object { $_ -like "192.168.*" } | Select-Object -First 1)
+        if (-not $LanIp) { $LanIp = ($candidates | Select-Object -First 1) }
     }
     if (-not $LanIp) {
         throw "Could not detect a LAN IP. Pass -LanIp 192.168.x.y explicitly."
@@ -42,17 +52,31 @@ if (-not $LanIp) {
 }
 Write-Host "    LAN IP: $LanIp" -ForegroundColor Green
 
-# 2. Verify Docker Desktop is running.
+# 2. Verify Docker Desktop is running. Use `docker version` (lighter and more
+# reliable than `docker info` — the latter can hang or return non-zero
+# even on a healthy daemon when Docker Desktop is mid-startup).
 Write-Host "    checking Docker..." -NoNewline
+$dockerOk = $false
 try {
-    & docker info 2>&1 | Out-Null
-    if ($LASTEXITCODE -ne 0) { throw "docker info exit $LASTEXITCODE" }
+    $null = & docker version --format '{{.Server.Version}}' 2>&1
+    if ($LASTEXITCODE -eq 0) { $dockerOk = $true }
+} catch {}
+if (-not $dockerOk) {
+    # Second-chance: maybe `docker ps` works even when version doesn't (some
+    # Docker Desktop versions take a moment to warm up the engine).
+    try {
+        $null = & docker ps --format '{{.ID}}' 2>&1
+        if ($LASTEXITCODE -eq 0) { $dockerOk = $true }
+    } catch {}
+}
+if ($dockerOk) {
     Write-Host " ok" -ForegroundColor Green
-} catch {
+} else {
     Write-Host " NOT RUNNING" -ForegroundColor Red
     Write-Host ""
     Write-Host "Open Docker Desktop from the Start menu, wait until the whale icon" -ForegroundColor Yellow
     Write-Host "in the tray says 'Engine running', then re-run this script." -ForegroundColor Yellow
+    Write-Host "(If Docker Desktop IS running, try: docker version )" -ForegroundColor DarkYellow
     exit 2
 }
 
