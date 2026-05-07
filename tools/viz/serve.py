@@ -178,7 +178,9 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             self._master_log()
         elif self.path == "/state":
             self._state()
-        elif self.path == "/sessions":
+        elif self.path in ("/sessions", "/sessions/"):
+            # Also catch /sessions/ — without this, SimpleHTTPRequestHandler
+            # serves the real tools/viz/sessions/ directory listing.
             self._sessions()
         elif self.path.startswith("/note?"):
             self._note()

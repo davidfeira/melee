@@ -1383,9 +1383,12 @@ async function renderSessions() {
     const r = await fetch("/sessions");
     const ct = (r.headers.get("Content-Type") || "").toLowerCase();
     if (!r.ok || !ct.includes("json")) {
-      // Server doesn't know /sessions (probably stale serve.py) or hit an error.
       const txt = (await r.text()).slice(0, 200);
-      tbody.innerHTML = `<tr><td colspan="10" style="color:#b04545">/sessions returned HTTP ${r.status} (not JSON). The viz server is likely from before the /sessions route was added — restart it: <code>python tools/viz/serve.py</code><br><span style="opacity:0.6">first 200 chars: ${escapeHtml(txt)}</span></td></tr>`;
+      const isDirListing = txt.includes("Directory listing");
+      const why = isDirListing
+        ? "Got a directory listing instead of JSON — your serve.py predates the /sessions route. Restart it: <code>python tools/viz/serve.py</code>"
+        : `Endpoint returned non-JSON content-type "${ct || "(none)"}" with status ${r.status}.`;
+      tbody.innerHTML = `<tr><td colspan="10" style="color:#b04545">${why}<br><span style="opacity:0.6">first 200 chars: ${escapeHtml(txt)}</span></td></tr>`;
       return;
     }
     data = await r.json();
