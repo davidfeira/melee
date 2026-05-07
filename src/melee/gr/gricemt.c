@@ -124,10 +124,10 @@ StageData grIm_803E4800 = {
     3,
 };
 
-const float grIm_804DB574 = 0.0F;
-const float grIm_804DB5B0 = -1.0F;
-const float grIm_804DB5B4 = 1.0F;
-const float grIm_804DB5B8 = 6.0F;
+extern const float grIm_804DB574;
+extern const float grIm_804DB5B0;
+extern const float grIm_804DB5B4;
+extern const float grIm_804DB5B8;
 
 void grIceMt_801F6868(bool id) {}
 
@@ -1278,6 +1278,7 @@ void fn_801F9338(Ground* gp, int arg1, CollData* arg2, s32 arg3,
 {
     HSD_GObj* gobj;
     s16* p = (s16*) ((u8*) gp + 0x100);
+    u8 pad[8];
 
     if ((s32) arg2->x34_flags.b1234 == 1) {
         if (p[0] == 0) {
@@ -1736,3 +1737,8 @@ bool grIceMt_801FA900(Vec3* a, int id, HSD_JObj* jobj)
 {
     return true;
 }
+
+const float grIm_804DB574 = 0.0F;
+const float grIm_804DB5B0 = -1.0F;
+const float grIm_804DB5B4 = 1.0F;
+const float grIm_804DB5B8 = 6.0F;
