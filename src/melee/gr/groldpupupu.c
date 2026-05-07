@@ -100,6 +100,9 @@ StageData grOp_803E6748 = {
     0,
 };
 
+static char grOp_803E677C[] = "%s:%d: couldn t get gobj(id=%d)\n";
+static char grOp_803E67A0[] = "groldpupupu.c";
+
 static grOldPupupuSpawnDesc grOp_803E67B0[10] = {
     { -1, 1, 1 }, { 1, 1, 3 },   { 1, 1, 5 },  { -1, 1, 7 },  { -1, 0, 9 },
     { 1, 0, 11 }, { -1, 0, 13 }, { 1, 0, 15 }, { -1, 0, 17 }, { 1, 0, 19 },
@@ -161,8 +164,7 @@ HSD_GObj* grOldPupupu_802108B4(int arg0)
     if (gobj != NULL) {
         Ground_SetupStageCallbacks(gobj, callbacks);
     } else {
-        OSReport("%s:%d: couldn t get gobj(id=%d)\n", "groldpupupu.c", 0xD9,
-                 arg0);
+        OSReport(grOp_803E677C, grOp_803E67A0, 0xD9, arg0);
     }
 
     return gobj;
@@ -413,10 +415,11 @@ void grOldPupupu_80211198(Ground_GObj* arg) {}
 
 void grOldPupupu_8021119C(Ground_GObj* gobj)
 {
-    Ground* gp = gobj->user_data;
     s32 max;
     s32 min;
+    Ground* gp;
 
+    gp = gobj->user_data;
     ftCo_800C06E8(gobj, 0xA, fn_802112F4);
     gp->gv.oldpupupu.xC4 = 0;
     gp->gv.oldpupupu.xC8 = 0;
@@ -427,16 +430,22 @@ void grOldPupupu_8021119C(Ground_GObj* gobj)
 
     if (max > min) {
         s32 range = max - min;
+        s32 rnd;
         if (range != 0) {
-            max = min + HSD_Randi(range);
+            rnd = HSD_Randi(range);
         } else {
-            max = min;
+            rnd = 0;
         }
+        max = min + rnd;
     } else if (max < min) {
         s32 range = min - max;
+        s32 rnd;
         if (range != 0) {
-            max += HSD_Randi(range);
+            rnd = HSD_Randi(range);
+        } else {
+            rnd = 0;
         }
+        max += rnd;
     }
 
     gp->gv.oldpupupu.xD0 = max;
