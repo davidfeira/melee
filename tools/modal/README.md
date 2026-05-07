@@ -10,8 +10,10 @@ Modal containers don't naturally support that, so instead each Modal container
 runs `permuter.py` directly on a single function. One container per function;
 parallelism comes from spawning many containers, not from a shared controller.
 
-For our 87-function backlog this is actually a better fit — work is naturally
-shardable per-function and we don't need cross-worker progress sharing.
+For our backlog (~1400 candidates total, ~170 in the easy 99.5%+ pool as of
+the truthful state-tracking pass) this is actually a better fit — work is
+naturally shardable per-function and we don't need cross-worker progress
+sharing.
 
 ## One-time setup
 
@@ -34,15 +36,27 @@ Single function:
 python tools/modal/dispatch.py fn_803AC3F8 --budget 1800
 ```
 
-Batch from `permuter-queued` queue:
+Batch from the truthful candidate pool (sourced from `tools/state/state.py`,
+which joins `build/GALE01/report.json` with `tools/state/notes.jsonl`):
 
 ```
-python tools/modal/dispatch.py --list                    # preview
-python tools/modal/dispatch.py --batch 10 --budget 1800  # top 10, 30 min each
+python tools/modal/dispatch.py --list                              # all <100% candidates
+python tools/modal/dispatch.py --list --min-pct 99.5               # easy flips (~172)
+python tools/modal/dispatch.py --list --min-pct 95 --max-pct 99.5  # mid-tier
+python tools/modal/dispatch.py --batch 10 --min-pct 99.5           # top 10 easy flips
+python tools/modal/dispatch.py --batch 10 --skip-prepped           # skip already-tried
 ```
 
 `--parallel N` caps concurrent Modal invocations from your laptop (default 4);
 Modal itself runs every dispatched container in parallel.
+
+**Recommended cadence for the easy pool (>99.5%):**
+1. `--list --min-pct 99.5` to preview (~172 functions)
+2. `--batch 20 --min-pct 99.5 --budget 600` — 20 funcs, 10 min each
+3. Each container that hits 100% leaves a winning `output-*` in
+   `nonmatchings/<func>/`; `python tools/permute.py harvest <func>` extracts
+   the winner. The full-TU regression scan in `tools/state/verify.py` will
+   refuse the commit if a neighbor regresses.
 
 Results land in `nonmatchings/<func>/output-*` so the normal `harvest` /
 `commit-match` flow picks them up.

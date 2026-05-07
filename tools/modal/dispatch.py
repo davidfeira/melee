@@ -1,14 +1,20 @@
-"""Local dispatcher: fan out N permuter-queued functions to Modal in parallel.
+"""Local dispatcher: fan out N permuter candidates to Modal in parallel.
 
 Usage:
     python tools/modal/dispatch.py <func>                      # one function
-    python tools/modal/dispatch.py --batch 10                  # top 10 from queue
+    python tools/modal/dispatch.py --batch 10                  # top 10 by match%
     python tools/modal/dispatch.py --batch 10 --budget 1800    # 30 min each
+    python tools/modal/dispatch.py --list                      # show queue
+    python tools/modal/dispatch.py --list --min-pct 99         # only funcs ≥99%
 
-Reads `decomp-notes/<func>.md` frontmatter to pull the `permuter-queued` set,
-then invokes the deployed `melee-permuter` Modal app once per function. Results
-are unpacked into `nonmatchings/<func>/` so existing `harvest`/`reap` tooling
-(in `permute.py`) finds them.
+Reads candidates from `tools/state/state.py` (which joins build/GALE01/report.json
+with tools/state/notes.jsonl). Includes anything in the `permuter-queued`,
+`near` (95-99.99%), or `partial` (<95%) buckets — i.e. anything with a
+non-trivial decompilation that could benefit from permuter.
+
+For each dispatched function, invokes the deployed `melee-permuter` Modal app.
+Results unpack into `nonmatchings/<func>/` so existing `harvest`/`reap`
+tooling (in `permute.py`) finds them.
 
 Requires the Modal app to be deployed first:
     modal deploy tools/modal/permuter_app.py
@@ -23,24 +29,34 @@ import tempfile
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-NOTES_DIR = REPO_ROOT / "decomp-notes"
 NM_ROOT = REPO_ROOT / "nonmatchings"
 
+sys.path.insert(0, str(REPO_ROOT / "tools" / "viz"))
+sys.path.insert(0, str(REPO_ROOT / "tools"))
 
-def queued_functions() -> list[str]:
-    """Return functions tagged `permuter-queued` in their decomp-notes frontmatter."""
-    out: list[str] = []
-    for note in sorted(NOTES_DIR.glob("*.md")):
-        text = note.read_text(encoding="utf-8", errors="replace")
-        if "permuter-queued" in text and not _has_tag(text, "permuter-dispatched"):
-            out.append(note.stem)
+
+def candidates(min_pct: float = 0.0, max_pct: float = 99.99) -> list[tuple[str, float]]:
+    """Return [(func_name, match_percent), ...] sorted by descending match%.
+
+    Pulls from tools/state/state.py — the truthful current state. Excludes
+    100% matches (already done) and not_started (no body yet to permute).
+    """
+    from state import state as state_mod
+    out: list[tuple[str, float]] = []
+    for s in state_mod.load_state():
+        if s.match_percent is None:
+            continue
+        pct = float(s.match_percent)
+        if pct < min_pct or pct > max_pct:
+            continue
+        out.append((s.name, pct))
+    out.sort(key=lambda t: -t[1])
     return out
 
 
-def _has_tag(text: str, tag: str) -> bool:
-    """Cheap frontmatter tag check — avoids YAML dep."""
-    head, _, _ = text.partition("---\n---")
-    return tag in head
+def already_dispatched(func: str) -> bool:
+    """Check if this function already has a permuter run we haven't harvested."""
+    return (NM_ROOT / func / "modal-results.tar.gz").exists()
 
 
 def _tar_nm_dir(func: str) -> bytes:
@@ -97,16 +113,25 @@ def dispatch_one(func: str, wall_seconds: int, workers: int) -> dict:
 def main() -> int:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("func", nargs="?", help="single function name (mutually exclusive with --batch)")
-    p.add_argument("--batch", type=int, default=0, help="dispatch top N from permuter-queued")
-    p.add_argument("--list", action="store_true", help="list queued functions and exit")
+    p.add_argument("--batch", type=int, default=0, help="dispatch top N candidates by match%% (descending)")
+    p.add_argument("--list", action="store_true", help="list candidates and exit")
+    p.add_argument("--min-pct", type=float, default=0.0,
+                   help="only candidates with match%% >= this (default 0)")
+    p.add_argument("--max-pct", type=float, default=99.99,
+                   help="exclude candidates with match%% > this (default 99.99 — drops 100%% matches)")
+    p.add_argument("--skip-prepped", action="store_true",
+                   help="skip functions whose nonmatchings/<func>/ has a previous modal-results.tar.gz")
     p.add_argument("--budget", type=int, default=1800, help="wall-clock seconds per function (default 1800)")
     p.add_argument("--workers", type=int, default=8, help="-j N inside each container (default 8)")
     p.add_argument("--parallel", type=int, default=4, help="max concurrent Modal calls from this dispatcher (default 4)")
     args = p.parse_args()
 
     if args.list:
-        for f in queued_functions():
-            print(f)
+        rows = candidates(args.min_pct, args.max_pct)
+        print(f"{len(rows)} candidates (match%% in [{args.min_pct}, {args.max_pct}])")
+        for name, pct in rows:
+            marker = " [prev]" if already_dispatched(name) else ""
+            print(f"  {pct:6.2f}%  {name}{marker}")
         return 0
 
     if args.func and args.batch:
@@ -115,9 +140,12 @@ def main() -> int:
     if args.func:
         targets = [args.func]
     elif args.batch:
-        targets = queued_functions()[: args.batch]
+        rows = candidates(args.min_pct, args.max_pct)
+        if args.skip_prepped:
+            rows = [(n, p) for (n, p) in rows if not already_dispatched(n)]
+        targets = [n for n, _ in rows[: args.batch]]
         if not targets:
-            sys.exit("no permuter-queued functions found")
+            sys.exit("no candidates match the filter")
     else:
         p.print_help()
         return 1
