@@ -149,13 +149,11 @@ Write-Host ""
 Write-Host "    viz:        http://${LanIp}:$VizPort/" -ForegroundColor White
 Write-Host "    controller: ${LanIp}:$ControllerPort"   -ForegroundColor White
 Write-Host ""
-Write-Host "    worker bootstrap (mac/linux):" -ForegroundColor Cyan
-Write-Host "      CONTROLLER_URL=http://${LanIp}:$VizPort \" -ForegroundColor Gray
-Write-Host "        curl -fsSL $kitBase/setup-worker.sh | bash" -ForegroundColor Gray
+Write-Host "    worker bootstrap (mac/linux) — paste as one line:" -ForegroundColor Cyan
+Write-Host "      CONTROLLER_URL=http://${LanIp}:$VizPort curl -fsSL $kitBase/setup-worker.sh | bash" -ForegroundColor Gray
 Write-Host ""
-Write-Host "    worker bootstrap (windows):" -ForegroundColor Cyan
-Write-Host "      iwr $kitBase/bootstrap-worker.ps1 -OutFile `$env:TEMP\bs.ps1" -ForegroundColor Gray
-Write-Host "      & `$env:TEMP\bs.ps1 -KitUrl $kitBase/pah-worker-kit.zip -InstallPrereqs" -ForegroundColor Gray
+Write-Host "    worker bootstrap (windows) — paste as one line:" -ForegroundColor Cyan
+Write-Host "      iwr $kitBase/bootstrap-worker.ps1 -OutFile `$env:TEMP\bs.ps1; & `$env:TEMP\bs.ps1 -KitUrl $kitBase/pah-worker-kit.zip -InstallPrereqs" -ForegroundColor Gray
 Write-Host ""
 Write-Host "    starting viz... ctrl-c to stop (controller keeps running)" -ForegroundColor Cyan
 Write-Host ""
