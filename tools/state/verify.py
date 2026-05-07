@@ -40,6 +40,28 @@ from state import state as state_mod  # noqa: E402
 
 REPORT = ROOT / "build" / "GALE01" / "report.json"
 OBJDIFF = ROOT / "build" / "tools" / "objdiff-cli.exe"
+VIZ_EVENTS = ROOT / "tools" / "viz" / "events.jsonl"
+
+
+def _emit_viz_event(name: str, pct: float | None, action: str) -> None:
+    """Append an event to tools/viz/events.jsonl so the master-log
+    'this session' filter includes functions touched via verify.py.
+    """
+    import time
+    ev = {
+        "t": time.time(),
+        "actor": "verify",
+        "event": "verify",
+        "func": name,
+        "match_percent": pct,
+        "action": action,
+    }
+    try:
+        VIZ_EVENTS.parent.mkdir(parents=True, exist_ok=True)
+        with VIZ_EVENTS.open("a", encoding="utf-8") as fh:
+            fh.write(json.dumps(ev) + "\n")
+    except OSError:
+        pass  # Don't fail the verify just because we couldn't log.
 
 
 def _build_dir(linux: bool) -> Path:
@@ -172,6 +194,8 @@ def main() -> int:
 
     # Persist last_pct.
     state_mod.add_note(args.name, state_mod.KEY_LAST_PERCENT, pct, tu=tu)
+    # Emit to viz so the master-log "this session" filter sees it.
+    _emit_viz_event(args.name, pct, "verify")
     for note in args.note:
         if "=" not in note:
             sys.stderr.write(f"--note must be KEY=VALUE; got {note!r}\n")

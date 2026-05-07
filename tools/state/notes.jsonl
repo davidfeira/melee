@@ -329,3 +329,4 @@
 {"ts": "2026-05-06T01:34:56+00:00", "name": "grPura_80212EF4", "key": "last_pct", "value": 89.8, "source_commit": "49b851be9"}
 {"ts": "2026-05-06T01:34:56+00:00", "name": "grPura_80212EF4", "key": "status", "value": "permuter-queued", "source_commit": "49b851be9"}
 {"ts": "2026-05-06T01:27:28+00:00", "name": "grPura_80212024", "key": "last_pct", "value": 99.91, "source_commit": "0091c5d2c"}
+{"ts": "2026-05-07T19:04:25+00:00", "name": "grKongo_801D7F78", "key": "last_pct", "value": 99.73214, "tu": "melee/gr/grkongo.c"}

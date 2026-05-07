@@ -79,7 +79,9 @@ epilogue/
 # Viz event stream + hook payload debug log (local-only, regenerated)
 tools/viz/events.jsonl
 tools/viz/events.jsonl.*
+tools/viz/sessions/
 tools/viz/hook_payloads.jsonl
+tools/viz/screenshots/
 
 # Permuter / objdiff scratch
 tmp_*.json

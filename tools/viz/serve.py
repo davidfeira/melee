@@ -178,6 +178,8 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             self._master_log()
         elif self.path == "/state":
             self._state()
+        elif self.path == "/sessions":
+            self._sessions()
         elif self.path.startswith("/note?"):
             self._note()
         elif self.path == "/cpu":
@@ -289,6 +291,65 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         body = text.encode("utf-8")
         self.send_response(200)
         self.send_header("Content-Type", "text/plain; charset=utf-8")
+        self.send_header("Content-Length", str(len(body)))
+        self.send_header("Cache-Control", "no-cache")
+        self.end_headers()
+        self.wfile.write(body)
+
+    def _sessions(self):
+        """List archived sessions under tools/viz/sessions/ with summary stats."""
+        sessions_dir = Path(__file__).resolve().parent / "sessions"
+        out = []
+        if sessions_dir.is_dir():
+            for path in sorted(sessions_dir.glob("*.jsonl"), reverse=True):
+                stats = {"matches": 0, "near": 0, "stuck": 0, "queued": 0,
+                         "dispatches": 0, "events": 0, "funcs": set()}
+                first_t = last_t = None
+                try:
+                    with path.open("r", encoding="utf-8") as fh:
+                        for line in fh:
+                            line = line.strip()
+                            if not line:
+                                continue
+                            try:
+                                ev = json.loads(line)
+                            except json.JSONDecodeError:
+                                continue
+                            stats["events"] += 1
+                            t = ev.get("t")
+                            if isinstance(t, (int, float)):
+                                first_t = t if first_t is None else min(first_t, t)
+                                last_t = t if last_t is None else max(last_t, t)
+                            kind = ev.get("event")
+                            if kind == "dispatch":
+                                stats["dispatches"] += 1
+                            elif kind == "match":
+                                strict = ev.get("strict")
+                                if strict and float(strict) >= 100.0:
+                                    stats["matches"] += 1
+                                else:
+                                    stats["near"] += 1
+                            elif kind == "log_stuck":
+                                stats["stuck"] += 1
+                            elif kind == "permuter_queued":
+                                stats["queued"] += 1
+                            f = ev.get("func")
+                            if f:
+                                stats["funcs"].add(f)
+                except OSError:
+                    continue
+                stats["funcs"] = len(stats["funcs"])
+                out.append({
+                    "name": path.name,
+                    "size_kb": path.stat().st_size // 1024,
+                    "first_t": first_t,
+                    "last_t": last_t,
+                    "duration_s": (last_t - first_t) if (first_t and last_t) else None,
+                    **stats,
+                })
+        body = json.dumps({"sessions": out}).encode()
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json")
         self.send_header("Content-Length", str(len(body)))
         self.send_header("Cache-Control", "no-cache")
         self.end_headers()

@@ -1154,23 +1154,41 @@ function handleEvent(e) {
       break;
     }
     case "match": {
-      const target = zoneCenter("match");
+      // Cross-validate: only treat as a real match if strict % is 100.
+      // Many "match" events from agents historically carried strict<100
+      // (e.g. fuzzy=100, strict=99.94 — regalloc-equivalent but not
+      // byte-identical). Route those to the "near" bucket / permuter queue.
+      const strictNum = e.strict === undefined ? null : parseFloat(e.strict);
+      const isTrueMatch = strictNum === null || strictNum >= 100.0;
       let id = findAgentForFunc(e.func);
       if (!id) id = spawnAgent({ subagent: "courier", func: e.func });
-      if (replaying) {
-        addTrophy(e.func);
-        retireAgent(id);
-      } else {
-        walkAgentTo(id, target, () => {
+
+      if (isTrueMatch) {
+        const target = zoneCenter("match");
+        if (replaying) {
           addTrophy(e.func);
           retireAgent(id);
-        });
+        } else {
+          walkAgentTo(id, target, () => {
+            addTrophy(e.func);
+            retireAgent(id);
+          });
+        }
+        if (e.func) {
+          removeMachine(e.func);
+          setWorkLog(e.func, "matched", null, "100%");
+        }
+        logLine(`✅ match ${e.func || ""}`);
+      } else {
+        // Near-miss disguised as match — route to permuter queue.
+        const pctLabel = strictNum.toFixed(2) + "%";
+        if (e.func) {
+          setMachine(e.func, { cluster: false, score: pctLabel });
+          setWorkLog(e.func, "queued", null, pctLabel);
+        }
+        retireAgent(id);
+        logLine(`🎯 near ${e.func || ""} ${pctLabel} (strict<100, queued for permuter)`);
       }
-      if (e.func) {
-        removeMachine(e.func);
-        setWorkLog(e.func, "matched", null, "100%");
-      }
-      logLine(`✅ match ${e.func || ""}`);
       break;
     }
     case "permuter_start": {
