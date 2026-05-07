@@ -1304,6 +1304,7 @@ void fn_801F9448(Ground* gp, int arg1, CollData* arg2, s32 arg3,
 {
     HSD_GObj* gobj;
     s16* p = (s16*) ((u8*) gp + 0x10E);
+    u8 pad[8];
 
     if ((s32) arg2->x34_flags.b1234 == 1) {
         if (p[0] == 0) {
