@@ -6,7 +6,6 @@
 #include "baselib/gobjproc.h"
 #include "baselib/random.h"
 #include "cm/camera.h"
-#include "cm/types.h"
 #include "gr/grdisplay.h"
 #include "gr/ground.h"
 #include "gr/grzakogenerator.h"
@@ -23,7 +22,7 @@
 #include <baselib/tobj.h>
 #include <sysdolphin/baselib/dobj.h>
 
-/* 213030 */ static void grPura_80213030(Ground_GObj* arg0);
+/* 213030 */ static void grPura_80213030(void);
 
 StageCallbacks grPu_803E6800[] = {
     { grPura_80211EF0, grPura_80211F1C, grPura_80211F24, grPura_80211F28, 0 },
@@ -58,11 +57,9 @@ StageCallbacks grPu_803E6800[] = {
       0x80000000 }
 };
 
-char grPu_803E6A30[] = "/GrPu.dat";
-
 StageData grPu_803E6A3C = { 0x11,
                             grPu_803E6800,
-                            grPu_803E6A30,
+                            "/GrPu.dat",
                             grPura_80211D00,
                             grPura_80211CFC,
                             grPura_80211DD8,
@@ -91,20 +88,19 @@ void grPura_80211CFC(bool num) {}
 
 /// #grPura_80211D00
 
-f32 grPu_804DBA58 = 0.8;
-f32 grPu_804DBA5C = 3600.0;
-f64 grPu_804DBA60 = 4503601774854144.0;
-f64 grPu_804DBA68 = 4503599627370496.0;
-f32 grPu_804DBA70 = 0.0;
-f32 grPu_804DBA74 = 2.0;
-f32 grPu_804DBA78 = 30.0;
-f32 grPu_804DBA7C = -30.0;
+const f32 grPu_804DBA58 = 0.8;
+const f32 grPu_804DBA5C = 3600.0;
+const f32 grPu_804DBA70 = 0.0;
+const f32 grPu_804DBA74 = 2.0;
+const f32 grPu_804DBA78 = 30.0;
+const f32 grPu_804DBA7C = -30.0;
 
 /* 4D6AA0 */ static HSD_GObj* grPu_804D6AA0;
 
 void grPura_80211D00(void)
 {
     Vec3 cam_offset;
+    f32 fVar1;
 
     grPu_804D6AA0 = Ground_801C49F8();
     stage_info.unk8C.b4 = 0;
@@ -117,10 +113,14 @@ void grPura_80211D00(void)
     Ground_801C39C0();
     Ground_801C3BB4();
     Stage_UnkSetVec3TCam_Offset(&cam_offset);
-    Ground_801C3880(grPu_804DBA58 * (Stage_GetCamBoundsTopOffset() - cam_offset.y));
-    Ground_801C3890(grPu_804DBA58 * (Stage_GetCamBoundsBottomOffset() - cam_offset.y));
-    Ground_801C38A0(grPu_804DBA58 * (Stage_GetCamBoundsLeftOffset() - cam_offset.x));
-    Ground_801C38AC(grPu_804DBA58 * (Stage_GetCamBoundsRightOffset() - cam_offset.x));
+    fVar1 = Stage_GetCamBoundsTopOffset();
+    Ground_801C3880(grPu_804DBA58 * (fVar1 - cam_offset.y));
+    fVar1 = Stage_GetCamBoundsBottomOffset();
+    Ground_801C3890(grPu_804DBA58 * (fVar1 - cam_offset.y));
+    fVar1 = Stage_GetCamBoundsLeftOffset();
+    Ground_801C38A0(grPu_804DBA58 * (fVar1 - cam_offset.x));
+    fVar1 = Stage_GetCamBoundsRightOffset();
+    Ground_801C38AC(grPu_804DBA58 * (fVar1 - cam_offset.x));
 }
 
 void grPura_80211DD8(void) {}
@@ -136,7 +136,6 @@ bool grPura_80211E00(void)
     return false;
 }
 
-#pragma dont_inline on
 HSD_GObj* grPura_80211E08(int gobj_id)
 {
     HSD_GObj* gobj;
@@ -153,7 +152,6 @@ HSD_GObj* grPura_80211E08(int gobj_id)
 
     return gobj;
 }
-#pragma dont_inline reset
 
 /// #grPura_80211EF0
 void grPura_80211EF0(Ground_GObj* arg0)
@@ -204,7 +202,7 @@ void grPura_80211FD8(Ground_GObj* arg0)
 {
     grPura_80212EF4(arg0);
     Ground_801C2FE0(arg0);
-    grPura_80213030(arg0);
+    grPura_80213030();
     mpLib_80055E24(0x18);
     lb_800115F4();
 }
@@ -234,34 +232,7 @@ bool grPura_802120D8(Ground_GObj* arg0)
     return false;
 }
 
-void grPura_802120E0(Ground_GObj* arg0)
-{
-    GXColor next;
-    GXColor cur;
-    Ground* gp = GET_GROUND(arg0);
-    s16 t;
-    f32 f;
-    PAD_STACK(8);
-
-    if (*(s16*) &gp->gv.pura.xC8 < 3600) {
-        next = grPu_803E6AA0[gp->gv.pura.xC6];
-        cur = grPu_803E6AA0[*(s16*) &gp->gv.pura.xC4];
-        t = *(s16*) &gp->gv.pura.xC8;
-        *(s16*) &gp->gv.pura.xC8 = t + 1;
-        f = (f32) t / grPu_804DBA5C;
-        cur.r = (s8) (f * (f32) ((u8) next.r - (u8) cur.r) + (f32) (u8) cur.r);
-        cur.g = (s8) (f * (f32) ((u8) next.g - (u8) cur.g) + (f32) (u8) cur.g);
-        cur.b = (s8) (f * (f32) ((u8) next.b - (u8) cur.b) + (f32) (u8) cur.b);
-        Ground_801C205C(&cur);
-        Camera_SetBackgroundColor(cur.r, cur.g, cur.b);
-    } else {
-        *(s16*) &gp->gv.pura.xC4 = gp->gv.pura.xC6;
-        do {
-            gp->gv.pura.xC6 = HSD_Randi(4);
-        } while (*(s16*) &gp->gv.pura.xC4 == gp->gv.pura.xC6);
-        *(s16*) &gp->gv.pura.xC8 = 0;
-    }
-}
+/// #grPura_802120E0
 
 void grPura_8021228C(Ground_GObj* arg0) {}
 
@@ -289,14 +260,14 @@ void grPura_8021231C(Ground_GObj* arg0)
 {
     Ground* gp = GET_GROUND(arg0);
     HSD_JObj* jobj = arg0->hsd_obj;
-    Vec3 vec;
-    Quaternion quat;
-    HSD_JObjGetTranslation2(gp->gv.pura2.xC8, &vec);
-    HSD_JObjSetTranslate(jobj, &vec);
-    HSD_JObjGetRotation(gp->gv.pura2.xC8, &quat);
-    HSD_JObjSetRotation(jobj, &quat);
-    HSD_JObjGetScale(gp->gv.pura2.xC8, &vec);
-    HSD_JObjSetScale(jobj, &vec);
+    Vec3* vec = { 0 };
+    Quaternion* quat = { 0 };
+    HSD_JObjGetTranslation2(gp->gv.pura2.xC8, vec);
+    HSD_JObjSetTranslate(jobj, vec);
+    HSD_JObjGetRotation(gp->gv.pura2.xC8, quat);
+    HSD_JObjSetRotation(jobj, quat);
+    HSD_JObjGetScale(gp->gv.pura2.xC8, vec);
+    HSD_JObjSetScale(jobj, vec);
 
     // HSD_JObjGetFlags(jobj);
     if ((HSD_JObjGetFlags(gp->gv.pura2.xC8) & 0x10) &&
@@ -313,169 +284,78 @@ void grPura_8021231C(Ground_GObj* arg0)
 void grPura_802125EC(Ground_GObj* arg0) {}
 
 /// #grPura_802125F0
-typedef struct grPura_AB0Entry {
-    s32 idx;
-    f32 mult;
-    s32 check;
-} grPura_AB0Entry;
-
 void grPura_802125F0(HSD_GObj* arg0)
 {
-    int i;
+    struct _GXColor thingy = grPu_803E6AA0[5];
+    float dVar1 = grPu_804DBA70;
+    float dVar2 = grPu_804DBA74;
+    int uVar3 = 0;
+    int uVar5;
+    int uVar6 = 0;
     HSD_GObj* gobj;
     Ground* gp;
-    HSD_JObj* dst;
-    HSD_JObj* src;
-    HSD_JObj* child;
-    f32 sx;
-    grPura_AB0Entry* entry =
-        (grPura_AB0Entry*) ((char*) &grPu_803E6800[0] + 0x2B0);
-
-    for (i = 0; i < 27; i++, entry++) {
-        if (entry->check == -1) {
-            continue;
-        }
+    HSD_JObj* jobj;
+    do {
         gobj = grPura_80211E08(1);
+
         if (gobj == NULL) {
             __assert("grpura.c", 0x291, "gobj");
         }
         gp = GET_GROUND(gobj);
         if (gp == NULL) {
-            __assert("grpura.c", 0x292, "gp");
+            __assert("grpura.c", 0x291, "gp");
         }
+        // uVar3 = Ground_801C33C0(4,gp->gv.pura2.xC4);
+        gp->gv.pura2.xC8 = Ground_801C3FA4(arg0, gp->gv.pura.xC4);
+        // uVar3 = Ground_801C3FA4(arg0,uVar3);
 
-        *(s16*) &gp->gv.pura.xC4 = (s16) entry->idx;
-        gp->gv.pura2.xC8 = Ground_801C3FA4(
-            arg0, Ground_801C33C0(4, *(s16*) &gp->gv.pura.xC4));
-
-        dst = gobj->hsd_obj;
-        HSD_JObjSetTranslateX(dst, HSD_JObjGetTranslationX(gp->gv.pura2.xC8));
-        HSD_JObjSetTranslateY(dst, HSD_JObjGetTranslationY(gp->gv.pura2.xC8));
-        HSD_JObjSetTranslateZ(dst, HSD_JObjGetTranslationZ(gp->gv.pura2.xC8));
+        HSD_JObjSetTranslateX(arg0->hsd_obj,
+                              HSD_JObjGetTranslationX(gp->gv.pura2.xC8));
+        HSD_JObjSetTranslateY(arg0->hsd_obj,
+                              HSD_JObjGetTranslationY(gp->gv.pura2.xC8));
+        HSD_JObjSetTranslateZ(arg0->hsd_obj,
+                              HSD_JObjGetTranslationZ(gp->gv.pura2.xC8));
 
         if (HSD_JObjGetFlags(gp->gv.pura2.xC8) & 0x10) {
-            HSD_JObjSetFlagsAll(dst, 0x10);
+            HSD_JObjSetFlagsAll(arg0->hsd_obj, 0x10);
         }
+        jobj = gobj->hsd_obj;
+        // if (jobj->child) {
 
-        child = (gobj->hsd_obj != NULL) ? ((HSD_JObj*) gobj->hsd_obj)->child
-                                        : NULL;
-        HSD_JObjSetTranslateX(child, grPu_804DBA70);
-        HSD_JObjSetTranslateY(child, grPu_804DBA70);
-        HSD_JObjSetTranslateZ(child, grPu_804DBA70);
+        //}
+        // everything after this point is very much not done
+        HSD_JObjSetTranslateX(arg0->hsd_obj,
+                              HSD_JObjGetTranslationX(jobj->child));
+        HSD_JObjSetTranslateY(arg0->hsd_obj,
+                              HSD_JObjGetTranslationY(jobj->child));
+        HSD_JObjSetTranslateZ(arg0->hsd_obj,
+                              HSD_JObjGetTranslationZ(jobj->child));
 
-        src = gp->gv.pura2.xC8;
-        sx = HSD_JObjGetScaleX(src);
-        if (sx < grPu_804DBA74) {
-            sx *= entry->mult;
-        }
-        HSD_JObjSetScaleX(src, sx);
-        HSD_JObjSetScaleY(src, sx);
-        HSD_JObjSetScaleZ(src, sx);
-
-        dst = gobj->hsd_obj;
-        HSD_JObjSetScaleX(dst, sx);
-        HSD_JObjSetScaleY(dst, sx);
-        HSD_JObjSetScaleZ(dst, sx);
-    }
+        HSD_JObjSetTranslateX(
+            arg0->hsd_obj,
+            HSD_JObjGetTranslationX(Ground_801C3FA4(arg0, uVar3)));
+        HSD_JObjSetTranslateY(
+            arg0->hsd_obj,
+            HSD_JObjGetTranslationY(Ground_801C3FA4(arg0, uVar3)));
+        HSD_JObjSetTranslateZ(
+            arg0->hsd_obj,
+            HSD_JObjGetTranslationZ(Ground_801C3FA4(arg0, uVar3)));
+        uVar6++;
+    } while (uVar6 < 27);
 }
 
-void grPura_80212CD4(HSD_GObj* arg0)
-{
-    Ground* gp = GET_GROUND(arg0);
-    HSD_JObj* hsd_obj = arg0->hsd_obj;
-    HSD_JObj** jobjs = (HSD_JObj**) ((s8*) gp + 0xC4);
-    CmSubject** subs = (CmSubject**) ((s8*) gp + 0x128);
-    HSD_JObj* iter;
-    CmSubject* sub;
-    Vec3 pos;
-    int i;
-
-    for (i = 0; i < 25; i++) {
-        jobjs[i] = NULL;
-        subs[i] = NULL;
-    }
-
-    iter = HSD_JObjGetChild(hsd_obj);
-    if (iter == NULL) {
-        return;
-    }
-    iter = HSD_JObjGetChild(iter);
-
-    for (i = 0; i < 25 && iter != NULL; i++) {
-        sub = Camera_80029020();
-        subs[i] = sub;
-        if (sub != NULL) {
-            jobjs[i] = iter;
-            lb_8000B1CC(jobjs[i], NULL, &pos);
-            sub->x10 = pos;
-            if (HSD_JObjGetFlags(iter) & 0x10) {
-                sub->x8 = 1;
-            } else {
-                sub->x8 = 0;
-            }
-            sub->x48.x = 30.0f;
-            sub->x48.y = -30.0f;
-            sub->x40.x = -30.0f;
-            sub->x40.y = 30.0f;
-            sub->x2C.x = sub->x40.x;
-            sub->x2C.y = sub->x40.y;
-            sub->x34.x = sub->x48.x;
-            sub->x34.y = sub->x48.y;
-            sub->x34.z = sub->x48.z;
-        }
-        iter = HSD_JObjGetNext(iter);
-    }
-}
+/// #grPura_80212CD4
 
 /// #grPura_80212EF4
-typedef struct grPura_unk128 {
-    u8 _0[8];
-    u32 x8;
-    u8 _C[4];
-    Vec3 x10;
-} grPura_unk128;
-
 void grPura_80212EF4(HSD_GObj* arg0)
 {
     Ground* gp = GET_GROUND(arg0);
-    HSD_JObj** jobjs = (HSD_JObj**) ((s8*) gp + 0xC4);
-    grPura_unk128** structs = (grPura_unk128**) ((s8*) gp + 0x128);
-    int i = 0;
-    Vec3 vec;
-
-    do {
-        if (jobjs[i] != NULL && structs[i] != NULL) {
-            lb_8000B1CC(jobjs[i], NULL, &vec);
-            structs[i]->x10 = vec;
-            if (HSD_JObjGetFlags(jobjs[i]) & 0x10) {
-                structs[i]->x8 = 1;
-            } else {
-                structs[i]->x8 = 0;
-            }
-        }
-        i++;
-    } while (i < 25);
+    // HSD_JObjGetFlags();
 }
 
-void grPura_80212FC0(Ground_GObj* arg0)
-{
-    u16* var_r31 = &grPu_803E6C0C[0];
-    u32 var_r30 = 0;
-    HSD_GObj* temp_r3;
+/// #grPura_80212FC0
 
-    do {
-        if (M2C_FIELD(var_r31, s16*, 0) != -1) {
-            temp_r3 = Ground_801C2BA4(M2C_FIELD(var_r31, s16*, 2));
-            if (temp_r3 != NULL) {
-                M2C_FIELD(var_r31, HSD_JObj**, 8) = Ground_801C3FA4(temp_r3, M2C_FIELD(var_r31, s16*, 4));
-            }
-        }
-        var_r30 += 1;
-        var_r31 += 6;
-    } while (var_r30 < 0x2A);
-}
-
-void grPura_80213030(Ground_GObj* arg0)
+void grPura_80213030(void)
 {
     UNUSED unsigned char _[8];
     Point3d spC;
@@ -560,86 +440,59 @@ void grPura_80213224(HSD_DObj* dobj)
 }
 
 /// #grPura_80213250
-#pragma dont_inline on
 void grPura_80213250(HSD_JObj* arg0)
 {
-    HSD_JObj* jobj;
-    HSD_DObj* dobj;
-    HSD_DObj* sub;
-    HSD_DObj* iter;
-
-    jobj = arg0->child;
-    if (jobj != NULL) {
-        if (jobj->child != NULL) {
+    HSD_JObj* jobj = arg0->child;
+    HSD_DObj* dobj; // = arg0->child;
+    if (jobj) {
+        if (jobj->child) {
             grPura_80213250(jobj->child);
         }
-        if (jobj->next != NULL) {
+        if (jobj->next) {
             grPura_80213250(jobj->next);
         }
-        if (union_type_dobj(jobj)) {
-            dobj = jobj->u.dobj;
-            if (dobj != NULL) {
-                if (dobj->next != NULL) {
-                    grPura_80213128(dobj->next);
-                }
-                for (iter = dobj; iter != NULL; iter = iter->next) {
-                    grPura_80213224(iter);
-                }
-                if (dobj->mobj != NULL) {
-                    HSD_MObjCompileTev(dobj->mobj);
-                }
-            }
+        dobj = jobj->u.dobj;
+        if (jobj->u.ptcl) {
+            grPura_80213128(dobj);
+        }
+        // for(int i = 0;ptcl->next[];i++)
+        if (dobj != 0) {
+            HSD_MObjCompileTev(dobj->mobj);
         }
     }
-
     jobj = arg0->next;
-    if (jobj != NULL) {
-        if (jobj->child != NULL) {
+    if (jobj) {
+        if (jobj->child) {
             grPura_80213250(jobj->child);
         }
-        if (jobj->next != NULL) {
+        if (jobj->next) {
             grPura_80213250(jobj->next);
         }
-        if (union_type_dobj(jobj)) {
-            dobj = jobj->u.dobj;
-            if (dobj != NULL) {
-                if (dobj->next != NULL) {
-                    grPura_80213128(dobj->next);
-                }
-                for (iter = dobj; iter != NULL; iter = iter->next) {
-                    grPura_80213224(iter);
-                }
-                if (dobj->mobj != NULL) {
-                    HSD_MObjCompileTev(dobj->mobj);
-                }
-            }
+        dobj = jobj->u.dobj;
+        if (jobj->u.ptcl) {
+            grPura_80213128(dobj);
+        }
+        if (dobj != 0) {
+            HSD_MObjCompileTev(dobj->mobj);
         }
     }
-
-    if (union_type_dobj(arg0)) {
-        dobj = arg0->u.dobj;
-        if (dobj != NULL) {
-            sub = dobj->next;
-            if (sub != NULL) {
-                if (sub->next != NULL) {
-                    grPura_80213128(sub->next);
-                }
-                for (iter = sub; iter != NULL; iter = iter->next) {
-                    grPura_80213224(iter);
-                }
-                if (sub->mobj != NULL) {
-                    HSD_MObjCompileTev(sub->mobj);
-                }
-            }
-            for (iter = dobj; iter != NULL; iter = iter->next) {
-                if (iter != NULL) {
-                    HSD_MObjCompileTev(iter->mobj);
-                }
-            }
-            if (dobj->mobj != NULL) {
-                HSD_MObjCompileTev(dobj->mobj);
-            }
+    dobj = arg0->u.dobj;
+    if (dobj) {
+        if (jobj->u.ptcl) {
+            grPura_80213128(dobj);
+        }
+        if (jobj->next) {
+            grPura_80213250(jobj->next);
+        }
+        dobj = jobj->u.dobj;
+        if (dobj != 0) {
+            HSD_MObjCompileTev(dobj->mobj);
+        }
+        if (dobj != 0) {
+            HSD_MObjCompileTev(dobj->mobj);
         }
     }
+    // HSD_MObjCompileTev();
+    // HSD_MObjCompileTev();
+    // HSD_MObjCompileTev();
 }
-#pragma dont_inline reset

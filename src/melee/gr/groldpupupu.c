@@ -104,16 +104,8 @@ static char grOp_803E677C[] = "%s:%d: couldn t get gobj(id=%d)\n";
 static char grOp_803E67A0[] = "groldpupupu.c";
 
 static grOldPupupuSpawnDesc grOp_803E67B0[10] = {
-    { -1, 1, 1 },
-    { 1, 1, 3 },
-    { 1, 1, 5 },
-    { -1, 1, 7 },
-    { -1, 0, 9 },
-    { 1, 0, 11 },
-    { -1, 0, 13 },
-    { 1, 0, 15 },
-    { -1, 0, 17 },
-    { 1, 0, 19 },
+    { -1, 1, 1 }, { 1, 1, 3 },   { 1, 1, 5 },  { -1, 1, 7 },  { -1, 0, 9 },
+    { 1, 0, 11 }, { -1, 0, 13 }, { 1, 0, 15 }, { -1, 0, 17 }, { 1, 0, 19 },
 };
 
 static int grOp_803E67D8[3] = { 0, 1, 2 };
@@ -304,11 +296,9 @@ void grOldPupupu_80210C7C(Ground_GObj* gobj)
     x2 = grOp_804D6A98->x2;
     x0 = grOp_804D6A98->x0;
     gp->gv.oldpupupu2.xC4 =
-        x2 > x0
-            ? x0 + (x2 - x0 != 0 ? HSD_Randi(x2 - x0) : 0)
-        : x2 < x0
-            ? x2 + (x0 - x2 != 0 ? HSD_Randi(x0 - x2) : 0)
-            : x2;
+        x2 > x0   ? x0 + (x2 - x0 != 0 ? HSD_Randi(x2 - x0) : 0)
+        : x2 < x0 ? x2 + (x0 - x2 != 0 ? HSD_Randi(x0 - x2) : 0)
+                  : x2;
 }
 
 bool grOldPupupu_80210D08(Ground_GObj* gobj)
@@ -556,8 +546,8 @@ void grOldPupupu_802113E0(Ground_GObj* gobj)
                 other_gp->gv.oldpupupu.xCC = 0;
                 other_gp->gv.oldpupupu.xD4 = gp->gv.oldpupupu.xD8;
                 other_gp->gv.oldpupupu.xD0 = 1;
-                gp->gv.oldpupupu.xCC =
-                    rand_range((s32) grOp_804D6A98->x2C, (s32) grOp_804D6A98->x30);
+                gp->gv.oldpupupu.xCC = rand_range((s32) grOp_804D6A98->x2C,
+                                                  (s32) grOp_804D6A98->x30);
             }
 
             gp->gv.oldpupupu.xD0 -= 1;
@@ -568,10 +558,9 @@ void grOldPupupu_802113E0(Ground_GObj* gobj)
                     gp->gv.oldpupupu.xCC -= 1;
                     if (gp->gv.oldpupupu.xCC <= 0) {
                         gp->gv.oldpupupu.xCC = 0;
-                        grAnime_801C8138(
-                            gobj, gp->map_id,
-                            grOp_804D48C8[gp->gv.oldpupupu.xCC]
-                                         [gp->gv.oldpupupu.xD8]);
+                        grAnime_801C8138(gobj, gp->map_id,
+                                         grOp_804D48C8[gp->gv.oldpupupu.xCC]
+                                                      [gp->gv.oldpupupu.xD8]);
                         gp->gv.oldpupupu.xCC =
                             rand_range((s32) grOp_804D6A98->x2C,
                                        (s32) grOp_804D6A98->x30);
@@ -592,8 +581,7 @@ void grOldPupupu_802113E0(Ground_GObj* gobj)
                     if (gp->gv.oldpupupu.xC4 >= 3) {
                         gp->gv.oldpupupu.xC4 = 0;
                     }
-                    gp->gv.oldpupupu.xC8 =
-                        grOp_803E67D8[gp->gv.oldpupupu.xC4];
+                    gp->gv.oldpupupu.xC8 = grOp_803E67D8[gp->gv.oldpupupu.xC4];
                     gp->gv.oldpupupu.xD4 = 1;
                     other_gp = Ground_801C2BA4(1)->user_data;
                     other_gp->gv.oldpupupu.xC4 = gp->gv.oldpupupu.xC4;
@@ -620,16 +608,14 @@ void grOldPupupu_802113E0(Ground_GObj* gobj)
                     gp->gv.oldpupupu.xD4 = 0;
                     gp->gv.oldpupupu.xCC = 0;
                     gp->gv.oldpupupu.xD0 = 0;
-                    grAnime_801C8138(
-                        gobj, gp->map_id,
-                        grOp_804D48D0[gp->gv.oldpupupu.xCC]
-                                     [gp->gv.oldpupupu.xD8]);
+                    grAnime_801C8138(gobj, gp->map_id,
+                                     grOp_804D48D0[gp->gv.oldpupupu.xCC]
+                                                  [gp->gv.oldpupupu.xD8]);
                     gp->gv.oldpupupu.xC4 += 1;
                     if (gp->gv.oldpupupu.xC4 >= 3) {
                         gp->gv.oldpupupu.xC4 = 0;
                     }
-                    gp->gv.oldpupupu.xC8 =
-                        grOp_803E67D8[gp->gv.oldpupupu.xC4];
+                    gp->gv.oldpupupu.xC8 = grOp_803E67D8[gp->gv.oldpupupu.xC4];
                     gp->gv.oldpupupu.xD4 = 1;
                     other_gp = Ground_801C2BA4(1)->user_data;
                     other_gp->gv.oldpupupu.xC4 = gp->gv.oldpupupu.xC4;
@@ -643,10 +629,9 @@ void grOldPupupu_802113E0(Ground_GObj* gobj)
                     gp->gv.oldpupupu.xD4 = 0;
                     gp->gv.oldpupupu.xCC = 0;
                     gp->gv.oldpupupu.xD0 = 0;
-                    grAnime_801C8138(
-                        gobj, gp->map_id,
-                        grOp_804D48D8[gp->gv.oldpupupu.xCC]
-                                     [gp->gv.oldpupupu.xD8]);
+                    grAnime_801C8138(gobj, gp->map_id,
+                                     grOp_804D48D8[gp->gv.oldpupupu.xCC]
+                                                  [gp->gv.oldpupupu.xD8]);
                     other_gp->gv.oldpupupu.xC4 = gp->gv.oldpupupu.xC4;
                     other_gp->gv.oldpupupu.xC8 = gp->gv.oldpupupu.xC8;
                     other_gp->gv.oldpupupu.xCC = 0;
@@ -696,9 +681,9 @@ void grOldPupupu_802113E0(Ground_GObj* gobj)
             if (grAnime_801C83D0(gobj, 0, 7) == 0) {
                 gp->gv.oldpupupu.xD0 += 1;
                 if (gp->gv.oldpupupu.xD0 == 0x2D) {
-                    lbAudioAx_800237A8(
-                        gp->gv.oldpupupu.xD8 == 0 ? 0x72BF0 : 0x72BF1, 0x7F,
-                        0x40);
+                    lbAudioAx_800237A8(gp->gv.oldpupupu.xD8 == 0 ? 0x72BF0
+                                                                 : 0x72BF1,
+                                       0x7F, 0x40);
                 }
                 if (gp->gv.oldpupupu.xD0 > 0x2D &&
                     gp->gv.oldpupupu.xD0 < 0x140)
@@ -757,10 +742,9 @@ void grOldPupupu_80211C1C(Ground_GObj* gobj)
     PAD_STACK(8);
 
     if (other_gp->gv.oldpupupu.xC8 == 2 && other_gp->gv.oldpupupu.xD4 != 0) {
-        grAnime_801C8138(
-            gobj, gp->map_id,
-            grOp_804D48E0[other_gp->gv.oldpupupu.xCC]
-                         [other_gp->gv.oldpupupu.xD8]);
+        grAnime_801C8138(gobj, gp->map_id,
+                         grOp_804D48E0[other_gp->gv.oldpupupu.xCC]
+                                      [other_gp->gv.oldpupupu.xD8]);
     }
 }
 

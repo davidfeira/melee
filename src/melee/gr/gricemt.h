@@ -124,8 +124,8 @@ extern f32 grIm_804DB570;
 /* 1F8C64 */ // void fn_801F8C64(Item_GObj*, Ground*, Vec3*, HSD_GObj*, f32);
 /* 1F8CDC */ void grIceMt_801F8CDC(Ground_GObj*, s16* joint_indices, int count,
                                    HSD_GObj** output_array);
-/* 1F8E58 */ s32 fn_801F8E58(Ground_GObj*, s32* out_delay);
-/* 1F9038 */ s32 fn_801F9038(Ground_GObj*);
+/* 1F8E58 */ UNK_RET fn_801F8E58(Ground_GObj*);
+/* 1F9038 */ UNK_RET fn_801F9038(Ground_GObj*);
 /* 1F9150 */ IceMountainParams* fn_801F9150(HSD_GObj*);
 /* 1F91A4 */ void fn_801F91A4(void);
 /* 1F91A8 */ HSD_GObj* fn_801F91A8(HSD_GObj*);
@@ -142,10 +142,11 @@ extern f32 grIm_804DB570;
 /* 1F96E0 */ float grIceMt_801F96E0(HSD_GObj*, float);
 /* 1F98A8 */ void grIceMt_801F98A8(HSD_GObj* param1);
 /* 1F993C */ f32 grIceMt_801F993C(s32, s32);
-/* 1F9ACC */ void grIceMt_801F9ACC(HSD_GObj*, float, HSD_GObjEvent, Ground_GObj*);
+/* 1F9ACC */ void grIceMt_801F9ACC(HSD_GObj*, float, HSD_GObjEvent,
+                                   Ground_GObj*);
 /* 1FA0BC */ UNK_RET grIceMt_801FA0BC(s16*);
-/* 1FA364 */ bool grIceMt_801FA364(void* state, float* out,
-                                   HSD_GObjEvent cb, Ground_GObj* gobj);
+/* 1FA364 */ bool grIceMt_801FA364(void* state, float* out, HSD_GObjEvent cb,
+                                   Ground_GObj* gobj);
 /* 1FA4CC */ int fn_801FA4CC(int num);
 /* 1FA500 */ int grIceMt_801FA500(HSD_GObj*);
 /* 1FA6D8 */ void grIceMt_801FA6D8(HSD_GObj*);

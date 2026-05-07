@@ -7,6 +7,8 @@
 #include "baselib/random.h"
 #include "cm/camera.h"
 #include "ef/efsync.h"
+#include "ft/ftlib.h"
+#include "gm/gm_1601.h"
 
 #include "gr/forward.h"
 
@@ -61,12 +63,6 @@ static Vec3 grIm_803B8220[] = { { 0.0, 0.0, 0.0 },
                                 { 8.0, 15.0, 0.0 },
                                 { -24.0, 15.0, 0.0 },
                                 { 24.0, 15.0, 0.0 } };
-
-typedef struct grIm_JointArr5 {
-    s16 v[5];
-} grIm_JointArr5;
-
-static const grIm_JointArr5 grIm_803B825C = { { 1, 2, 3, 4, 5 } };
 
 HSD_GObj* grIm_804D69E8;
 HSD_GObj* grIm_804D69EC;
@@ -124,10 +120,10 @@ StageData grIm_803E4800 = {
     3,
 };
 
-extern const float grIm_804DB574;
-extern const float grIm_804DB5B0;
-extern const float grIm_804DB5B4;
-extern const float grIm_804DB5B8;
+const float grIm_804DB574 = 0.0F;
+const float grIm_804DB5B0 = -1.0F;
+const float grIm_804DB5B4 = 1.0F;
+const float grIm_804DB5B8 = 6.0F;
 
 void grIceMt_801F6868(bool id) {}
 
@@ -337,8 +333,6 @@ bool grIceMt_801F71E0(void)
     return false;
 }
 
-#pragma push
-#pragma dont_inline on
 HSD_GObj* grIceMt_801F71E8(int gobj_id)
 {
     HSD_GObj* gobj;
@@ -355,7 +349,6 @@ HSD_GObj* grIceMt_801F71E8(int gobj_id)
 
     return gobj;
 }
-#pragma pop
 
 /// #grIceMt_801F72D4
 /// extern char grIm_803B8220;
@@ -458,11 +451,11 @@ void grIceMt_801F7728(Ground_GObj* gobj)
     u32 unused2;
     Ground* gp = gobj->user_data;
     if (gp->gv.icemt.xD8 == 0) {
-        grIceMt_801FA364(&gp->gv.corneria.xC8, &y, (HSD_GObjEvent) fn_801F8E58,
-                         gobj);
-        grIceMt_801F9ACC((HSD_GObj*) &gp->gv.corneria.xC4,
-                         grIceMt_801F96E0((HSD_GObj*) &gp->gv.corneria.xC4, -y),
-                         (HSD_GObjEvent) fn_801F9038, gobj);
+        grIceMt_801FA364(&gp->gv.corneria.xC8, &y, fn_801F8E58, gobj);
+        grIceMt_801F9ACC(
+            (HSD_GObj*) &gp->gv.corneria.xC4,
+            grIceMt_801F96E0((HSD_GObj*) &gp->gv.corneria.xC4, -y),
+            fn_801F9038, gobj);
         grIceMt_801F9668(y);
     }
 }
@@ -526,26 +519,22 @@ void grIceMt_801F785C(Ground_GObj* gobj)
 /// #grIceMt_801F796C gricemt.c
 bool grIceMt_801F796C(Ground_GObj* arg0)
 {
-    Ground* gp = arg0->user_data;
-    HSD_GObj* mgobj;
-    PAD_STACK(8);
-
-    if (gp->gv.icemt.xC4 != -1) {
-        mgobj = Ground_801C2BA4((s32) gp->gv.icemt.xC4);
-        if (mgobj == NULL) {
+    Ground* gp = GET_GROUND(arg0);
+    HSD_GObj* gobj;
+    if (gp->gv.icemt2.xC4 != NULL) {
+        gobj = Ground_801C2BA4(gp->gv.icemt2.xC4);
+        if (gobj == NULL) {
             __assert("gricemt.c", 0x475, "mgobj");
         }
-        Ground_801C4A08(mgobj);
     }
-    if (gp->gv.icemt.xC6 != -1) {
-        mgobj = Ground_801C2BA4((s32) gp->gv.icemt.xC6);
-        if (mgobj == NULL) {
-            __assert("gricemt.c", 0x47a, "mgobj");
+    if (gp->gv.icemt.xCC != NULL) {
+        gobj = Ground_801C2BA4(gp->gv.icemt2.xC4);
+        if (gobj == NULL) {
+            __assert("gricemt.c", 0x4A7, "mgobj");
         }
-        Ground_801C4A08(mgobj);
     }
+    //__assert("gricemt.c",0x475,"mgobj");
     grIceMt_801F785C(arg0);
-    ((UnkFlagStruct*) &gp->gv.icemt.xD8)->b0 = 0;
     return 0;
 }
 
@@ -571,14 +560,15 @@ void grIceMt_801F7A2C(Ground_GObj* arg0)
     }
     if (!((UnkFlagStruct*) &gp->gv.icemt.xD8)->b2) {
         var_r30 = grIceMt_801FA364(&gp->gv.corneria.xC8, &sp30,
-                                    (HSD_GObjEvent) fn_801F9150, arg0);
+                                   (HSD_GObjEvent) fn_801F9150, arg0);
         if (((UnkFlagStruct*) &gp->gv.icemt.xD8)->b4) {
             fighter = Ground_801C57A4();
             if (fighter != NULL) {
                 ftLib_80086644(fighter, &sp24);
                 if (!((UnkFlagStruct*) &gp->gv.icemt.xD8)->b1 &&
                     !ftLib_80086EC0(fighter) &&
-                    sp24.y > (f32) ((s16*) grIm_804D69F4)[0x98 / 2]) {
+                    sp24.y > (f32) ((s16*) grIm_804D69F4)[0x98 / 2])
+                {
                     ((UnkFlagStruct*) &gp->gv.icemt.xD8)->b1 = 1;
                     gp->gv.icemt.xDA = ((s16*) grIm_804D69F4)[0xA4 / 2];
                 }
@@ -616,8 +606,9 @@ void grIceMt_801F7A2C(Ground_GObj* arg0)
         } else {
             ratio = gp->gv.icemt.xD4 / grIm_804D69F4->xA0;
             if ((gp->gv.icemt.xD4 * ratio) -
-                (ratio * (0.5f * grIm_804D69F4->xA0 * ratio)) >
-                dist) {
+                    (ratio * (0.5f * grIm_804D69F4->xA0 * ratio)) >
+                dist)
+            {
                 gp->gv.icemt.xD4 -= grIm_804D69F4->xA0;
                 if (gp->gv.icemt.xD4 < grIm_804D69F4->xA0) {
                     gp->gv.icemt.xD4 = grIm_804D69F4->xA0;
@@ -635,10 +626,11 @@ void grIceMt_801F7A2C(Ground_GObj* arg0)
     }
     if (!((UnkFlagStruct*) &gp->gv.icemt.xD8)->b3) {
         if (var_r30 != 0 &&
-            gp->gv.icemt.xDE == ((s16*) grIm_804D69F4)[0xA6 / 2]) {
+            gp->gv.icemt.xDE == ((s16*) grIm_804D69F4)[0xA6 / 2])
+        {
             ((UnkFlagStruct*) &gp->gv.icemt.xD8)->b3 = 1;
             Ground_801C5750();
-            gm_801674C4(0xE, 2, 2, 0, fn_801FA4CC);
+            gm_801674C4(0xE, 2, 2, 0, (bool (*)(s32)) fn_801FA4CC);
             grZakoGenerator_801CAF08();
         }
     } else {
@@ -656,13 +648,10 @@ void grIceMt_801F7A2C(Ground_GObj* arg0)
 
 void grIceMt_801F7D90(Ground_GObj* arg0) {}
 
-extern const u32 grIm_804DB588;
-
 /// #grIceMt_801F7D94
 void grIceMt_801F7D94(Ground_GObj* arg0)
 {
     Ground* gp = GET_GROUND(arg0);
-    s16 joint_indices[4];
     Ground_801C2ED0(arg0->hsd_obj, gp->map_id);
     grAnime_801C8138(arg0, gp->map_id, 0);
     grAnime_801C77FC(arg0, 0, 7);
@@ -678,9 +667,6 @@ void grIceMt_801F7D94(Ground_GObj* arg0)
     gp->gv.icemt2.xEC = Ground_801C3FA4(arg0, 15);
     gp->gv.icemt2.xF0 = Ground_801C3FA4(arg0, 16);
     gp->gv.icemt2.xF4 = Ground_801C3FA4(arg0, 17);
-    ((UnkFlagStruct*) ((u8*) gp + 0xC4))->b0 = 0;
-    *(u32*) &joint_indices[2] = grIm_804DB588;
-    grIceMt_801F8CDC(arg0, &joint_indices[2], 2, &gp->gv.icemt.xF8[0]);
     // gp->gv.icemt.xD8 = 1;
 }
 
@@ -710,13 +696,10 @@ void grIceMt_801F7F1C(Ground_GObj* gobj)
     }
 }
 
-extern const u32 grIm_804DB58C;
-
 /// #grIceMt_801F7F70
 void grIceMt_801F7F70(Ground_GObj* arg0)
 {
     Ground* gp = GET_GROUND(arg0);
-    s16 joint_indices[4];
     HSD_JObj* jobj;
     HSD_JObj* jobj2;
     Ground_801C2ED0(arg0->hsd_obj, gp->map_id);
@@ -736,19 +719,6 @@ void grIceMt_801F7F70(Ground_GObj* arg0)
     gp->gv.icemt2.xEC = Ground_801C3FA4(arg0, 18);
     gp->gv.icemt2.xF0 = Ground_801C3FA4(arg0, 19);
     gp->gv.icemt2.xF4 = Ground_801C3FA4(arg0, 20);
-    ((UnkFlagStruct*) ((u8*) gp + 0xC4))->b0 = 0;
-    *(u32*) &joint_indices[0] = grIm_804DB58C;
-    grIceMt_801F8CDC(arg0, joint_indices, 2, &gp->gv.icemt.xF8[0]);
-    grIceMt_801F91EC(arg0, (s16*) &gp->gv.icemt.xF8[2],
-                     ((int (*) (HSD_GObj*, HSD_JObj*)) grIceMt_801FA500)(arg0,
-                                                                        jobj),
-                     -1, 0x25, 0x109, 0x27e,
-                     (mpLib_Callback) (void*) fn_801F9338);
-    grIceMt_801F91EC(arg0, &gp->gv.icemt.x10E,
-                     ((int (*) (HSD_GObj*, HSD_JObj*)) grIceMt_801FA500)(arg0,
-                                                                        jobj2),
-                     -1, 0x26, 0x109, 0x27e,
-                     (mpLib_Callback) (void*) fn_801F9448);
     // gp->gv.icemt.xD8 = 1;
 }
 
@@ -780,17 +750,12 @@ void grIceMt_801F81B4(Ground_GObj* gobj)
     }
 }
 
-extern const u32 grIm_804DB590;
-extern const u32 grIm_804DB594;
-extern const u32 grIm_804DB5A0;
-extern const u32 grIm_804DB5A4;
-
 /// #grIceMt_801F8208
 void grIceMt_801F8208(Ground_GObj* arg0)
 {
     Ground* gp = GET_GROUND(arg0);
-    s16 joint_indices[4];
-    u32 unused[2];
+    HSD_JObj* jobj;
+    HSD_JObj* jobj2;
     Ground_801C2ED0(arg0->hsd_obj, gp->map_id);
     grAnime_801C8138(arg0, gp->map_id, 0);
     grAnime_801C77FC(arg0, 0, 7);
@@ -806,10 +771,6 @@ void grIceMt_801F8208(Ground_GObj* arg0)
     gp->gv.icemt2.xEC = Ground_801C3FA4(arg0, 18);
     gp->gv.icemt2.xF0 = Ground_801C3FA4(arg0, 19);
     gp->gv.icemt2.xF4 = Ground_801C3FA4(arg0, 20);
-    ((UnkFlagStruct*) ((u8*) gp + 0xC4))->b0 = 0;
-    *(u32*) &joint_indices[0] = grIm_804DB590;
-    *(u32*) &joint_indices[2] = grIm_804DB594;
-    grIceMt_801F8CDC(arg0, joint_indices, 4, &gp->gv.icemt.xF8[0]);
     // gp->gv.icemt.xD8 = 1;
 }
 
@@ -839,20 +800,12 @@ void grIceMt_801F8398(Ground_GObj* gobj)
     }
 }
 
-extern const u32 grIm_804DB598;
-extern const u32 grIm_804DB59C;
-
 /// #grIceMt_801F83EC
 void grIceMt_801F83EC(Ground_GObj* arg0)
 {
-    int (*grIceMt_801FA500_2)(HSD_GObj*, HSD_JObj*) =
-        (int (*)(HSD_GObj*, HSD_JObj*)) grIceMt_801FA500;
     Ground* gp = GET_GROUND(arg0);
-    s16 joint_indices[4];
     HSD_JObj* jobj;
     HSD_JObj* jobj2;
-    int r1;
-    int r2;
     Ground_801C0498();
     Ground_801C2ED0(arg0->hsd_obj, gp->map_id);
     grAnime_801C8138(arg0, gp->map_id, 0);
@@ -871,14 +824,6 @@ void grIceMt_801F83EC(Ground_GObj* arg0)
     gp->gv.icemt2.xEC = Ground_801C3FA4(arg0, 20);
     gp->gv.icemt2.xF0 = Ground_801C3FA4(arg0, 21);
     gp->gv.icemt2.xF4 = Ground_801C3FA4(arg0, 22);
-    ((UnkFlagStruct*) ((u8*) gp + 0xC4))->b0 = 0;
-    *(u32*) &joint_indices[0] = grIm_804DB598;
-    *(u32*) &joint_indices[2] = grIm_804DB59C;
-    grIceMt_801F8CDC(arg0, joint_indices, 4, &gp->gv.icemt.xF8[0]);
-    r1 = grIceMt_801FA500_2(arg0, jobj2);
-    r2 = grIceMt_801FA500_2(arg0, jobj);
-    grIceMt_801F91EC(arg0, (s16*) &gp->gv.icemt.xF8[4], r2, r1, 0x75, 0x109,
-                     0x27e, (mpLib_Callback) fn_801F9558);
     // gp->gv.icemt.xD8 = 1;
 }
 
@@ -914,7 +859,6 @@ void grIceMt_801F8608(Ground_GObj* gobj)
 void grIceMt_801F865C(Ground_GObj* arg0)
 {
     Ground* gp = GET_GROUND(arg0);
-    grIm_JointArr5 joint_indices;
     HSD_JObj* jobj;
     HSD_JObj* jobj2;
     // Ground_801C0498();
@@ -935,9 +879,6 @@ void grIceMt_801F865C(Ground_GObj* arg0)
     gp->gv.icemt2.xEC = Ground_801C3FA4(arg0, 19);
     gp->gv.icemt2.xF0 = Ground_801C3FA4(arg0, 20);
     gp->gv.icemt2.xF4 = Ground_801C3FA4(arg0, 21);
-    ((UnkFlagStruct*) &gp->gv.icemt2.xC4)->b0 = 0;
-    joint_indices = grIm_803B825C;
-    grIceMt_801F8CDC(arg0, joint_indices.v, 5, gp->gv.icemt.xF8);
     // gp->gv.icemt.xD8 = 1;
 }
 
@@ -972,12 +913,14 @@ void grIceMt_801F87FC(Ground_GObj* gobj)
 void grIceMt_801F8850(Ground_GObj* arg0)
 {
     Ground* gp = GET_GROUND(arg0);
-    s16 joint_indices[4];
     HSD_JObj* jobj;
     HSD_JObj* jobj2;
+    // Ground_801C0498();
     Ground_801C2ED0(arg0->hsd_obj, gp->map_id);
     grAnime_801C8138(arg0, gp->map_id, 0);
     grAnime_801C77FC(arg0, 0, 7);
+    // jobj = Ground_801C3FA4(arg0,7);
+    // jobj2 = Ground_801C3FA4(arg0,5);
     gp->gv.icemt2.xC8 = Ground_801C3FA4(arg0, 5);
     gp->gv.icemt2.xCC = Ground_801C3FA4(arg0, 6);
     gp->gv.icemt2.xD0 = Ground_801C3FA4(arg0, 7);
@@ -990,10 +933,6 @@ void grIceMt_801F8850(Ground_GObj* arg0)
     gp->gv.icemt2.xEC = Ground_801C3FA4(arg0, 18);
     gp->gv.icemt2.xF0 = Ground_801C3FA4(arg0, 19);
     gp->gv.icemt2.xF4 = Ground_801C3FA4(arg0, 20);
-    ((UnkFlagStruct*) ((u8*) gp + 0xC4))->b0 = 0;
-    *(u32*) &joint_indices[0] = grIm_804DB5A0;
-    *(u32*) &joint_indices[2] = grIm_804DB5A4;
-    grIceMt_801F8CDC(arg0, joint_indices, 4, &gp->gv.icemt.xF8[0]);
     // gp->gv.icemt.xD8 = 1;
 }
 
@@ -1125,88 +1064,8 @@ void grIceMt_801F8CDC(Ground_GObj* gobj, s16* joint_indices, int count,
 }
 
 /// #fn_801F8E58
-s32 fn_801F8E58(Ground_GObj* gobj, s32* out_delay)
-{
-    Ground* gp;
-    s16* slots;
-    s32 candidates[12];
-    s32* dst = candidates;
-    s32 num_candidates = 0;
-    s32 i;
-    s32 j;
-    s32 chosen;
-    s16 lo;
-    s16 hi;
-    s16 result;
 
-    gp = gobj->user_data;
-    slots = (s16*) &gp->gv.icemt.xDC;
-
-    for (i = 0; i < 12; i++) {
-        if (slots[i] == 0 && (Stage_80225194() != 0xD4 || i >= 4)) {
-            *dst++ = i;
-            num_candidates++;
-        }
-    }
-    if (num_candidates == 0) {
-        __assert("gricemt.c", 0x81D, "max");
-    }
-    chosen = candidates[num_candidates != 0 ? HSD_Randi(num_candidates) : 0];
-
-    for (i = 0; i < 2; i++) {
-        for (j = 0; j < 6; j++) {
-            if (slots[i * 6 + j] > 0) {
-                slots[i * 6 + j]--;
-            }
-        }
-    }
-
-    slots[chosen] = ((s16*) grIm_804D69F4)[1];
-    hi = ((s16*) grIm_804D69F4)[0x36 / 2];
-    lo = ((s16*) grIm_804D69F4)[0x38 / 2];
-    if (hi > lo) {
-        result = lo + (hi - lo != 0 ? HSD_Randi(hi - lo) : 0);
-    } else if (hi < lo) {
-        result = hi + (lo - hi != 0 ? HSD_Randi(lo - hi) : 0);
-    } else {
-        result = hi;
-    }
-    *out_delay = result;
-    return chosen;
-}
-
-s32 fn_801F9038(Ground_GObj* arg0)
-{
-    Ground* gp = arg0->user_data;
-    s32 idx;
-    IceMtRowData* row;
-    int i;
-    PAD_STACK(8);
-
-    do {
-        idx = HSD_Randi(6);
-        if (gp->gv.icemt.xF4[idx] != 0) {
-            continue;
-        }
-        row = &grIm_803E4068[idx];
-        if (gp->gv.icemt.xC4 == row->id) {
-            continue;
-        }
-        if (gp->gv.icemt.xC6 == row->id) {
-            continue;
-        }
-        break;
-    } while (1);
-
-    for (i = 0; i < 6; i++) {
-        if (gp->gv.icemt.xF4[i] > 0) {
-            gp->gv.icemt.xF4[i]--;
-        }
-    }
-
-    gp->gv.icemt.xF4[idx] = *(s16*) grIm_804D69F4;
-    return row->id;
-}
+/// #fn_801F9038
 
 IceMountainParams* fn_801F9150(HSD_GObj* arg0)
 {
@@ -1276,25 +1135,9 @@ void grIceMt_801F929C(HSD_GObj* arg0, void* arg1)
 void fn_801F9338(Ground* gp, int arg1, CollData* arg2, s32 arg3,
                  mpLib_GroundEnum arg4, float arg8)
 {
-    HSD_GObj* gobj;
-    s16* p = (s16*) ((u8*) gp + 0x100);
-    u8 pad[8];
-
-    if ((s32) arg2->x34_flags.b1234 == 1) {
-        if (p[0] == 0) {
-            gobj = Ground_801C2BA4(2);
-            p[0] = 1;
-            p[1] = 0;
-            grAnime_801C7A04(gobj, p[2], 7, grIm_804DB5B4);
-            grAnime_801C7B24(gobj, p[2], 7, grIm_804DB574);
-            grAnime_801C78FC(gobj, p[2], 7);
-            if (p[3] != -1) {
-                grAnime_801C7A04(gobj, p[3], 7, grIm_804DB5B4);
-                grAnime_801C7B24(gobj, p[3], 7, grIm_804DB574);
-                grAnime_801C78FC(gobj, p[3], 7);
-            }
-        }
-    }
+    // mpLib_80057BC0(2);
+    // mpJointListAdd(2);
+    // grAnime_801C83D0(arg0,2,7);
     grIceMt_801FA7F0(gp, arg1, arg2, arg3, arg4, arg8);
 }
 
@@ -1302,25 +1145,9 @@ void fn_801F9338(Ground* gp, int arg1, CollData* arg2, s32 arg3,
 void fn_801F9448(Ground* gp, int arg1, CollData* arg2, s32 arg3,
                  mpLib_GroundEnum arg4, float arg8)
 {
-    HSD_GObj* gobj;
-    s16* p = (s16*) ((u8*) gp + 0x10E);
-    u8 pad[8];
-
-    if ((s32) arg2->x34_flags.b1234 == 1) {
-        if (p[0] == 0) {
-            gobj = Ground_801C2BA4(2);
-            p[0] = 1;
-            p[1] = 0;
-            grAnime_801C7A04(gobj, p[2], 7, grIm_804DB5B4);
-            grAnime_801C7B24(gobj, p[2], 7, grIm_804DB574);
-            grAnime_801C78FC(gobj, p[2], 7);
-            if (p[3] != -1) {
-                grAnime_801C7A04(gobj, p[3], 7, grIm_804DB5B4);
-                grAnime_801C7B24(gobj, p[3], 7, grIm_804DB574);
-                grAnime_801C78FC(gobj, p[3], 7);
-            }
-        }
-    }
+    // mpLib_80057BC0(2);
+    // mpJointListAdd(2);
+    // grAnime_801C83D0(arg0,2,7);
     grIceMt_801FA7F0(gp, arg1, arg2, arg3, arg4, arg8);
 }
 
@@ -1328,25 +1155,9 @@ void fn_801F9448(Ground* gp, int arg1, CollData* arg2, s32 arg3,
 void fn_801F9558(Ground* gp, int arg1, CollData* arg2, s32 arg3,
                  mpLib_GroundEnum arg4, float arg8)
 {
-    HSD_GObj* gobj;
-    s16* p = (s16*) ((u8*) gp + 0x108);
-    u8 pad[8];
-
-    if ((s32) arg2->x34_flags.b1234 == 1) {
-        if (p[0] == 0) {
-            gobj = Ground_801C2BA4(4);
-            p[0] = 1;
-            p[1] = 0;
-            grAnime_801C7A04(gobj, p[2], 7, grIm_804DB5B4);
-            grAnime_801C7B24(gobj, p[2], 7, grIm_804DB574);
-            grAnime_801C78FC(gobj, p[2], 7);
-            if (p[3] != -1) {
-                grAnime_801C7A04(gobj, p[3], 7, grIm_804DB5B4);
-                grAnime_801C7B24(gobj, p[3], 7, grIm_804DB574);
-                grAnime_801C78FC(gobj, p[3], 7);
-            }
-        }
-    }
+    // mpLib_80057BC0(2);
+    // mpJointListAdd(2);
+    // grAnime_801C83D0(arg0,2,7);
     grIceMt_801FA7F0(gp, arg1, arg2, arg3, arg4, arg8);
 }
 
@@ -1421,37 +1232,10 @@ void grIceMt_801F98A8(Ground_GObj* param1)
     }
 }
 
-f32 grIceMt_801F993C(s32 arg0, s32 arg1)
-{
-    f32 y;
-    u32 i;
-    u32 j;
+/// #grIceMt_801F993C
 
-    y = Ground_801C0498();
-
-    for (i = 0; i < ICEMT_FIELD_MAX; i++) {
-        if (arg0 == grIm_803E4068[i].id) {
-            break;
-        }
-    }
-    if (i >= ICEMT_FIELD_MAX) {
-        __assert("gricemt.c", 0xA9D, "<ICEMT_FIELD_MAX>");
-    }
-
-    for (j = 0; j < ICEMT_FIELD_MAX; j++) {
-        if (arg1 == grIm_803E4068[j].id) {
-            break;
-        }
-    }
-    if (j >= ICEMT_FIELD_MAX) {
-        __assert("gricemt.c", 0xAA2, "<ICEMT_FIELD_MAX>");
-    }
-
-    return -((y * grIm_803E4068[i].x8) -
-             ((y * grIm_803E4068[j].x4) + grIm_804D69F4->x40));
-}
-
-void grIceMt_801F9ACC(Ground_GObj* gobj, float y, HSD_GObjEvent ev, Ground_GObj* arg3)
+void grIceMt_801F9ACC(Ground_GObj* gobj, float y, HSD_GObjEvent ev,
+                      Ground_GObj* arg3)
 {
     HSD_GObj* jobj;
     double dVar3;
@@ -1473,72 +1257,7 @@ void grIceMt_801F9ACC(Ground_GObj* gobj, float y, HSD_GObjEvent ev, Ground_GObj*
     grIceMt_801FA854();
 }
 
-void grIceMt_801FA0BC(s16* arg)
-{
-    HSD_GObj* gobj;
-    HSD_JObj* jobj;
-    Ground* gp;
-    HSD_JObj** ptrs;
-    f32 y;
-    PAD_STACK(0x18);
-
-    y = grIceMt_801F993C(arg[0], arg[1]);
-
-    if (arg[0] != -1) {
-        gobj = grIceMt_801F71E8(arg[0]);
-        if (gobj == NULL) {
-            __assert("gricemt.c", 0xB44, "mgobj");
-        }
-        jobj = gobj->hsd_obj;
-        if (jobj == NULL) {
-            __assert("gricemt.c", 0xB46, "jobj");
-        }
-        y += grIm_804DB570 * Ground_801C0498();
-        HSD_JObjSetTranslateY(jobj, y);
-        Ground_801C3214(arg[0]);
-        Ground_801C2FE0(gobj);
-        Ground_801C32AC(arg[0]);
-    }
-
-    if (arg[1] != -1) {
-        gobj = grIceMt_801F71E8(arg[1]);
-        if (gobj == NULL) {
-            __assert("gricemt.c", 0xB50, "mgobj");
-        }
-        jobj = gobj->hsd_obj;
-        if (jobj == NULL) {
-            __assert("gricemt.c", 0xB52, "jobj");
-        }
-        HSD_JObjSetTranslateY(jobj, grIm_804DB570 * Ground_801C0498());
-        Ground_801C3214(arg[1]);
-        Ground_801C2FE0(gobj);
-        Ground_801C32AC(arg[1]);
-
-        gp = gobj->user_data;
-        ((UnkFlagStruct*) &gp->gv.icemt2.xC4)->b0 = 1;
-        ((UnkFlagStruct*) &gp->gv.icemt2.xC4)->b1 = 1;
-
-        gp = gobj->user_data;
-        ptrs = &gp->gv.icemt2.xC8;
-        if (((UnkFlagStruct*) &gp->gv.icemt2.xC4)->b1) {
-            ((UnkFlagStruct*) &gp->gv.icemt2.xC4)->b1 = 0;
-            if (ptrs[0]) {
-                Ground_801C2D0C(0, ptrs[0]);
-            }
-            if (ptrs[1]) {
-                Ground_801C2D0C(1, ptrs[1]);
-            }
-            if (ptrs[2]) {
-                Ground_801C2D0C(2, ptrs[2]);
-            }
-            if (ptrs[3]) {
-                Ground_801C2D0C(3, ptrs[3]);
-            }
-        }
-    }
-
-    grIceMt_801FA854();
-}
+/// #grIceMt_801FA0BC
 
 typedef struct grIceMt_FA364_State {
     /* 0x0 */ s16 phase;
@@ -1554,7 +1273,7 @@ bool grIceMt_801FA364(void* state_, f32* out, HSD_GObjEvent cb_,
                       Ground_GObj* gobj)
 {
     grIceMt_FA364_State* state = state_;
-    s32 (*cb)(HSD_GObj*, s32*) = (s32 (*)(HSD_GObj*, s32*)) cb_;
+    s32 (*cb)(HSD_GObj*, s32*) = (s32(*)(HSD_GObj*, s32*)) cb_;
     bool ret = true;
     f32 result;
     s32 next_delay;
@@ -1576,8 +1295,7 @@ bool grIceMt_801FA364(void* state_, f32* out, HSD_GObjEvent cb_,
         tmp = state->lerp_count;
         if (tmp != 0) {
             state->cur +=
-                (((f32*) ((u8*) grIm_804D69F4 + 4))[state->idx] -
-                 state->cur) /
+                (((f32*) ((u8*) grIm_804D69F4 + 4))[state->idx] - state->cur) /
                 (f32) tmp;
             ret = false;
         } else {
@@ -1688,18 +1406,9 @@ void grIceMt_801FA728(Vec3* arg0)
 void grIceMt_801FA7F0(Ground* gp, s32 arg1, CollData* arg2, s32 arg3,
                       mpLib_GroundEnum arg4, float arg8)
 {
-    HSD_GObj* gobj;
-    Ground* gp2;
-    float dummy = arg8;
-
-    if (Ground_801C57A4() == arg2->x0_gobj) {
-        gobj = Ground_801C2BA4(0xA);
-        if (gobj != NULL) {
-            gp2 = gobj->user_data;
-            if (gp2 != NULL) {
-                ((UnkFlagStruct*) &gp2->gv.icemt.xD8)->b4 = 1;
-            }
-        }
+    HSD_GObj* playerGObj = Ground_801C57A4();
+    if ((Ground_801C2BA4(10)) && (playerGObj->user_data))
+    { // && playerGObj->userdata) {
     }
 }
 
@@ -1739,8 +1448,3 @@ bool grIceMt_801FA900(Vec3* a, int id, HSD_JObj* jobj)
 {
     return true;
 }
-
-const float grIm_804DB574 = 0.0F;
-const float grIm_804DB5B0 = -1.0F;
-const float grIm_804DB5B4 = 1.0F;
-const float grIm_804DB5B8 = 6.0F;

@@ -6,10 +6,11 @@
 #include <melee/ft/forward.h>
 #include <melee/it/forward.h>
 
-/* 0B4AB0 */ int ftCo_800B4AB0(Fighter* fp, Fighter* target, void* attack_table);
-/* 0B52AC */ int ftCo_800B52AC(Fighter* fp, Fighter* target, void* attack_table,
-                                float weapon_reach);
-/* 0B5AB0 */ int ftCo_800B5AB0(Fighter* fp, void* attack_table);
+struct ftCo_AttackEntry;
+
+/* 0B4AB0 */ UNK_RET ftCo_800B4AB0(UNK_PARAMS);
+/* 0B52AC */ UNK_RET ftCo_800B52AC(UNK_PARAMS);
+/* 0B5AB0 */ UNK_RET ftCo_800B5AB0(UNK_PARAMS);
 /* 0B6208 */ int ftCo_800B6208(struct ftCo_AttackEntry*);
 /* 0B630C */ bool ftCo_800B630C(Fighter*);
 /* 0B63D8 */ void ftCo_800B63D8(Fighter*);
