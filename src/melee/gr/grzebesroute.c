@@ -27,6 +27,24 @@ StageCallbacks grZe_Route_803E5DB0[] = {
     { NULL, NULL, NULL, NULL, 0 },
 };
 
+static char grZe_Route_803E5E00[] = "/GrNZr.dat";
+
+StageData grZe_Route_803E5E0C = {
+    ZEBESROUTE,
+    grZe_Route_803E5DB0,
+    grZe_Route_803E5E00,
+    grZebesRoute_8020B164,
+    (void (*)(int)) grZebesRoute_8020B160,
+    grZebesRoute_8020B1D4,
+    grZebesRoute_8020B1F4,
+    grZebesRoute_8020B258,
+    grZebesRoute_8020B854,
+    grZebesRoute_8020B85C,
+    (1 << 0),
+    NULL,
+    0,
+};
+
 static struct {
     int x0;
     int x4;
