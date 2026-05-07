@@ -100,6 +100,9 @@ StageData grOp_803E6748 = {
     0,
 };
 
+static char grOp_803E677C[] = "%s:%d: couldn t get gobj(id=%d)\n";
+static char grOp_803E67A0[] = "groldpupupu.c";
+
 static grOldPupupuSpawnDesc grOp_803E67B0[10] = {
     { -1, 1, 1 },
     { 1, 1, 3 },
@@ -169,8 +172,7 @@ HSD_GObj* grOldPupupu_802108B4(int arg0)
     if (gobj != NULL) {
         Ground_SetupStageCallbacks(gobj, callbacks);
     } else {
-        OSReport("%s:%d: couldn t get gobj(id=%d)\n", "groldpupupu.c", 0xD9,
-                 arg0);
+        OSReport(grOp_803E677C, grOp_803E67A0, 0xD9, arg0);
     }
 
     return gobj;
